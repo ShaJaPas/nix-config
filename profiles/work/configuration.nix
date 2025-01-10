@@ -63,6 +63,7 @@
   # User account
   users.users.${userSettings.username} = {
     isNormalUser = true;
+    initialPassword = "root";
     description = userSettings.name;
     extraGroups = [ "networkmanager" "wheel" ];
     packages = [];
