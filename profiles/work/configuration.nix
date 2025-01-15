@@ -54,6 +54,7 @@
       device = systemSettings.grubDevice;
       extraEntriesBeforeNixOS = false;
       copyKernels = true;
+      useOSProber = true;
     };
   };
 
