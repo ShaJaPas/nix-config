@@ -169,6 +169,7 @@ in
         hide-zeros = false;
         hot-sensors = [
           "_processor_usage_"
+          "_processor_frequency_"
           "__network-rx_max__"
           "_memory_usage_"
         ];
