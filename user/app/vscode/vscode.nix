@@ -28,6 +28,7 @@
       "editor.fontFamily" = "JetBrains Mono";
       "terminal.integrated.fontFamily" = "monospace";
       "window.zoomLevel" = 1;
+      "terminal.integrated.defaultProfile.linux" = "fish";
     };
     extensions = with pkgs.vscode-extensions; [
       twxs.cmake
