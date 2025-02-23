@@ -2,7 +2,6 @@
 {
   programs.vscode = {
     enable = true;
-    enableUpdateCheck = false;
     package = pkgs.vscode.fhsWithPackages (
       ps: with ps; [
         rustup
@@ -21,27 +20,39 @@
         fftwFloat.dev
       ]
     );
-    userSettings = {
-      "files.autoSave" = "off";
-      "workbench.iconTheme" = "icons";
-      "editor.fontLigatures" = false;
-      "editor.fontFamily" = "JetBrains Mono";
-      "terminal.integrated.fontFamily" = "monospace";
-      "window.zoomLevel" = 1;
-      "terminal.integrated.defaultProfile.linux" = "fish";
+    profiles.default = {
+      enableUpdateCheck = false;
+      userSettings = {
+        "files.autoSave" = "off";
+        "workbench.iconTheme" = "icons";
+        "editor.fontLigatures" = false;
+        "editor.fontFamily" = "JetBrains Mono";
+        "terminal.integrated.fontFamily" = "monospace";
+        "window.zoomLevel" = 1;
+        "terminal.integrated.defaultProfile.linux" = "fish";
+      };
+      extensions =
+        with pkgs.vscode-extensions;
+        [
+          twxs.cmake
+          adpyke.codesnap
+          tamasfe.even-better-toml
+          ms-azuretools.vscode-docker
+          golang.go
+          tal7aouy.icons
+          bbenoist.nix
+          zxh404.vscode-proto3
+          ms-python.python
+          fill-labs.dependi
+        ]
+        ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
+          {
+            name = "rust-analyzer";
+            publisher = "rust-lang";
+            version = "0.4.2315";
+            sha256 = "sha256-Dd5vBF8BoU1WjiiVNM3dWE1WfYtaYz4dl26Lxn8LRHA=";
+          }
+        ];
     };
-    extensions = with pkgs.vscode-extensions; [
-      twxs.cmake
-      rust-lang.rust-analyzer
-      adpyke.codesnap
-      tamasfe.even-better-toml
-      ms-azuretools.vscode-docker
-      golang.go
-      tal7aouy.icons
-      bbenoist.nix
-      zxh404.vscode-proto3
-      ms-python.python
-      fill-labs.dependi
-    ];
   };
 }
