@@ -25,7 +25,6 @@
     (./. + "../../../user/app/browser" + ("/" + userSettings.browser) + ".nix") # My default browser selected from flake
     ../../user/app/virtualization/virtualization.nix # Virtual machines
     ../../user/dev/cc.nix # C stuff
-    ../../user/dev/android.nix # Android stuff
     ../../user/dev/python.nix # Python stuff
   ];
 

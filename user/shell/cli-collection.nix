@@ -17,17 +17,18 @@
     patchelf
     lsof
     bind
-	  nix-search-cli
-	
+    nix-search-cli
+
     # rust
     cargo
+    rustfmt
+    dioxus-cli
     cargo-expand
     cargo-flamegraph
     cargo-llvm-cov
     cargo-msrv
     cargo-sort
     cargo-watch
-    dioxus-cli
     rust-bindgen
   ];
 

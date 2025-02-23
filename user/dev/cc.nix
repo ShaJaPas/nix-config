@@ -8,5 +8,10 @@
     gnumake
     ninja
     meson
+    autoconf
+    automake
+    autogen
+    libtool
+    gnum4
   ];
 }
