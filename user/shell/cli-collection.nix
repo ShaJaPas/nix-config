@@ -18,6 +18,7 @@
     lsof
     bind
     nix-search-cli
+    unzip zip
 
     # rust
     cargo
