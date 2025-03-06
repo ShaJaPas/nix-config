@@ -120,6 +120,7 @@
     ]
   );
 
+  programs.java.enable = true;
   xdg.enable = true;
   xdg.userDirs = {
     enable = true;
