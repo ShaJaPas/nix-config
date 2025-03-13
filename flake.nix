@@ -18,9 +18,9 @@
 
       # ----- USER SETTINGS ----- #
       workSettings = rec {
-        username = "*"; # username
-        name = "*"; # name/identifier
-        email = "*"; # email (used for certain configurations)
+        username = "***"; # username
+        name = "***"; # name/identifier
+        email = "***"; # email (used for certain configurations)
         # window manager type (hyprland or x11) translator
         browser = "yandex-browser"; # Default browser; must select one from ./user/app/browser/
         term = "ghostty"; # Default terminal command;
@@ -41,10 +41,9 @@
             );
       };
       personalSettings = rec {
-        username = "*"; # username
-        name = "*"; # name/identifier
-        email = "*"; # email (used for certain configurations)
-        # window manager type (hyprland or x11) translator
+        username = "***"; # username
+        name = "***"; # name/identifier
+        email = "***"; # email (used for certain configurations)        # window manager type (hyprland or x11) translator
         browser = "yandex-browser"; # Default browser; must select one from ./user/app/browser/
         term = "ghostty"; # Default terminal command;
         editor = "code"; # Default editor;
@@ -68,6 +67,7 @@
         system = systemSettings.system;
         config = {
           allowUnfree = true;
+          android_sdk.accept_license = true;
           allowUnfreePredicate = (_: true);
         };
         overlays = [
@@ -93,6 +93,7 @@
         system = systemSettings.system;
         config = {
           allowUnfree = true;
+          android_sdk.accept_license = true;
           allowUnfreePredicate = (_: true);
         };
       };
