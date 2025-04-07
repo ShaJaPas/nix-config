@@ -17,6 +17,7 @@
   imports = [
     (./. + "../../../user/wm" + ("/" + systemSettings.wm + "/" + systemSettings.wm) + ".nix") # My window manager selected from flake
     ../../user/shell/sh.nix # My fish and bash config
+    ../../user/shell/wezterm/wezterm.nix # My terminal config
     ../../user/shell/ssh.nix # ssh config
     ../../user/shell/cli-collection.nix # Useful CLI apps
     ../../user/shell/starship.nix # Starship config
@@ -35,8 +36,8 @@
     [
       # Core
       fish
+      wezterm
       starship
-      ghostty
       git
 
       gnome-tweaks

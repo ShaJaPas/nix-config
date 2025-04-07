@@ -66,7 +66,7 @@ in
         disable-user-extensions = false; # enables user extensions
         favorite-apps = [
           "org.gnome.Nautilus.desktop"
-          "com.mitchellh.ghostty.desktop"
+          "org.wezfurlong.wezterm.desktop"
           "code.desktop"
           "yandex-browser.desktop"
           "yandex-music.desktop"

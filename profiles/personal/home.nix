@@ -23,7 +23,6 @@
     # Core
     fish
     starship
-    ghostty
     git
 
     # Other
