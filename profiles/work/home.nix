@@ -46,7 +46,6 @@
       audio-recorder
       kooha
       libreoffice-fresh
-      stacer
       evince
       telegram-desktop
       htop
