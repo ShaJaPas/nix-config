@@ -22,6 +22,7 @@
   home.packages = with pkgs; [
     # Core
     fish
+    wezterm
     starship
     git
 

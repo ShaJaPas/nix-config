@@ -46,9 +46,9 @@ config.enable_scroll_bar = true
 config.min_scroll_bar_height = "4cell"
 config.enable_wayland = false
 config.window_padding = {
-    left = 2,
+    left = 4,
     right = 13,
-    top = 0,
-    bottom = 0,
+    top = 2,
+    bottom = 4,
 }
 return config
