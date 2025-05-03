@@ -50,6 +50,7 @@
       telegram-desktop
       htop
       nekoray
+      code-cursor
       # TODO: разобрать конфиг ниже
       # Office
       /*

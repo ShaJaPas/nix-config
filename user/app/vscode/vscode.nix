@@ -44,14 +44,7 @@
           zxh404.vscode-proto3
           ms-python.python
           fill-labs.dependi
-        ]
-        ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
-          {
-            name = "rust-analyzer";
-            publisher = "rust-lang";
-            version = "0.4.2315";
-            sha256 = "sha256-Dd5vBF8BoU1WjiiVNM3dWE1WfYtaYz4dl26Lxn8LRHA=";
-          }
+          rust-lang.rust-analyzer
         ];
     };
   };
