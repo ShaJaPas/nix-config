@@ -45,6 +45,7 @@
           ms-python.python
           fill-labs.dependi
           rust-lang.rust-analyzer
+          bierner.markdown-mermaid
         ];
     };
   };
