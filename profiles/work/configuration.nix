@@ -130,6 +130,7 @@
   hardware.enableAllFirmware = true;
   networking.firewall.enable = false;
   services.spice-vdagentd.enable = true;
+  programs.nix-ld.enable = true;
 
   environment.shells = with pkgs; [ fish ];
   users.defaultUserShell = pkgs.fish;
