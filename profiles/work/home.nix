@@ -23,6 +23,7 @@
     ../../user/shell/starship.nix # Starship config
     ../../user/app/git/git.nix # My git config
     ../../user/app/vscode/vscode.nix # My vscode config
+    ../../user/app/obs-studio/obs.nix # My obs config
     (./. + "../../../user/app/browser" + ("/" + userSettings.browser) + ".nix") # My default browser selected from flake
     ../../user/app/virtualization/virtualization.nix # Virtual machines
     ../../user/dev/cc.nix # C stuff
