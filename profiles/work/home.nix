@@ -51,73 +51,9 @@
       htop
       nekoray
       code-cursor
-      # TODO: разобрать конфиг ниже
-      # Office
-      /*
-        nextcloud-client
-        mate.atril
-        openboard
-        xournalpp
-        gnome.adwaita-icon-theme
-        shared-mime-info
-        glib
-        newsflash
-        foliate
-        gnome.nautilus
-        gnome.gnome-calendar
-        gnome.seahorse
-        gnome.gnome-maps
-        openvpn
-        protonmail-bridge
-        texliveSmall
-        numbat
-        element-desktop-wayland
-
-        openai-whisper-cpp
-
-        wine
-        bottles
-
-        # Media
-        gimp
-        krita
-        pinta
-        inkscape
-        vlc
-        mpv
-        yt-dlp
-        blender-hip
-        libresprite
-        (pkgs.appimageTools.wrapType2 {
-          name = "Cura";
-          src = fetchurl {
-            url = "https://github.com/Ultimaker/Cura/releases/download/5.8.1/UltiMaker-Cura-5.8.1-linux-X64.AppImage";
-            hash = "sha256-VLd+V00LhRZYplZbKkEp4DXsqAhA9WLQhF933QAZRX0=";
-          };
-          extraPkgs = pkgs: with pkgs; [];
-         })
-
-        obs-studio
-        ffmpeg
-
-        movit
-        mediainfo
-        libmediainfo
-        audio-recorder
-        gnome.cheese
-        ardour
-        rosegarden
-        tenacity
-
-        # Various dev packages
-        remmina
-        sshfs
-        texinfo
-        libffi zlib
-        nodePackages.ungit
-        ventoy
-        kdenlive
-      */
+      openssl
+      ffmpeg
+      pinta
     ]
   );
 
