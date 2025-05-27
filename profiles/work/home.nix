@@ -45,7 +45,6 @@
       wireshark
       bloomrpc
       audio-recorder
-      kooha
       libreoffice-fresh
       evince
       telegram-desktop
