@@ -45,7 +45,7 @@
       wireshark
       bloomrpc
       audio-recorder
-      libreoffice-fresh
+      onlyoffice-desktopeditors
       evince
       telegram-desktop
       htop
