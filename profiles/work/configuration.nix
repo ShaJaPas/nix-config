@@ -44,7 +44,10 @@
   nixpkgs.config.allowUnfree = true;
 
   # Kernel modules
-  boot.kernelModules = [ "cpufreq_powersave" "cpufreq_performance" ];
+  boot.kernelModules = [
+    "cpufreq_powersave"
+    "cpufreq_performance"
+  ];
   boot.kernelPackages = inputs.chaotic.legacyPackages.x86_64-linux.linuxPackages_cachyos;
 
   boot.kernel.sysctl = {
@@ -63,7 +66,7 @@
       enable = true;
 
       efiSupport = true;
-     # efiInstallAsRemovable = true; # Otherwise /boot/EFI/BOOT/BOOTX64.EFI isn't generated
+      # efiInstallAsRemovable = true; # Otherwise /boot/EFI/BOOT/BOOTX64.EFI isn't generated
       device = systemSettings.grubDevice;
       extraEntriesBeforeNixOS = false;
       copyKernels = false;

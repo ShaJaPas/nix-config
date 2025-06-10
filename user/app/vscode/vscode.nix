@@ -31,22 +31,20 @@
         "window.zoomLevel" = 1;
         "terminal.integrated.defaultProfile.linux" = "fish";
       };
-      extensions =
-        with pkgs.vscode-extensions;
-        [
-          twxs.cmake
-          adpyke.codesnap
-          tamasfe.even-better-toml
-          ms-azuretools.vscode-docker
-          golang.go
-          tal7aouy.icons
-          bbenoist.nix
-          zxh404.vscode-proto3
-          ms-python.python
-          fill-labs.dependi
-          rust-lang.rust-analyzer
-          bierner.markdown-mermaid
-        ];
+      extensions = with pkgs.vscode-extensions; [
+        twxs.cmake
+        adpyke.codesnap
+        tamasfe.even-better-toml
+        ms-azuretools.vscode-docker
+        golang.go
+        tal7aouy.icons
+        bbenoist.nix
+        zxh404.vscode-proto3
+        ms-python.python
+        fill-labs.dependi
+        rust-lang.rust-analyzer
+        bierner.markdown-mermaid
+      ];
     };
   };
 }
