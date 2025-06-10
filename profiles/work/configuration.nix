@@ -44,9 +44,13 @@
   nixpkgs.config.allowUnfree = true;
 
   # Kernel modules
-  boot.kernelModules = [ "cpufreq_powersave" ];
+  boot.kernelModules = [ "cpufreq_powersave" "cpufreq_performance" ];
   boot.kernelPackages = inputs.chaotic.legacyPackages.x86_64-linux.linuxPackages_cachyos;
 
+  boot.kernel.sysctl = {
+    "net.core.default_qdisc" = "fq";
+    "net.ipv4.tcp_congestion_control" = "bbr";
+  };
   # Bootloader
   boot.loader = {
     timeout = 5;
