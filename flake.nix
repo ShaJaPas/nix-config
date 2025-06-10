@@ -156,7 +156,13 @@
 
     nixpkgs.url = "nixpkgs/nixos-unstable";
     nixpkgs-stable.url = "nixpkgs/nixos-24.11";
-
+    chaotic = {
+      url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
+      inputs.fenix.follows = "";
+      inputs.home-manager.follows = "";
+      inputs.flake-schemas.follows = "";
+      inputs.jovian.follows = "";
+    };
     #yandex-browser.url = "github:Teu5us/nix-yandex-browser";
     #yandex-browser.inputs.nixpkgs.follows = "nixpkgs";
 

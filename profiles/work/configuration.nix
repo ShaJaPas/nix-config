@@ -8,6 +8,7 @@
   systemSettings,
   workSettings,
   personalSettings,
+  inputs,
   ...
 }:
 {
@@ -48,6 +49,8 @@
 
   # Kernel modules
   boot.kernelModules = [ "cpufreq_powersave" ];
+  boot.kernelPackages = inputs.chaotic.legacyPackages.x86_64-linux.linuxPackages_cachyos;
+
   # Bootloader
   boot.loader = {
     timeout = 5;
@@ -60,12 +63,11 @@
       enable = true;
 
       efiSupport = true;
-      #useOSProber = true;
-      efiInstallAsRemovable = true; # Otherwise /boot/EFI/BOOT/BOOTX64.EFI isn't generated
+     # efiInstallAsRemovable = true; # Otherwise /boot/EFI/BOOT/BOOTX64.EFI isn't generated
       device = systemSettings.grubDevice;
       extraEntriesBeforeNixOS = false;
       copyKernels = true;
-      useOSProber = true;
+      useOSProber = false;
     };
   };
 
