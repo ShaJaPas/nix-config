@@ -15,7 +15,7 @@
     ];
   };
   home.packages = [ pkgs.obs-cli ];
-  systemd.user.services.obs-autostart = {
+  /*systemd.user.services.obs-autostart = {
     Unit = {
       Description = "Autostart OBS minimized to tray";
       After = [ "graphical-session-pre.target" ];
@@ -28,5 +28,5 @@
     Install = {
       WantedBy = [ "graphical-session.target" ];
     };
-  };
+  };*/
 }
