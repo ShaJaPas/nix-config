@@ -100,6 +100,7 @@
       "wheel"
       "docker"
       "audio"
+      "gamemode"
     ];
     packages = [ ];
   };
@@ -112,6 +113,7 @@
       "wheel"
       "docker"
       "audio"
+      "gamemode"
     ];
     packages = [ ];
   };
@@ -139,6 +141,8 @@
   programs.fish.enable = true;
 
   fonts.fontDir.enable = true;
+
+  programs.gamemode.enable = true;
 
   xdg.portal = {
     enable = true;

@@ -28,9 +28,8 @@
 
     # Other
     yandex-music
-    gamemode
     steam
-    # discord
+    discord
   ];
 
   xdg.enable = true;
