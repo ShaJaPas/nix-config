@@ -44,10 +44,7 @@
   nixpkgs.config.allowUnfree = true;
 
   # Kernel modules
-  boot.kernelModules = [
-    "cpufreq_powersave"
-    "cpufreq_performance"
-  ];
+  boot.kernelModules = [ "cpufreq_powersave" ];
   boot.kernelPackages = inputs.chaotic.legacyPackages.x86_64-linux.linuxPackages_cachyos;
 
   boot.kernel.sysctl = {
