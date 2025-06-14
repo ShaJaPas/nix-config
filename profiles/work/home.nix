@@ -54,6 +54,7 @@
       openssl
       ffmpeg
       pinta
+      obsidian
     ]
   );
 
