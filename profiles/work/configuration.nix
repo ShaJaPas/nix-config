@@ -134,6 +134,7 @@
   hardware.enableAllFirmware = true;
   networking.firewall.enable = false;
   services.spice-vdagentd.enable = true;
+  virtualisation.spiceUSBRedirection.enable = true;
   programs.nix-ld.enable = true;
 
   environment.shells = with pkgs; [ fish ];
