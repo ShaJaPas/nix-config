@@ -1,0 +1,23 @@
+;; --- Variables ---
+(defvar wifi_auth_ssid "")
+(defvar wifi_auth_password "")
+(defvar wifi_auth_password_visible false)
+(defvar wifi_auth_failed false)
+
+;; --- Wifi Auth Dialog ---
+(defwidget wifi_auth_dialog []
+    (overlay
+        (box :class "auth-dialog-background")
+        (box :halign "center" :valign "center"
+            (box :class "auth-dialog-box" :orientation "v" :space-evenly false :spacing 20
+                (label :text "Authentication required" :class "auth-title" :halign "center")
+                (label :text "Password required to access wireless network “${wifi_auth_ssid}”" :class "auth-text" :halign "center" :wrap true)
+                (box :class "auth-input-box ${wifi_auth_failed ? "error" : ""}" :orientation "h" :space-evenly false
+                    (input :password {!wifi_auth_password_visible} :hexpand true :onchange "eww update wifi_auth_password='{}' wifi_auth_failed=false" :class "auth-input")
+                    (button :class "auth-input-visibility-btn" :onclick "eww update wifi_auth_password_visible=${!wifi_auth_password_visible}"
+                        (image :path {wifi_auth_password_visible ? "assets/privacy_passive.svg" : "assets/eye_passive.svg"} :image-width 16)))
+                (box :class "auth-buttons" :orientation "h" :space-evenly false :spacing 10 :halign "center"
+                    (button :class "auth-button-cancel" :onclick "eww update wifi_auth_failed=false && eww close wifi_auth_dialog" "Cancel")
+                    (button :class "auth-button-connect ${strlength(wifi_auth_password) < 8 ? "disabled" : ""}" 
+                            :onclick {strlength(wifi_auth_password) >= 8 ? "bash scripts/wifi connect '${wifi_auth_ssid}' '${wifi_auth_password}' &" : ""} 
+                            "Connect")))))) 

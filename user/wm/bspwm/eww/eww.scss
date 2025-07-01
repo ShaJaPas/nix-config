@@ -1,0 +1,92 @@
+@import "./scss/datemenu.scss";
+@import "./scss/toggle_button.scss";
+@import "./scss/quicksettings.scss";
+
+* {
+    all: unset;
+    font-family: "Adwaita", sans-serif;
+    font-size: 14px;
+}
+
+.bar_widget {
+    background-color: #000000;
+    background: linear-gradient(90deg, #2a002a, #5f003c, #942d41);
+    color: #e0e0e0;
+}
+
+.left-widget, .right-widget, .middle-widget {
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+.left-widget {
+    font-size: 20px;
+}
+
+.right-widget {
+    font-size: 14px;
+}
+
+.right-widget, .left-widget, .middle-widget {
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.sys-metrics,
+.kb-layout,
+.date-time,
+.system-tray-group {
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+.sys-metr,
+.date,
+.system-tray-gr {
+    padding: 0 5px;
+}
+.kb-lang {
+    padding: 0 3px;
+}
+
+.system-tray-group:hover,
+.sys-metrics:hover,
+.date-time:hover,
+.kb-layout:hover {
+    background-color: #444444;
+}
+.left-widget {
+    padding-left: 10px;
+}
+
+.workspace-button {
+  padding: 2px 5px;
+  min-height: 22px;
+  color: #888888; /* Dim color for unoccupied workspaces */
+  transition: all 0.3s ease;
+}
+
+/* Style for empty, but available workspaces */
+.workspace-empty {
+  font-size: 14px;
+}
+
+.workspace-button.occupied {
+  color: #e0e0e0; /* Bright color for occupied workspaces */
+}
+
+.workspace-button.active {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+.img-box.active {
+    padding-right: 4px;
+}
+
+.app-badge {
+  background-color: #e55e5e;
+  color: white;
+  font-size: 9px;
+  font-weight: bold;
+  border-radius: 4px;
+  padding: 0px 3px;
+  margin: -2px 0px 0 0;
+} 

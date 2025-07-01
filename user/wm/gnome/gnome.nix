@@ -16,6 +16,10 @@ in
       name = "Tela-ubuntu-dark";
       package = pkgs.tela-icon-theme;
     };
+    cursorTheme = {
+      name = "Adwaita";
+      package = pkgs.adwaita-icon-theme;
+    };
 
     gtk3.extraConfig = {
       Settings = ''

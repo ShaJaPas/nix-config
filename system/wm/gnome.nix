@@ -4,6 +4,10 @@
   # Import x11 config
   imports = [ ./x11.nix ];
 
+  services.xserver = {
+    displayManager.gdm.enable = true;
+    desktopManager.gnome.enable = true;
+  };
   environment.gnome.excludePackages = with pkgs; [
     baobab # disk usage analyzer
     cheese # photo booth

@@ -1,0 +1,11 @@
+#!/bin/bash
+MUTE=$(pamixer --get-mute)
+VOL=$(pamixer --get-volume)
+
+if [[ "$MUTE" == "true" ]]; then
+  STATUS="muted"
+else
+  STATUS="unmuted"
+fi
+
+jq -n --arg status "$STATUS" --argjson level "$VOL" '{"status":$status, "level":$level}' 

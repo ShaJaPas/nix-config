@@ -1,0 +1,135 @@
+#!/bin/bash
+
+# Function to get Wi-Fi status
+get_status() {
+    if [[ $(nmcli r wifi) == "enabled" ]]; then
+        echo "true"
+    else
+        echo "false"
+    fi
+}
+
+# Function to get the name of the connected Wi-Fi network
+get_ssid() {
+    nmcli -t -f NAME,TYPE connection show --active | grep -E ':(802-11-wireless|wifi)$' | head -n 1 | cut -d: -f1
+}
+
+# Function to toggle Wi-Fi on/off
+toggle() {
+    if [[ $(nmcli r wifi) == "enabled" ]]; then
+        nmcli r wifi off
+    else
+        nmcli r wifi on
+    fi
+}
+
+# Function to get a list of available Wi-Fi networks in JSON format
+list_networks() {
+    # Get the list of Wi-Fi networks, including the connected one
+    local networks=$(nmcli --terse --fields SSID,SIGNAL,SECURITY,ACTIVE dev wifi list --rescan yes | sort -t: -k2,2 -nr | head -n 10)
+    local connected_ssid=$(get_ssid)
+    local json_output="["
+    
+    # Use a while loop to process each line of the networks output
+    while IFS=: read -r ssid signal security active; do
+        # Skip empty SSIDs
+        if [[ -z "$ssid" ]]; then
+            continue
+        fi
+
+        # Determine if the network is the currently connected one
+        local is_active="false"
+        if [[ "$active" == "yes" ]] || [[ "$ssid" == "$connected_ssid" ]]; then
+            is_active="true"
+        fi
+
+        # Determine the signal strength icon
+        local signal_strength_icon=""
+        if [[ "$signal" -gt 75 ]]; then
+            signal_strength_icon="network-strong"
+        elif [[ "$signal" -gt 50 ]]; then
+            signal_strength_icon="network-ok"
+        else
+            signal_strength_icon="network-weak"
+        fi
+        
+        # Check if the network is password protected
+        local is_protected="false"
+        if [[ "$security" != "--" && "$security" != "open" ]]; then
+            is_protected="true"
+        fi
+
+        # Append the network info to the JSON output
+        if [[ "$json_output" != "[" ]]; then
+            json_output+=","
+        fi
+        json_output+=$(jq -c -n \
+            --arg ssid "$ssid" \
+            --argjson active "$is_active" \
+            --arg icon "$signal_strength_icon" \
+            --argjson protected "$is_protected" \
+            '{ssid: $ssid, active: $active, icon: $icon, protected: $protected}')
+            
+    done <<< "$networks"
+    
+    json_output+="]"
+    echo "$json_output"
+}
+
+listen_networks() {
+    while true; do
+        list_networks
+        sleep 5
+    done
+}
+
+connect_network() {
+    SSID="$1"
+    PASSWORD="$2"
+
+    # First, try to connect with the given password. This might fail if a
+    # conflicting connection profile with a wrong password already exists.
+    nmcli --wait 30 device wifi connect "$SSID" password "$PASSWORD" >/dev/null 2>&1
+
+    # If the first attempt fails, delete the old profile and try again.
+    # This handles cases where the saved password was wrong.
+    if [ $? -ne 0 ]; then
+        nmcli connection delete "$SSID" >/dev/null 2>&1
+        nmcli --wait 30 device wifi connect "$SSID" password "$PASSWORD" >/dev/null 2>&1
+    fi
+
+    if [ $? -eq 0 ]; then
+        # On success, reset error state and close dialog
+        eww  update wifi_auth_failed=false && eww close wifi_auth_dialog
+    else
+        # On failure, set error state
+        eww update wifi_auth_failed=true
+    fi
+}
+
+
+# Main logic to handle arguments
+case "$1" in
+    status)
+        get_status
+        ;;
+    ssid)
+        get_ssid
+        ;;
+    list)
+        list_networks
+        ;;
+    listen)
+        listen_networks
+        ;;
+    toggle)
+        toggle
+        ;;
+    connect)
+        connect_network "$2" "$3"
+        ;;
+    *)
+        echo "Usage: $0 {status|ssid|list|listen|toggle|connect}"
+        exit 1
+        ;;
+esac 

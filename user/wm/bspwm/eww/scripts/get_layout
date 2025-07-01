@@ -1,0 +1,30 @@
+#!/bin/bash
+# Universal keyboard layout script for X11/Wayland.
+# Prioritizes `xkblayout-state` for broader compatibility.
+
+# Function to get layout from available tools
+get_current_layout() {
+    if command -v xkblayout-state &> /dev/null; then
+        xkblayout-state print "%s"
+    elif command -v xkb-switch &> /dev/null; then
+        xkb-switch
+    else
+        echo "N/A"
+    fi
+}
+
+# Get raw layout name
+raw_layout=$(get_current_layout)
+
+# Convert to lowercase for consistent matching
+lower_layout=$(echo "$raw_layout" | tr '[:upper:]' '[:lower:]')
+
+# Map layout names to the desired format
+case "$lower_layout" in
+    us)
+        echo "en"
+        ;;
+    *)
+        echo "$lower_layout"
+        ;;
+esac 

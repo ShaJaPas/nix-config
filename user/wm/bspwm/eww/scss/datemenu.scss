@@ -1,0 +1,77 @@
+.datemenu-widget {
+  background-color: #1e1e2e;
+  color: #cdd6f4;
+  font-family: "Adwaita";
+  padding: 1.5rem;
+  border-radius: 1rem;
+}
+
+.datemenu-notif-bar {
+  background-color: #313244;
+  border-radius: 0.5rem;
+  margin-right: 1.5rem;
+  padding: 4rem 2rem;
+  .datemenu-notif-icon {
+    min-width: 5rem;
+    min-height: 5rem;
+  }
+  .datemenu-notif-text {
+    font-size: 1.2rem; 
+    margin-top: 2rem;
+    font-weight: bold;
+  }
+}
+
+.datemenu-dnd {
+  margin-top: 0.5rem;
+}
+
+calendar:selected {
+  color: rgb(185, 128, 47);
+  //background-color: #727fe3;
+  //border-radius: 50%;
+}
+
+calendar.highlight {
+  color: #9ba5be;
+}
+
+calendar:indeterminate {
+  color: #666565;
+}
+
+.dnt_text {
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #cbcbcb;
+}
+
+.datemenu-calendar-bar {
+  .datemenu-date {
+    font-size: 1.6rem;
+    font-weight: normal;
+    margin-left: 1rem;
+  }
+  .datemenu-day {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-left: 1rem;
+  }
+  .datemenu-calendar {
+    padding: 0.6rem;
+    padding-bottom: 2rem;
+    font-size: 0.9rem;
+    font-weight: bold;
+    calendar {
+      padding: 0.4rem;
+    }
+  }
+  .datemenu-events {
+    padding: 0.8rem;
+    background-color: #313244;
+    border-radius: 0.5rem;
+    label:first-child {
+      font-weight: bold;
+    } 
+  }
+}

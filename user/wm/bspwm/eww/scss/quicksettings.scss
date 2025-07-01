@@ -1,0 +1,284 @@
+// quicksettings.scss
+
+.qs-container {
+  background-color: #24273a;
+  color: #cad3f5;
+  border-radius: 12px;
+  padding: 16px;
+  font-family: "Adwaita", sans-serif;
+}
+
+.qs-header, .qs-sliders, .qs-toggles-grid {
+  margin-bottom: 10px;
+}
+
+// --- Header ---
+.qs-header {
+  margin-bottom: 10px;
+}
+
+.qs-battery {
+  font-size: 1.1em;
+  font-weight: bold;
+}
+
+.qs-action-btn {
+  background-color: #363a4f;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 1.1em;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.qs-header-actions .qs-action-btn {
+  padding: 6px;
+}
+
+// --- Sliders ---
+.qs-slider-container {
+  padding: 0;
+}
+
+.qs-slider-icon-btn {
+  background-color: #363a4f;
+  border-radius: 12px;
+  padding: 10px;
+  transition: background-color 0.2s;
+}
+
+.qs-slider {
+  trough {
+    all: unset;
+    background-color: #494d64;
+    border-radius: 10px;
+  }
+  highlight {
+    background-color: #8aadf4;
+    border-radius: 10px;
+  }
+  slider {
+    all: unset;
+    background-color: #363a4f;
+    border-radius: 99px;
+    min-width: 16px;
+    min-height: 16px;
+  }
+}
+
+// --- Toggles ---
+.qs-toggles-grid {
+  // The container for the whole grid
+}
+
+.qs-toggle {
+  background-color: #363a4f;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 0.85em;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.qs-double-wrapper .qs-toggle {
+  border-radius: 0;
+}
+
+.qs-double-wrapper .qs-double-main {
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.sound-output-menu-visible {
+  transition: all 0.3s ease-in-out;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.sound-output-menu-hidden {
+  transition: all 0.3s ease-in-out;
+}
+
+.qs-double-wrapper .qs-double-arrow {
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-left: 1px solid #24273a;
+  padding: 8px 10px;
+}
+
+.qs-double-wrapper .qs-double-arrow.active {
+  border-left: 1px solid #363a4f;
+}
+
+.btn-container:hover > .qs-toggle,
+.btn-container:hover .qs-action-btn,
+.btn-container:hover .qs-slider-icon-btn {
+  background-color: #494d64;
+}
+
+.btn-container:hover > .qs-toggle.active {
+  background-color: #687da6;
+}
+
+.qs-toggle.active {
+  background-color: #8aadf4;
+  color: #24273a;
+}
+
+.qs-toggle .subtext {
+  font-size: 0.8em;
+  font-weight: normal;
+  color: #a5adce;
+}
+
+.qs-toggle.active .subtext {
+  color: #363a4f;
+}
+
+// Цвет для иконок-стрелок в слайдерах
+.qs-slider-container .next-icon {
+  color: #8aadf4;
+}
+
+// Цвет для иконки-стрелки в кнопке Wi-Fi
+.qs-toggle.double .next-icon {
+  color: black;
+}
+
+.battery-pecentage {
+  color: #8aadf4;
+}
+
+.sound-output-menu {
+  background-color: #363a4f;
+  border-radius: 10px;
+  padding: 10px;
+  margin-top: 10px;
+  
+  .sound-output-header {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #cad3f5;
+  }
+
+  .sound-output-item-box {
+    padding: 10px;
+  }
+
+  .sound-settings {
+    padding: 8px;
+  }
+
+  .sound-output-list {
+    .sound-output-item {
+      border-radius: 8px;
+      transition: background-color 0.2s;
+      
+      &:hover {
+        background-color: #494d64;
+      }
+
+      &.active {
+      }
+    }
+  }
+
+  .separator {
+    background-color: #494d64;
+    min-height: 1px;
+  }
+
+  .sound-output-settings-link {
+    font-size: 1em;
+    color: #cad3f5;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: background-color 0.2s, color 0.2s;
+    &:hover {
+      background-color: #494d64;
+      color: #8aadf4;
+    }
+  }
+}
+
+// --- Auth Dialog ---
+.auth-dialog-background {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.auth-dialog-box {
+    background-color: #24273a;
+    color: #cad3f5;
+    border-radius: 12px;
+    padding: 24px;
+    font-family: "Adwaita", sans-serif;
+}
+
+.auth-title {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.auth-text {
+    font-size: 1em;
+    margin-bottom: 15px;
+}
+
+.auth-input-box {
+    background-color: #363a4f;
+    border: 1px solid #494d64;
+    border-radius: 8px;
+    transition: border-color 0.2s;
+    &:focus-within {
+        border-color: #8aadf4;
+    }
+    &.error {
+        border-color: #e55e5e;
+    }
+}
+
+.auth-input {
+    all: unset;
+    padding: 10px;
+    font-size: 1em;
+    color: #cad3f5;
+    background-color: transparent;
+}
+
+.auth-input-visibility-btn {
+    padding: 0 10px;
+    background-color: transparent;
+    border-radius: 8px;
+}
+
+.auth-buttons {
+    font-size: 1em;
+}
+
+.auth-button-cancel, .auth-button-connect {
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.auth-button-cancel {
+    background-color: #494d64;
+    color: #cad3f5;
+    &:hover {
+        background-color: #5b6078;
+    }
+}
+
+.auth-button-connect {
+    background-color: #8aadf4;
+    color: #24273a;
+    font-weight: bold;
+    &:hover {
+        background-color: #a0c8f0;
+    }
+    &.disabled {
+        background-color: #494d64;
+        color: #a5adce;
+    }
+}

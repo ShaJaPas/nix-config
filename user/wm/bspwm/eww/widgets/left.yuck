@@ -1,0 +1,32 @@
+(defvar left_toggle false)
+
+(deflisten workspaces :initial "[]" "python3-glib scripts/get_workspaces_with_icons.py")
+
+(defwidget left_widget []
+  (box :class "left-widget" :halign "start"
+    (box :class "workspaces" :spacing 5 :space-evenly false
+      (for workspace in workspaces
+        (eventbox
+          :onclick "xdotool set_desktop ${workspace.id}"
+          (box
+            :class "workspace-button ${workspace.active ? 'active' : ''} ${workspace.occupied ? 'occupied' : ''}"
+            :space-evenly false
+            :spacing 3
+            (box :space-evenly false :class "workspace-empty" :visible '${arraylength('${workspace.apps}') == 0 ? true : false}' "○")
+            (for app in '${workspace.apps}'
+              (overlay
+                (box :class "img-box ${app.count > 1 ? 'active' : ''}"
+                  (image :image-width 18 :image-height 18 :path '${app.icon}')
+                )
+                (box :class "app-badge-box" :halign "end" :valign "end"
+                  (label :class "app-badge"
+                         :visible "${app.count > 1 ? true : false}"
+                         :text "${app.count}"))
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+) 

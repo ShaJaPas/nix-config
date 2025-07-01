@@ -1,0 +1,11 @@
+(defpoll clock :interval "1s" "bash scripts/get_datetime")
+
+(defwidget middle_widget []
+    (box :class "middle-widget" :halign "end"
+        (eventbox :class "date-time" :halign "end"
+            :onclick "bash scripts/toggle_widget datemenu"
+            (box :class "date"
+                :halign "center"
+                clock))
+        )
+    )

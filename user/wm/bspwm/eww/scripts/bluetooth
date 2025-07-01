@@ -1,0 +1,98 @@
+#!/bin/bash
+
+# Function to get Bluetooth status
+get_status() {
+    if bluetoothctl show | grep -q "Powered: yes"; then
+        echo "true"
+    else
+        echo "false"
+    fi
+}
+
+# Function to toggle Bluetooth on/off
+toggle() {
+    if [[ $(get_status) == "true" ]]; then
+        bluetoothctl power off
+    else
+        bluetoothctl power on
+    fi
+}
+
+# Function to list paired devices in JSON format
+list_devices() {
+    local device_info=$(echo -e 'devices Paired\nquit' | bluetoothctl)
+    local devices=$(echo "$device_info" | grep "Device")
+    local json_output="["
+
+    while read -r line; do
+        if [[ -n "$line" ]]; then
+            local mac=$(echo "$line" | awk '{print $2}')
+            local name=$(echo "$line" | awk '{for (i=3; i<=NF; i++) printf $i " "; print ""}' | sed 's/ $//')
+            
+            local is_connected="false"
+            if echo -e "info $mac\nquit" | bluetoothctl | grep -q "Connected: yes"; then
+                is_connected="true"
+            fi
+
+            if [[ "$json_output" != "[" ]]; then
+                json_output+=","
+            fi
+
+            json_output+=$(jq -n \
+                --arg name "$name" \
+                --arg mac "$mac" \
+                --argjson connected "$is_connected" \
+                '{name: $name, mac: $mac, connected: $connected}')
+        fi
+    done <<< "$devices"
+
+    json_output+="]"
+    echo "$json_output"
+}
+
+# Function to get the name of the connected device
+get_connected_device_name() {
+    local device_info=$(echo -e 'devices\nquit' | bluetoothctl)
+    local connected_device=$(echo "$device_info" | grep -E "Device .* Connected: yes" | head -n 1)
+
+    if [[ -n "$connected_device" ]]; then
+        echo "$connected_device" | awk '{for (i=4; i<=NF; i++) printf $i " "; print ""}' | sed 's/ $//'
+    fi
+}
+
+# Function to connect to a device
+connect() {
+    bluetoothctl connect "$1"
+}
+
+# Function to disconnect from a device
+disconnect() {
+    bluetoothctl disconnect "$1"
+}
+
+
+# Main logic to handle arguments
+case "$1" in
+    status)
+        get_status
+        ;;
+    toggle)
+        toggle
+        ;;
+    list)
+        list_devices
+        ;;
+    connect)
+        connect "$2"
+        ;;
+    disconnect)
+        disconnect "$2"
+        ;;
+    get-connected-name)
+        get_connected_device_name
+        ;;
+    *)
+        echo "Usage: $0 {status|toggle|list|connect MAC|disconnect MAC|get-connected-name}"
+        exit 1
+        ;;
+esac 

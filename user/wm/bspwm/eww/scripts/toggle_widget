@@ -1,0 +1,14 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+    echo "Usage: $0 <widget-name>"
+    exit 1
+fi
+
+EWW_CMD="eww"
+
+if $EWW_CMD active-windows | grep -q "$1"; then
+    $EWW_CMD close "$1"
+else
+    $EWW_CMD open "$1"
+fi 

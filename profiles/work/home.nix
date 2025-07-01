@@ -49,7 +49,6 @@
       evince
       telegram-desktop
       htop
-      nekoray
       code-cursor
       openssl
       ffmpeg

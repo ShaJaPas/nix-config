@@ -23,7 +23,7 @@
         email = "***"; # email (used for certain configurations)
         # window manager type (hyprland or x11) translator
         browser = "yandex-browser"; # Default browser; must select one from ./user/app/browser/
-        term = "ghostty"; # Default terminal command;
+        term = "wezterm"; # Default terminal command;
         editor = "code"; # Default editor;
         # editor spawning translator
         # generates a command that can be used to spawn editor inside a gui
@@ -43,9 +43,9 @@
       personalSettings = rec {
         username = "***"; # username
         name = "***"; # name/identifier
-        email = "***"; # email (used for certain configurations)        # window manager type (hyprland or x11) translator
+        email = "***"; # email (used for certain configurations)
         browser = "yandex-browser"; # Default browser; must select one from ./user/app/browser/
-        term = "ghostty"; # Default terminal command;
+        term = "wezterm"; # Default terminal command;
         editor = "code"; # Default editor;
         # editor spawning translator
         # generates a command that can be used to spawn editor inside a gui

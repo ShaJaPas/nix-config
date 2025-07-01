@@ -1,0 +1,16 @@
+#!/bin/bash
+
+SSID="$1"
+
+# Try to bring up an existing connection for the given SSID.
+# The -w (or --wait) flag is a global option for nmcli that tells it to
+# wait for the operation to complete. We give it a timeout of 15 seconds.
+# If the connection fails (e.g., due to a wrong password), it will return
+# a non-zero exit code.
+nmcli -w 15 connection up "$SSID" > /dev/null 2>&1
+
+# If connection fails, open the authentication dialog.
+if [ $? -ne 0 ]; then
+    eww update wifi_auth_ssid="$SSID"
+    eww open wifi_auth_dialog
+fi 

@@ -1,0 +1,43 @@
+(defvar dnd_active false)
+
+(defwidget toggle_button []
+  (eventbox :cursor "pointer"
+            :onclick "eww update dnd_active=${!dnd_active}"
+    (box :class "toggle-track ${dnd_active ? 'on' : 'off'}"
+      (box :class "toggle-thumb"
+           :halign "${dnd_active ? 'end' : 'start'}")))) 
+
+(defwidget datemenu []
+  (box :orientation "h" :space-evenly "false" :class "datemenu-widget" :hexpand true 
+    (box :orientation "v" :space-evenly "false" :hexpand true :vexpand true
+      (centerbox :orientation "v" :class "datemenu-notif-bar" :hexpand true :vexpand true
+        (box)
+        (box :orientation "v" :space-evenly "false"
+          (image :path "assets/bell.svg" :class "datemenu-notif-icon" :image-width 80 :image-height 80)
+          (label :text "No Notifications" :class "datemenu-notif-text")
+        )
+        (box)
+        )
+      (box :orientation "h" :space-evenly "false" :spacing 5 :halign "start" :class "datemenu-dnd"
+        (label :class "dnt_text" :text "Do Not Disturb")
+        (toggle_button)
+      )
+    )
+    (box :orientation "v" :space-evenly "false" :class "datemenu-calendar-bar"
+      (centerbox :orientation "v" :vexpand true
+        (box  :orientation "v" :space-evenly "false"
+          (label :text "${day_string}" :class "datemenu-day" :halign "start")
+          (label :text "${date_string}" :class "datemenu-date" :halign "start") 
+        )
+        (calendar :class "datemenu-calendar")
+        (centerbox :orientation "v" :class "datemenu-events"
+          (label :text "Today" :halign "start")
+          (box)
+          (label :text "No Events" :halign "start")))))
+      )
+
+(defpoll date_string :interval "1m"
+  "LC_ALL=ru_RU.UTF-8 date '+%d %B %Y'")
+
+(defpoll day_string :interval "1m"
+  "LC_ALL=ru_RU.UTF-8 date '+%A'")

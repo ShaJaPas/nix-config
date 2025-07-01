@@ -1,0 +1,38 @@
+#!/bin/bash
+BATTERY_PATH_BAT=""
+# Find battery, could be BAT0, BAT1, etc.
+for bat in /sys/class/power_supply/BAT*; do
+    if [ -d "$bat" ]; then
+        BATTERY_PATH_BAT="$bat"
+        break
+    fi
+done
+
+# If no battery found, exit
+if [ -z "$BATTERY_PATH_BAT" ]; then
+    exit 0
+fi
+
+AC_PATH=""
+# Find AC adapter by checking its type
+for ac in /sys/class/power_supply/*; do
+    if [ -f "$ac/type" ] && [[ "$(cat "$ac/type")" == "Mains" ]]; then
+        AC_PATH="$ac"
+        break
+    fi
+done
+
+STATUS=$(cat "$BATTERY_PATH_BAT/status")
+CAPACITY=$(cat "$BATTERY_PATH_BAT/capacity")
+AC_ONLINE="0" # Default to offline
+
+if [ -n "$AC_PATH" ] && [ -f "$AC_PATH/online" ]; then
+    AC_ONLINE=$(cat "$AC_PATH/online")
+else
+    # Fallback logic: if status is "Charging", we must be connected to AC.
+    if [[ "$STATUS" == "Charging" ]]; then
+        AC_ONLINE="1"
+    fi
+fi
+
+jq -n --arg status "$STATUS" --argjson capacity "$CAPACITY" --argjson online "$AC_ONLINE" '{ "status": $status, "capacity": $capacity, "online": $online }' 

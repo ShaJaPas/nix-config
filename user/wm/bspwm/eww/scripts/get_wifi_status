@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Check if wifi is on
+if [ "$(nmcli r wifi)" = "disabled" ]; then
+    echo "0"
+    exit 0
+fi
+
+# Check if connected to a network and get signal strength
+SIGNAL=$(nmcli -t -f ACTIVE,SIGNAL dev wifi | grep '^yes' | cut -d':' -f2)
+
+if [ -n "$SIGNAL" ]; then
+    echo "$SIGNAL"
+else
+    echo "0" # Not connected
+fi 

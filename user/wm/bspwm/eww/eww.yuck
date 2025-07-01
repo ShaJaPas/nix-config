@@ -1,0 +1,60 @@
+(include "./widgets/left.yuck")
+(include "./widgets/middle.yuck")
+(include "./widgets/right.yuck")
+(include "./widgets/datemenu.yuck")
+(include "./widgets/quicksettings.yuck")
+(include "./widgets/wifi_auth.yuck")
+
+(defwindow bar
+    :monitor 0
+    :geometry (geometry :x "0%"
+                        :y "0%"
+                        :width "100%"
+                        :height "30px"
+                        :anchor "top center")
+    :stacking "bg"
+    :reserve (struts :side "top" :distance "30px")
+    :windowtype "dock"
+    :wm-ignore false
+    (bar_widget))
+
+(defwidget bar_widget []
+    (centerbox :class "bar_widget" :orientation "h"
+        (left_widget)
+        (middle_widget)
+        (right_widget))) 
+
+(defwindow datemenu 
+    :monitor 0
+	:geometry (geometry :x "0%" 
+						:y "30px" 
+						:width "38%" 
+						:height "40%"
+                        :anchor "top center"
+                        )
+(datemenu))
+
+(defwindow quicksettings 
+    :monitor 0
+	:geometry (geometry :x "0%" 
+						:y "30px" 
+						:width "21%" 
+						:height "20%"
+                        :anchor "top right"
+                        )
+(quicksettings))
+
+(defwindow wifi_auth_dialog
+    :monitor 0
+    :geometry (geometry :x "0%"
+                        :y "0%"
+                        :width "100%"
+                        :height "100%"
+                        :anchor "center center")
+    :stacking "fg"
+    :focusable true
+    :windowtype "dialog"
+    (wifi_auth_dialog))
+
+(defpoll power_profile_data :interval "5s"
+    "bash scripts/power_profile.sh")

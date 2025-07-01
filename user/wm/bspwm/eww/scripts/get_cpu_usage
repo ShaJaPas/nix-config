@@ -1,0 +1,2 @@
+#!/bin/bash
+mpstat 1 1 | tail -n 1 | awk '/all/ { printf "%.0f%%", 100 - $NF }' 

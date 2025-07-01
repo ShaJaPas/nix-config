@@ -1,0 +1,191 @@
+#!/bin/bash
+# Manages audio devices (sinks and sources).
+
+set -e
+
+COMMAND=$1
+TYPE=$2 # e.g., sinks, sources
+ARG=$3
+
+# --- LIST DEVICES ---
+if [ "$COMMAND" = "list" ]; then
+    if [ "$TYPE" != "sinks" ] && [ "$TYPE" != "sources" ]; then
+        echo "Error: 'list' requires a type ('sinks' or 'sources')." >&2
+        exit 1
+    fi
+
+    DEFAULT_DEVICE_CMD="pactl info | awk -F': ' '/Default $([ "$TYPE" = "sinks" ] && echo "Sink" || echo "Source")/ {print \$2}'"
+    DEFAULT_DEVICE_NAME=$(eval $DEFAULT_DEVICE_CMD)
+    
+    if [ "$TYPE" = "sources" ]; then
+        pactl list sources | grep -v "Monitor of" | awk -v default_device="$DEFAULT_DEVICE_NAME" '
+            BEGIN {
+                RS = "";
+                FS = "\n";
+                print "[";
+                first = 1
+            }
+            {
+                description = ""
+                name = ""
+                type = "unknown"
+                active = "false"
+
+                for (i = 1; i <= NF; i++) {
+                    if ($i ~ /^\s*Name: /) {
+                        name = $i
+                        sub(/^[\t ]*Name: /, "", name)
+                    }
+                    if ($i ~ /^\s*Description: /) {
+                        description = $i
+                        sub(/^[\t ]*Description: /, "", description)
+                    }
+                    if ($i ~ /^\s*Active Port: /) {
+                        if ($i ~ /microphone|mic/) { type = "Microphone" }
+                    }
+                }
+
+                if (type == "unknown") {
+                    if (tolower(description) ~ /microphone|mic/) { type = "Microphone" }
+                    else { type = "Unknown" }
+                }
+                
+                if (name == default_device) {
+                    active = "true"
+                }
+                
+                gsub(/"/, "\\\"", description)
+
+                if (description != "") {
+                    if (first) {
+                        first = 0
+                    } else {
+                        print ","
+                    }
+                    printf "  {\"name\": \"%s\", \"type\": \"%s\", \"active\": %s}", description, type, active
+                }
+            }
+            END {
+                print "\n]"
+            }
+        '
+    else
+        pactl list "$TYPE" | awk -v default_device="$DEFAULT_DEVICE_NAME" '
+        BEGIN {
+            RS = "";
+            FS = "\n";
+            print "[";
+            first = 1
+        }
+        {
+            description = ""
+            name = ""
+            type = "unknown"
+            active = "false"
+
+            for (i = 1; i <= NF; i++) {
+                if ($i ~ /^\s*Name: /) {
+                    name = $i
+                    sub(/^[\t ]*Name: /, "", name)
+                }
+                if ($i ~ /^\s*Description: /) {
+                    description = $i
+                    sub(/^[\t ]*Description: /, "", description)
+                }
+                if ($i ~ /^\s*Active Port: /) {
+                    if ($i ~ /headphone/) { type = "Headphones" }
+                    else if ($i ~ /speaker/) { type = "Speaker" }
+                    else if ($i ~ /hdmi/) { type = "Display" }
+                }
+            }
+
+            if (type == "unknown") {
+                if (tolower(description) ~ /headphone/) { type = "Headphones" }
+                else if (tolower(description) ~ /speaker/) { type = "Speaker" }
+                else if (tolower(description) ~ /hdmi|displayport/) { type = "Display" }
+                    else { type = "Unknown" }
+            }
+            
+                if (name == default_device) {
+                active = "true"
+            }
+            
+            gsub(/"/, "\\\"", description)
+
+            if (description != "") {
+                if (first) {
+                    first = 0
+                } else {
+                    print ","
+                }
+                printf "  {\"name\": \"%s\", \"type\": \"%s\", \"active\": %s}", description, type, active
+            }
+        }
+        END {
+            print "\n]"
+        }
+    '
+    fi
+    exit 0
+fi
+
+# --- SET DEFAULT DEVICE ---
+if [ "$COMMAND" = "set" ]; then
+    if [ "$TYPE" != "sinks" ] && [ "$TYPE" != "sources" ]; then
+        echo "Error: 'set' requires a type ('sinks' or 'sources')." >&2
+        exit 1
+    fi
+    if [ -z "$ARG" ]; then
+        echo "Error: Missing device description." >&2
+        exit 1
+    fi
+
+    DESC_PATTERN="$ARG"
+    DEVICE_NAME=$(pactl list "$TYPE" | awk -v desc="$DESC_PATTERN" '
+        BEGIN { RS = "" }
+        /Description: / {
+            if ($0 ~ "Description: " desc) {
+                for (i=1; i<=NF; i++) {
+                    if ($i == "Name:") {
+                        print $(i+1)
+                        exit
+                    }
+                }
+            }
+        }
+    ')
+
+    if [ -n "$DEVICE_NAME" ]; then
+        pactl "set-default-$( [ "$TYPE" = "sinks" ] && echo "sink" || echo "source" )" "$DEVICE_NAME"
+    else
+        echo "Error: Audio device matching '$DESC_PATTERN' not found." >&2
+        exit 1
+    fi
+    exit 0
+fi
+
+# --- VOLUME and MUTE CONTROL ---
+function get_pactl_target() {
+    if [ "$1" = "sinks" ]; then echo "@DEFAULT_SINK@"; else echo "@DEFAULT_SOURCE@"; fi
+}
+
+if [ "$COMMAND" = "get-volume" ]; then
+    TARGET=$(get_pactl_target $TYPE)
+    pactl "get-$( [ "$TYPE" = "sinks" ] && echo "sink" || echo "source" )-volume" "$TARGET" | awk '/Volume:/ { print $5 }' | tr -d '%'
+    exit 0
+elif [ "$COMMAND" = "set-volume" ]; then
+    TARGET=$(get_pactl_target $TYPE)
+    pactl "set-$( [ "$TYPE" = "sinks" ] && echo "sink" || echo "source" )-volume" "$TARGET" "$ARG%"
+    exit 0
+elif [ "$COMMAND" = "get-mute" ]; then
+    TARGET=$(get_pactl_target $TYPE)
+    pactl "get-$( [ "$TYPE" = "sinks" ] && echo "sink" || echo "source" )-mute" "$TARGET" | awk '{print $2}'
+    exit 0
+elif [ "$COMMAND" = "toggle-mute" ]; then
+    TARGET=$(get_pactl_target $TYPE)
+    pactl "set-$( [ "$TYPE" = "sinks" ] && echo "sink" || echo "source" )-mute" "$TARGET" "toggle"
+    exit 0
+fi
+
+echo "Usage: $0 list|set|get-volume|set-volume|get-mute|toggle-mute sinks|sources [value]" >&2
+exit 1 

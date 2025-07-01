@@ -1,0 +1,2 @@
+#!/bin/bash
+cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq | awk '{s+=$1} END {printf "%.1f GHz", s/NR/1000000}' 

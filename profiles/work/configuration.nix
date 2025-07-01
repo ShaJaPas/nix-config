@@ -44,8 +44,11 @@
   nixpkgs.config.allowUnfree = true;
 
   # Kernel modules
-  boot.kernelModules = [ "cpufreq_powersave" ];
-  boot.kernelPackages = inputs.chaotic.legacyPackages.x86_64-linux.linuxPackages_cachyos;
+  boot.kernelModules = [
+    "cpufreq_powersave"
+    "i2c-dev"
+  ];
+  #boot.kernelPackages = inputs.chaotic.legacyPackages.x86_64-linux.linuxPackages_cachyos;
 
   boot.kernel.sysctl = {
     "net.core.default_qdisc" = "fq";
@@ -130,6 +133,11 @@
     gparted
     linuxKernel.packages.linux_zen.perf
   ];
+
+  programs.nekoray = {
+    enable = true;
+    tunMode.enable = true;
+  };
 
   hardware.enableAllFirmware = true;
   networking.firewall.enable = false;
