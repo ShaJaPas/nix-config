@@ -167,7 +167,7 @@
                 (image :path "assets/battery_blue.svg" :image-width 20)
                 (label :class "battery-pecentage" :text "95%"))))
         (box :class "qs-header-actions" :halign "end" :spacing 5
-            (eventbox :class "btn-container" :cursor "pointer"
+            (eventbox :class "btn-container" :cursor "pointer" :onclick "xsecurelock &"
               (box :class "qs-action-btn" (image :path "assets/lock_screen.svg" :image-width 22)))
             (eventbox :class "btn-container" :cursor "pointer"
               (box :class "qs-action-btn" (image :path "assets/power_off.svg" :image-width 22)))

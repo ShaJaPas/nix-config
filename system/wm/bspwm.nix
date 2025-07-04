@@ -15,4 +15,6 @@
   environment.systemPackages = with pkgs; [
     sddm-astronaut
   ];
+
+  services.libinput.touchpad.naturalScrolling = true;
 }

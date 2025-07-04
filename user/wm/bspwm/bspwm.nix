@@ -46,8 +46,9 @@
     pulseaudio
     feh
     sxhkd
-    picom
     eww
+    nautilus
+    xsecurelock
   ];
 
   # Copy eww config to ~/.config/eww
@@ -71,7 +72,7 @@
     # Name desktops
     bspc monitor -d 1 2 3 4 5 6 7 8 9
 
-    xrandr --output eDP --off --output HDMI-A-0 --primary --auto &
+    #xrandr --output eDP --off --output HDMI-A-0 --primary --auto &
 
     # Set wallpaper
     ${pkgs.feh}/bin/feh --bg-scale '${
@@ -148,16 +149,11 @@
 
   # Picom (compositor) configuration for animations, shadows, and rounded corners
   services.picom = {
+    package = pkgs.picom-pijulius;
     enable = true;
     backend = "glx";
     vSync = true;
     settings = {
-      # Fading for open/close/menu
-      fading = true;
-      fade-delta = 4;
-      fade-in-step = 0.03;
-      fade-out-step = 0.03;
-
       # Shadows
       shadow = true;
       shadow-radius = 12;
@@ -171,6 +167,27 @@
         "window_type = 'dock'"
         "window_type = 'desktop'"
       ];
+
+      # Blur
+      blur-method = "dual_kawase";
+      blur-strength = 8;
+      blur-background = true;
+      blur-background-exclude = [
+        "window_type = 'dock'"
+        "window_type = 'desktop'"
+        "_GTK_FRAME_EXTENTS@"
+      ];
+
+      # Animations
+      animations = true;
+      animation-stiffness = 150;
+      animation-dampening = 20;
+      animation-mass = 1;
+      animation-window-mass = 1;
+      animation-for-open-window = "zoom";
+      animation-for-unmap-window = "zoom";
+      animation-for-prev-tag = "fly-in";
+      animation-for-next-tag = "fly-out";
     };
   };
 }
