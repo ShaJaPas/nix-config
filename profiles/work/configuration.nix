@@ -104,6 +104,8 @@
       "docker"
       "audio"
       "gamemode"
+      "video"
+      "i2c"
     ];
     packages = [ ];
   };
@@ -117,6 +119,8 @@
       "docker"
       "audio"
       "gamemode"
+      "video"
+      "i2c"
     ];
     packages = [ ];
   };
@@ -140,6 +144,7 @@
   };
 
   hardware.enableAllFirmware = true;
+  hardware.i2c.enable = true;
   networking.firewall.enable = false;
   services.spice-vdagentd.enable = true;
   virtualisation.spiceUSBRedirection.enable = true;

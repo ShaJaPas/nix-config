@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+
+# Manages screen brightness using brightnessctl for internal displays
+# and ddcutil for external displays.
+
+set -e
+
+# --- CONFIGURATION ---
+# Feature code for brightness in DDC/CI protocol
+BRIGHTNESS_FEATURE_CODE=0x10
+
+# --- HELPER FUNCTIONS ---
+get_primary_display_info() {
+    xrandr --query | grep " primary "
+}
+
+is_internal_display() {
+    echo "$1" | grep -qE "eDP|LVDS"
+}
+
+# Find the first usable external display from ddcutil
+get_external_display_num() {
+    ddcutil detect | awk '
+        /Display [0-9]+/ {
+            display_num = $2
+        }
+        /This is a laptop display/ {
+            # This is a laptop, so the current display_num is not what we want
+            display_num = ""
+        }
+        /VCP version/ {
+            # This seems to be a valid external monitor, print its number and exit
+            if (display_num != "") {
+                print display_num
+                exit
+            }
+        }
+    '
+}
+
+# --- MAIN LOGIC ---
+COMMAND=$1
+ARG=$2
+
+PRIMARY_INFO=$(get_primary_display_info)
+
+if [ -z "$PRIMARY_INFO" ]; then
+    # Fallback to brightnessctl if no primary display
+    if [ "$COMMAND" = "get" ]; then
+        brightnessctl -m | awk -F, '{print substr($4, 0, length($4)-1)}'
+    elif [ "$COMMAND" = "set" ]; then
+        brightnessctl set "$ARG%"
+    fi
+    exit 0
+fi
+
+if is_internal_display "$PRIMARY_INFO"; then
+    # --- INTERNAL DISPLAY: Use brightnessctl ---
+    if [ "$COMMAND" = "get" ]; then
+        brightnessctl -m -d amdgpu_bl1 | awk -F, '{print substr($4, 0, length($4)-1)}'
+    elif [ "$COMMAND" = "set" ]; then
+        brightnessctl -d amdgpu_bl1 set "$ARG%"
+    fi
+else
+    # --- EXTERNAL DISPLAY: Use ddcutil ---
+    DDC_NUM=$(get_external_display_num)
+    if [ -z "$DDC_NUM" ]; then
+        if [ "$COMMAND" = "get" ]; then echo "100"; fi
+        exit 1
+    fi
+
+    if [ "$COMMAND" = "get" ]; then
+        ddcutil -t -d "$DDC_NUM" getvcp "$BRIGHTNESS_FEATURE_CODE" | awk '{print $4}' | tr -d ','
+    elif [ "$COMMAND" = "set" ]; then
+        ddcutil -d "$DDC_NUM" setvcp "$BRIGHTNESS_FEATURE_CODE" "$ARG"
+    fi
+fi 

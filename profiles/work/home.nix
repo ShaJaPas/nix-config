@@ -54,6 +54,7 @@
       ffmpeg
       pinta
       obsidian
+      lutris
     ]
   );
 

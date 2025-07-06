@@ -7,6 +7,9 @@
 (defpoll mic_volume_level :initial 100 :interval "1s" "bash scripts/audio get-volume sources")
 (defpoll volume_muted :initial "no" :interval "1s" "bash scripts/audio get-mute sinks")
 (defpoll mic_muted :initial "no" :interval "1s" "bash scripts/audio get-mute sources")
+(defpoll airplane_status :initial "false" :interval "1h" "bash scripts/airplane status")
+
+(defvar brightness_level 100)
 
 (defpoll wifi_enabled :interval "3s" "bash scripts/wifi status")
 (defpoll wifi_network_name :interval "3s" "bash scripts/wifi ssid")
@@ -16,7 +19,7 @@
 (defpoll bluetooth_devices :initial "[]" :interval "5s" "bash scripts/bluetooth list")
 (defpoll bluetooth_connected_device :interval "5s" :initial "" "bash scripts/bluetooth get-connected-name")
 
-(defvar brightness_level 50)
+(defvar show_power_menu false)
 (defvar show_sound_output_menu false)
 (defvar show_sound_input_menu false)
 (defvar active_menu "none")
@@ -123,27 +126,51 @@
         (eventbox :class "sound-output-settings-link" :cursor "pointer"
             (label :class "sound-settings" :text "Bluetooth Settings" :halign "start")))))
 
+(defwidget power_menu []
+  (box :class "sound-output-menu" :orientation "v" :space-evenly false :spacing 15
+    (box :orientation "h" :space-evenly false :spacing 15 :halign "start"
+      (image :path "assets/power_off.svg" :image-width 25)
+      (label :text "Power Off" :class "sound-output-header" :halign "start"))
+    (box :orientation "v" :space-evenly false :spacing 5 :class "sound-output-list"
+      (eventbox :class "sound-output-item" :onclick "systemctl suspend" :cursor "pointer"
+        (box :class "sound-output-item-box" :orientation "h" :space-evenly false :spacing 10
+          (label :text "Suspend" :halign "start" :hexpand true)))
+      (eventbox :class "sound-output-item" :onclick "systemctl reboot" :cursor "pointer"
+        (box :class "sound-output-item-box" :orientation "h" :space-evenly false :spacing 10
+          (label :text "Restart..." :halign "start" :hexpand true)))
+      (eventbox :class "sound-output-item" :onclick "systemctl poweroff" :cursor "pointer"
+        (box :class "sound-output-item-box" :orientation "h" :space-evenly false :spacing 10
+          (label :text "Power Off..." :halign "start" :hexpand true)))
+      (box :class "separator" :style "margin: 5px 0;")
+      (eventbox :class "sound-output-item" :onclick "bspc quit" :cursor "pointer"
+        (box :class "sound-output-item-box" :orientation "h" :space-evenly false :spacing 10
+          (label :text "Log Out..." :halign "start" :hexpand true)))
+      (eventbox :class "sound-output-item" :onclick "dm-tool switch-to-greeter" :cursor "pointer"
+        (box :class "sound-output-item-box" :orientation "h" :space-evenly false :spacing 10
+          (label :text "Switch User..." :halign "start" :hexpand true))))))
+
 (defwidget qs_toggles_grid []
-  (box :class "qs-toggles-grid" :orientation "v" :space-evenly false :spacing 5
-    (box :orientation "h" :spacing 10
-      (qs_double_button
-        :icon "assets/network-strong"
-        :main_text "Wi-Fi"
-        :sub_text {wifi_network_name ?: "Not Connected"}
-        :is-active {wifi_enabled}
-        :button_click "eww update wifi_enabled=${!wifi_enabled} && bash scripts/wifi toggle"
-        :next_click "eww update active_menu='${active_menu == "wifi" ? "none" : "wifi"}'")
-      (qs_double_button
-        :icon "assets/bluetooth_on"
-        :main_text "Bluetooth"
-        :sub_text {bluetooth_connected_device ?: (bluetooth_enabled ? "On" : "Off")}
-        :is-active {bluetooth_enabled}
-        :button_click "bash scripts/bluetooth toggle && eww update bluetooth_enabled=$(bash scripts/bluetooth status) && eww update bluetooth_connected_device=$(bash scripts/bluetooth get-connected-name)"
-        :next_click "eww update active_menu='${active_menu == "bluetooth" ? "none" : "bluetooth"}'"))
-    (revealer :transition "slidedown" :reveal {active_menu == "wifi"}
-        (wifi_menu))
-    (revealer :transition "slidedown" :reveal {active_menu == "bluetooth"}
-        (bluetooth_menu))
+  (box :class "qs-toggles-grid" :orientation "v" :space-evenly false :spacing 10
+    (box :orientation "v" :space-evenly false :spacing 0
+      (box :orientation "h" :spacing 10
+        (qs_double_button
+          :icon "assets/network-strong"
+          :main_text "Wi-Fi"
+          :sub_text {wifi_network_name ?: "Not Connected"}
+          :is-active {wifi_enabled}
+          :button_click "eww update wifi_enabled=${!wifi_enabled} && bash scripts/wifi toggle"
+          :next_click "eww update active_menu='${active_menu == "wifi" ? "none" : "wifi"}'")
+        (qs_double_button
+          :icon "assets/bluetooth_on"
+          :main_text "Bluetooth"
+          :sub_text {bluetooth_connected_device ?: (bluetooth_enabled ? "On" : "Off")}
+          :is-active {bluetooth_enabled}
+          :button_click "bash scripts/bluetooth toggle && eww update bluetooth_enabled=$(bash scripts/bluetooth status) && eww update bluetooth_connected_device=$(bash scripts/bluetooth get-connected-name)"
+          :next_click "eww update active_menu='${active_menu == "bluetooth" ? "none" : "bluetooth"}'"))
+      (revealer :transition "slidedown" :reveal {active_menu == "wifi"}
+          (wifi_menu))
+      (revealer :transition "slidedown" :reveal {active_menu == "bluetooth"}
+          (bluetooth_menu)))
     (box :orientation "h" :spacing 10
       (eventbox :onclick "bash scripts/power_profile.sh toggle"
         (qs_toggle_button
@@ -155,23 +182,37 @@
         :icon "assets/privacy"
         :main_text "Privacy"
         :sub_text "Microphone"
-        :is-active true))))
+        :is-active true))
+    (box :orientation "h" :spacing 10
+        (qs_double_button
+            :icon "assets/vpn"
+            :main_text "VPN"
+            :sub_text "Not Connected"
+            :is-active false)
+        (eventbox :onclick "bash scripts/airplane toggle &"
+            (qs_toggle_button
+                :icon "assets/airplane"
+                :text "Airplane Mode"
+                :is-active {airplane_status == "true"})))))
 
 (defwidget quicksettings []
   (box :class "qs-container" :orientation "v" :space-evenly false :spacing 20 :valign "start"
     ;; Header: Battery + Action Buttons
-    (box :class "qs-header" :orientation "h" :space-evenly false
-        (box :halign "start" :hexpand "true"
-          (eventbox :class "btn-container"
-            (box :class "qs-action-btn" :orientation "h" :space-evenly false :spacing 10
-                (image :path "assets/battery_blue.svg" :image-width 20)
-                (label :class "battery-pecentage" :text "95%"))))
-        (box :class "qs-header-actions" :halign "end" :spacing 5
-            (eventbox :class "btn-container" :cursor "pointer" :onclick "xsecurelock &"
-              (box :class "qs-action-btn" (image :path "assets/lock_screen.svg" :image-width 22)))
-            (eventbox :class "btn-container" :cursor "pointer"
-              (box :class "qs-action-btn" (image :path "assets/power_off.svg" :image-width 22)))
-        ))
+    (box :orientation "v" :space-evenly false
+      (box :class "qs-header" :orientation "h" :space-evenly false
+          (box :halign "start" :hexpand "true"
+            (eventbox :class "btn-container"
+              (box :class "qs-action-btn" :orientation "h" :space-evenly false :spacing 10
+                  (image :path "assets/battery_blue.svg" :image-width 20)
+                  (label :class "battery-pecentage" :text "${battery.capacity}%"))))
+          (box :class "qs-header-actions" :halign "end" :spacing 5
+              (eventbox :class "btn-container" :cursor "pointer" :onclick "xsecurelock &"
+                (box :class "qs-action-btn" (image :path "assets/lock_screen.svg" :image-width 22)))
+              (eventbox :class "btn-container" :cursor "pointer" :onclick "eww update show_power_menu=${!show_power_menu}"
+                (box :class "qs-action-btn" (image :path "assets/power_off.svg" :image-width 22)))
+          ))
+      (revealer :transition "slidedown" :reveal {show_power_menu}
+          (power_menu)))
 
     (box :orientation "v" :space-evenly false :spacing 10 :valign "start"
         (box :orientation "v" :space-evenly false
@@ -197,7 +238,7 @@
         (box :class "qs-slider-container" :orientation "h" :space-evenly false :spacing 15
             (eventbox :class "btn-container" :cursor "pointer"
             (box :class "qs-slider-icon-btn" (image :path "assets/brightness.svg" :image-width 14)))
-            (scale :min 0 :max 101 :value brightness_level :class "qs-slider" :hexpand true)
+            (scale :min 0 :max 101 :value brightness_level :onchange "eww update brightness_level={} && bash scripts/debounce_brightness.sh {}" :class "qs-slider" :hexpand true)
             (eventbox :class "btn-container" :cursor "pointer"
             (box :class "qs-slider-icon-btn" (image :path "assets/next.svg" :image-width 14))))
         

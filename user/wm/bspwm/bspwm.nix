@@ -48,7 +48,10 @@
     sxhkd
     eww
     nautilus
+    mission-center
     xsecurelock
+    brightnessctl
+    ddcutil
   ];
 
   # Copy eww config to ~/.config/eww
@@ -59,6 +62,8 @@
 
   xsession.windowManager.bspwm.enable = true;
   xsession.windowManager.bspwm.extraConfig = ''
+    ${pkgs.autorandr}/bin/autorandr -c
+
     bspc config border_width 2
     bspc config window_gap 2
     bspc config split_ratio 0.52
@@ -66,13 +71,20 @@
     bspc config gapless_monocle true
     bspc config focus_follows_pointer true
 
+    bspc config focused_border_color "#498a49"
+    bspc config active_border_color  "#2c692c"
+    bspc config normal_border_color  "#8a8d9e"
+
+    bspc config merge_overlapping_monitors true
     bspc config right_padding 0
+    bspc config top_padding 30
     bspc config bottom_padding 0
+
+    bspc rule -a steam state=floating sticky=on
+    bspc rule -a Eww layer=below
 
     # Name desktops
     bspc monitor -d 1 2 3 4 5 6 7 8 9
-
-    #xrandr --output eDP --off --output HDMI-A-0 --primary --auto &
 
     # Set wallpaper
     ${pkgs.feh}/bin/feh --bg-scale '${
@@ -84,6 +96,20 @@
 
     # Launch eww bar
     eww open bar &
+
+    eww update brightness_level=$(bash $HOME/.config/eww/scripts/brightness get) &
+    eww update workspaces=$(python3-glib $HOME/.config/eww/scripts/get_workspaces_with_icons.py get) &
+
+    bspc subscribe node_state | while read -r _ _ _ _ state flag; do
+      if [ "$state" != "fullscreen" ]; then
+        continue
+      fi
+      if [ "$flag" == on ]; then
+        eww close-all
+      else
+        eww open bar
+      fi
+    done &
   '';
 
   services.sxhkd = {
@@ -98,11 +124,8 @@
       # Close window
       "super + c" = "bspc node -c";
 
-      # Focus nodes
-      "super + {h,j,k,l}" = "bspc node -f {west,south,north,east}";
-
       # Move nodes
-      "super + shift + {h,j,k,l}" = "bspc node -s {west,south,north,east}";
+      "super + shift + {Right,Left}" = "bspc node @/ -C {forward,backward}";
 
       # Switch desktops
       "super + 1" = "bspc desktop -f 1";
@@ -155,11 +178,11 @@
     vSync = true;
     settings = {
       # Shadows
-      shadow = true;
-      shadow-radius = 12;
-      shadow-offset-x = -12;
-      shadow-offset-y = -12;
-      shadow-opacity = 0.6;
+      shadow = false;
+      #shadow-radius = 12;
+      #shadow-offset-x = -12;
+      #shadow-offset-y = -12;
+      #shadow-opacity = 0.6;
 
       # Rounded corners
       corner-radius = 10;
@@ -169,14 +192,14 @@
       ];
 
       # Blur
-      blur-method = "dual_kawase";
-      blur-strength = 8;
-      blur-background = true;
-      blur-background-exclude = [
-        "window_type = 'dock'"
-        "window_type = 'desktop'"
-        "_GTK_FRAME_EXTENTS@"
-      ];
+      #blur-method = "dual_kawase";
+      #blur-strength = 8;
+      #blur-background = true;
+      #blur-background-exclude = [
+      #  "window_type = 'dock'"
+      #  "window_type = 'desktop'"
+      #  "_GTK_FRAME_EXTENTS@"
+      #];
 
       # Animations
       animations = true;

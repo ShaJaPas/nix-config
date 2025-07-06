@@ -1,5 +1,3 @@
-(defvar left_toggle false)
-
 (deflisten workspaces :initial "[]" "python3-glib scripts/get_workspaces_with_icons.py")
 
 (defwidget left_widget []

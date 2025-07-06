@@ -165,10 +165,54 @@ def get_window_info(win, ewmh_conn):
         pass
     return None
 
+def get_and_print_workspaces(e):
+    """Get and print workspace and application info."""
+    try:
+        all_windows = e.getClientList()
+        num_desktops = e.getNumberOfDesktops()
+        current_desktop = e.getCurrentDesktop()
+    except (X.error.BadWindow, AttributeError):
+        # A window was destroyed while we were querying it.
+        # It's safe to just wait for the next event.
+        print("[]")
+        sys.stdout.flush()
+        return
+    
+    workspaces = [{"id": i, "display_id": i + 1, "active": i == current_desktop, "apps": []} for i in range(num_desktops)]
+
+    for win in all_windows:
+        desktop_num = e.getWmDesktop(win)
+        if desktop_num is not None and 0 <= desktop_num < num_desktops:
+            info = get_window_info(win, e)
+            if info:
+                workspaces[desktop_num]["apps"].append(info)
+
+    for ws in workspaces:
+        ws["occupied"] = bool(ws["apps"])
+        if ws["apps"]:
+            apps_by_icon = {}
+            for app in ws["apps"]:
+                icon = app["icon"]
+                if icon not in apps_by_icon:
+                    apps_by_icon[icon] = []
+                apps_by_icon[icon].append(app)
+            
+            new_apps = []
+            for icon, app_list in apps_by_icon.items():
+                new_apps.append({"icon": icon, "count": len(app_list)})
+            ws["apps"] = new_apps
+
+    print(json.dumps(workspaces))
+    sys.stdout.flush()
+
 def main():
     scan_desktop_files()
     
     e = ewmh.EWMH()
+
+    if len(sys.argv) > 1 and sys.argv[1] == 'get':
+        get_and_print_workspaces(e)
+        return
 
     # Store a set of windows we're listening to for property changes
     listened_windows = set()
@@ -188,46 +232,11 @@ def main():
 
         listened_windows = current_windows
 
-    def get_and_print_workspaces():
-        """Get and print workspace and application info."""
-        try:
-            all_windows = e.getClientList()
-            num_desktops = e.getNumberOfDesktops()
-            current_desktop = e.getCurrentDesktop()
-        except X.error.BadWindow:
-            # A window was destroyed while we were querying it.
-            # It's safe to just wait for the next event.
-            return
-        
-        workspaces = [{"id": i, "display_id": i + 1, "active": i == current_desktop, "apps": []} for i in range(num_desktops)]
-
-        for win in all_windows:
-            desktop_num = e.getWmDesktop(win)
-            if desktop_num is not None and 0 <= desktop_num < num_desktops:
-                info = get_window_info(win, e)
-                if info:
-                    workspaces[desktop_num]["apps"].append(info)
-
-        for ws in workspaces:
-            ws["occupied"] = bool(ws["apps"])
-            if ws["apps"]:
-                apps_by_icon = {}
-                for app in ws["apps"]:
-                    icon = app["icon"]
-                    if icon not in apps_by_icon:
-                        apps_by_icon[icon] = []
-                    apps_by_icon[icon].append(app)
-                
-                new_apps = []
-                for icon, app_list in apps_by_icon.items():
-                    new_apps.append({"icon": icon, "count": len(app_list)})
-                ws["apps"] = new_apps
-
-        print(json.dumps(workspaces))
-        sys.stdout.flush()
+    def get_and_print_workspaces_event_handler():
+        get_and_print_workspaces(e)
 
     # Initial setup
-    get_and_print_workspaces()
+    get_and_print_workspaces_event_handler()
     update_window_event_listeners()
 
     root = e.root
@@ -245,11 +254,11 @@ def main():
         if event.type == X.PropertyNotify:
             if event.atom == NET_CLIENT_LIST_ATOM:
 
-                get_and_print_workspaces()
+                get_and_print_workspaces_event_handler()
                 update_window_event_listeners()
 
             elif event.atom in [NET_CURRENT_DESKTOP_ATOM, NET_WM_DESKTOP_ATOM]:
-                get_and_print_workspaces()
+                get_and_print_workspaces_event_handler()
 
 if __name__ == "__main__":
     try:

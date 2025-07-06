@@ -19,7 +19,7 @@
           (box :class "mem_usage" :spacing 5 :space-evenly false (image :image-width 17 :path "assets/ram.svg") mem_usage)
         )
       )
-      (systray :class "system-tray" :orientation "h" :icon-size 16)
+      (systray :class "system-tray" :spacing 3 :orientation "h" :icon-size 16)
       (eventbox :class "kb-layout"
         (box :class "kb-lang" keyboard_layout)
       )

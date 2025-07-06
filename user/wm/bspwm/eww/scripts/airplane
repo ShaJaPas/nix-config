@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# Function to check if airplane mode is currently on
+is_on() {
+    # Count devices that are not hard-blocked AND not soft-blocked.
+    # If this count is 0, it means all enabled devices are blocked -> Airplane mode is ON.
+    local unblocked_count
+    unblocked_count=$(rfkill list | grep -v "Hard blocked: yes" | grep -c "Soft blocked: no")
+
+    if [[ "$unblocked_count" -eq 0 ]]; then
+        return 0 # true, is on
+    else
+        return 1 # false, is off
+    fi
+}
+
+# Toggles airplane mode
+toggle() {
+    if is_on; then
+        rfkill unblock all
+    else
+        rfkill block all
+    fi
+    # Give rfkill a moment to update statuses before querying
+    sleep 0.1
+    # Notify eww to update variables
+    eww update airplane_status="$(status)"
+}
+
+# EWW-compatible output for status
+status() {
+    if is_on; then
+        echo "true"
+    else
+        echo "false"
+    fi
+}
+
+case "${1:-}" in
+    toggle)
+        toggle
+        ;;
+    status)
+        status
+        ;;
+    *)
+        echo "Usage: $0 {toggle|status}" >&2
+        exit 1
+        ;;
+esac 
