@@ -10,7 +10,7 @@ if [ -z "$1" ]; then
 fi
 BRIGHTNESS_VALUE=$1
 DELAY=0.3
-PID_FILE="/tmp/eww_brightness_debounce.pid"
+PID_FILE="/tmp/eww_brightness_debounce-$UID.pid"
 
 # If a previous debouncer is running, kill it.
 if [ -f "$PID_FILE" ]; then

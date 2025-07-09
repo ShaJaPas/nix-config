@@ -30,6 +30,7 @@
     yandex-music
     steam
     discord
+    lutris
   ];
 
   xdg.enable = true;

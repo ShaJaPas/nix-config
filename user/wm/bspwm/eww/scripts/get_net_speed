@@ -3,7 +3,7 @@ IFACE=$(ip route | grep '^default' | awk '{print $5}' | head -n1)
 [ -z "$IFACE" ] && IFACE=$(ip -o -4 route show to default | awk '{print $5}')
 [ -z "$IFACE" ] && IFACE="lo"
 
-prev_file="/tmp/eww-net-$IFACE.dat"
+prev_file="/tmp/eww-net-$IFACE-$UID.dat"
 
 if [ -f "$prev_file" ]; then
     read prev_rx prev_tx prev_time < "$prev_file"

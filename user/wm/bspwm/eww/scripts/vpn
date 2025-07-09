@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+get_active_vpn() {
+    nmcli -g NAME,TYPE,DEVICE,STATE con show --active | awk -F: '$2=="vpn" && $4=="activated" {print $1}' | head -n 1
+}
+
+case "${1:-}" in
+    status)
+        if [ -n "$(get_active_vpn)" ]; then
+            echo "true"
+        else
+            echo "false"
+        fi
+        ;;
+    get-connected-name)
+        get_active_vpn
+        ;;
+    list)
+        active_vpn=$(get_active_vpn)
+        connections=$(nmcli -g NAME,TYPE con show | grep ":vpn$")
+        
+        json="["
+        first=true
+        while IFS= read -r line; do
+            if [ -z "$line" ]; then
+                continue
+            fi
+            name=$(echo "$line" | cut -d: -f1)
+            if [ "$first" = false ]; then
+                json="$json,"
+            fi
+            first=false
+
+            active="false"
+            if [ "$name" = "$active_vpn" ]; then
+                active="true"
+            fi
+            
+            json="$json{\"name\":\"$name\",\"active\":$active}"
+        done <<< "$connections"
+        json="$json]"
+        echo "$json"
+        ;;
+    listen-data)
+        connections_json=$(bash "$0" list)
+        status=$(bash "$0" status)
+        connected_name=$(bash "$0" get-connected-name)
+        echo "{\"connections\": $connections_json, \"enabled\": $status, \"name\": \"$connected_name\"}"
+        ;;
+    connect)
+        nmcli con up id "$2"
+        ;;
+    disconnect)
+        active_vpn=$(get_active_vpn)
+        if [ -n "$active_vpn" ]; then
+            nmcli con down id "$active_vpn"
+        fi
+        ;;
+    *)
+        echo "Usage: $0 {status|get-connected-name|list|connect|disconnect|listen-data}"
+        exit 1
+        ;;
+esac 

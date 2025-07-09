@@ -28,6 +28,7 @@
     ../../user/app/virtualization/virtualization.nix # Virtual machines
     ../../user/dev/cc.nix # C stuff
     ../../user/dev/python.nix # Python stuff
+    ../../user/xdg/xdg.nix # XDG
   ];
 
   home.stateVersion = "24.11"; # Please read the comment before changing.
@@ -41,7 +42,6 @@
       starship
       git
 
-      gnome-tweaks
       wireshark
       bloomrpc
       audio-recorder
@@ -54,31 +54,14 @@
       ffmpeg
       pinta
       obsidian
-      lutris
+      eog
     ]
   );
 
   programs.java.enable = true;
-  xdg.enable = true;
-  xdg.userDirs = {
-    enable = true;
-    createDirectories = true;
-    music = "${config.home.homeDirectory}/Media/Music";
-    videos = "${config.home.homeDirectory}/Media/Videos";
-    pictures = "${config.home.homeDirectory}/Media/Pictures";
-    templates = "${config.home.homeDirectory}/Templates";
-    download = "${config.home.homeDirectory}/Downloads";
-    documents = "${config.home.homeDirectory}/Documents";
-    desktop = null;
-    publicShare = null;
-    extraConfig = {
-      XDG_DOTFILES_DIR = "${config.home.homeDirectory}/.dotfiles";
-      XDG_ARCHIVE_DIR = "${config.home.homeDirectory}/Archive";
-      XDG_VM_DIR = "${config.home.homeDirectory}/Machines";
-    };
-  };
 
   home.sessionVariables = {
+    BSPWM_SOCKET = "/tmp/bspwm-${userSettings.username}.sock";
     EDITOR = userSettings.editor;
     SPAWNEDITOR = userSettings.spawnEditor;
     TERM = userSettings.term;

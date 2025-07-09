@@ -6,6 +6,9 @@ let
   };
 in
 {
+  home.packages = with pkgs; [
+    gnome-tweaks
+  ];
   gtk = {
     enable = true;
     theme = {

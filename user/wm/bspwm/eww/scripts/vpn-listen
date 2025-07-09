@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# Initial output
+bash "$(dirname "$0")/vpn" listen-data
+
+# Monitor for changes
+nmcli monitor | while read -r line; do
+  # When a connection changes, refresh the list
+  if echo "$line" | grep -q "connection"; then
+    bash "$(dirname "$0")/vpn" listen-data
+  fi
+done 

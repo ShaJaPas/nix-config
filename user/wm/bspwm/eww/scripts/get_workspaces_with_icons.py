@@ -18,7 +18,7 @@ try:
 except ImportError:
     X = None
 
-ICON_CACHE_DIR = "/tmp/eww_icon_cache"
+ICON_CACHE_DIR = f"/tmp/eww_icon_cache-{os.getuid()}"
 if not os.path.exists(ICON_CACHE_DIR):
     os.makedirs(ICON_CACHE_DIR)
 

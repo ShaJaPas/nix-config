@@ -1,7 +1,6 @@
 (defpoll mem_usage :interval "5s" "bash scripts/get_mem_usage")
 (defpoll cpu_freq :interval "2s" "bash scripts/get_cpu_freq")
 (defpoll net_speed :interval "1s" "bash scripts/get_net_speed")
-;(defpoll cpu_usage :interval "2s" "bash scripts/get_cpu_usage")
 (defpoll keyboard_layout :interval "1s" "bash scripts/get_layout")
 
 (defpoll volume :interval "1s" :initial '{"status": "muted", "level": 0}' "bash scripts/get_volume")

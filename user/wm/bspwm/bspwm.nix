@@ -2,6 +2,7 @@
 {
   imports = [
     ./rofi/rofi.nix
+    ./dunst.nix
   ];
 
   gtk = {
@@ -52,6 +53,8 @@
     xsecurelock
     brightnessctl
     ddcutil
+    networkmanagerapplet
+    gtk3
   ];
 
   # Copy eww config to ~/.config/eww
@@ -63,12 +66,16 @@
   xsession.windowManager.bspwm.enable = true;
   xsession.windowManager.bspwm.extraConfig = ''
     ${pkgs.autorandr}/bin/autorandr -c
+    echo UPDATESTARTUPTTY | gpg-connect-agent
 
+    nm-applet &
+    
     bspc config border_width 2
     bspc config window_gap 2
     bspc config split_ratio 0.52
     bspc config borderless_monocle true
     bspc config gapless_monocle true
+    bspc config single_monocle true
     bspc config focus_follows_pointer true
 
     bspc config focused_border_color "#498a49"
@@ -76,9 +83,6 @@
     bspc config normal_border_color  "#8a8d9e"
 
     bspc config merge_overlapping_monitors true
-    bspc config right_padding 0
-    bspc config top_padding 30
-    bspc config bottom_padding 0
 
     bspc rule -a steam state=floating sticky=on
     bspc rule -a Eww layer=below
@@ -100,14 +104,14 @@
     eww update brightness_level=$(bash $HOME/.config/eww/scripts/brightness get) &
     eww update workspaces=$(python3-glib $HOME/.config/eww/scripts/get_workspaces_with_icons.py get) &
 
-    bspc subscribe node_state | while read -r _ _ _ _ state flag; do
-      if [ "$state" != "fullscreen" ]; then
-        continue
-      fi
-      if [ "$flag" == on ]; then
-        eww close-all
-      else
-        eww open bar
+    # Script to hide bar on fullscreen
+    bspc subscribe node_state desktop_focus | while read -r event _ _ _ state _; do
+      if [ "$event" = "desktop_focus" ] || [ "$state" = "fullscreen" ]; then
+        if bspc query -N -d focused -n .fullscreen > /dev/null; then
+          eww close-all
+        else
+          eww open bar
+        fi
       fi
     done &
   '';
@@ -117,6 +121,12 @@
     keybindings = {
       # Terminal
       "super + q" = "${userSettings.term}";
+      # Browser
+      "super + b" = "gtk-launch ${userSettings.browser}";
+      # File-manager
+      "super + d" = "nautilus";
+      # File-manager
+      "super + e" = "${userSettings.editor}";
 
       # App launcher
       "super + r" = "rofi -show drun";
@@ -139,15 +149,15 @@
       "super + 9" = "bspc desktop -f 9";
 
       # Move window to desktop
-      "super + shift + 1" = "bspc node -d 1";
-      "super + shift + 2" = "bspc node -d 2";
-      "super + shift + 3" = "bspc node -d 3";
-      "super + shift + 4" = "bspc node -d 4";
-      "super + shift + 5" = "bspc node -d 5";
-      "super + shift + 6" = "bspc node -d 6";
-      "super + shift + 7" = "bspc node -d 7";
-      "super + shift + 8" = "bspc node -d 8";
-      "super + shift + 9" = "bspc node -d 9";
+      "super + shift + 1" = "bspc node -d 1 --follow";
+      "super + shift + 2" = "bspc node -d 2 --follow";
+      "super + shift + 3" = "bspc node -d 3 --follow";
+      "super + shift + 4" = "bspc node -d 4 --follow";
+      "super + shift + 5" = "bspc node -d 5 --follow";
+      "super + shift + 6" = "bspc node -d 6 --follow";
+      "super + shift + 7" = "bspc node -d 7 --follow";
+      "super + shift + 8" = "bspc node -d 8 --follow";
+      "super + shift + 9" = "bspc node -d 9 --follow";
 
       "super + s" = "bspc node focused -t floating";
       "super + t" = "bspc node focused -t tiled";
@@ -166,7 +176,7 @@
       "super + Escape" = "pkill -USR1 -x sxhkd";
 
       # Logout from bspwm
-      "super + shift + q" = "bspc quit";
+      "super + shift + q" = "bspc quit; pkill -x sxhkd";
     };
   };
 

@@ -19,6 +19,8 @@
 (defpoll bluetooth_devices :initial "[]" :interval "5s" "bash scripts/bluetooth list")
 (defpoll bluetooth_connected_device :interval "5s" :initial "" "bash scripts/bluetooth get-connected-name")
 
+(deflisten vpn_data :initial '{"connections": [], "enabled": false, "name": "Not Connected"}' "bash scripts/vpn-listen")
+
 (defvar show_power_menu false)
 (defvar show_sound_output_menu false)
 (defvar show_sound_input_menu false)
@@ -126,6 +128,19 @@
         (eventbox :class "sound-output-settings-link" :cursor "pointer"
             (label :class "sound-settings" :text "Bluetooth Settings" :halign "start")))))
 
+(defwidget vpn_menu [connections]
+  (box :class "sound-output-menu" :orientation "v" :space-evenly false :spacing 15 :hexpand true
+    (box :orientation "h" :space-evenly false :spacing 15 :halign "start"
+      (image :path "assets/vpn_passive.svg" :image-width 25)
+      (label :text "VPN" :class "sound-output-header" :halign "start"))
+    (box :orientation "v" :space-evenly false :spacing 5 :class "sound-output-list"
+      (for connection in connections
+        (eventbox :class "sound-output-item ${connection.active ? 'active' : ''}" :onclick "bash scripts/vpn ${connection.active ? 'disconnect' : 'connect'} '${connection.name}'" :cursor "pointer"
+          (box :class "sound-output-item-box" :orientation "h" :space-evenly false :spacing 10
+            (image :path "assets/vpn_passive.svg" :image-width 16)
+            (label :text "${connection.name}" :halign "start" :hexpand true)
+            (image :visible {connection.active} :path "assets/tick.svg" :image-width 14)))))))
+
 (defwidget power_menu []
   (box :class "sound-output-menu" :orientation "v" :space-evenly false :spacing 15
     (box :orientation "h" :space-evenly false :spacing 15 :halign "start"
@@ -145,7 +160,7 @@
       (eventbox :class "sound-output-item" :onclick "bspc quit" :cursor "pointer"
         (box :class "sound-output-item-box" :orientation "h" :space-evenly false :spacing 10
           (label :text "Log Out..." :halign "start" :hexpand true)))
-      (eventbox :class "sound-output-item" :onclick "dm-tool switch-to-greeter" :cursor "pointer"
+      (eventbox :class "sound-output-item" :onclick "dbus-send --system --dest=org.freedesktop.DisplayManager --print-reply /org/freedesktop/DisplayManager/Seat0 org.freedesktop.DisplayManager.Seat.SwitchToGreeter" :cursor "pointer"
         (box :class "sound-output-item-box" :orientation "h" :space-evenly false :spacing 10
           (label :text "Switch User..." :halign "start" :hexpand true))))))
 
@@ -183,17 +198,22 @@
         :main_text "Privacy"
         :sub_text "Microphone"
         :is-active true))
+    (box :orientation "v" :space-evenly false :spacing "0"
     (box :orientation "h" :spacing 10
         (qs_double_button
             :icon "assets/vpn"
             :main_text "VPN"
-            :sub_text "Not Connected"
-            :is-active false)
+              :sub_text {vpn_data.name ?: "Not Connected"}
+              :is-active {vpn_data.enabled}
+              :button_click "eww update active_menu='${active_menu == "vpn" ? "none" : "vpn"}'"
+              :next_click "eww update active_menu='${active_menu == "vpn" ? "none" : "vpn"}'")
         (eventbox :onclick "bash scripts/airplane toggle &"
             (qs_toggle_button
                 :icon "assets/airplane"
                 :text "Airplane Mode"
-                :is-active {airplane_status == "true"})))))
+                  :is-active {airplane_status == "true"}))))
+      (revealer :transition "slidedown" :reveal {active_menu == "vpn"}
+          (vpn_menu :connections {vpn_data.connections}))))
 
 (defwidget quicksettings []
   (box :class "qs-container" :orientation "v" :space-evenly false :spacing 20 :valign "start"
