@@ -55,6 +55,7 @@
     ddcutil
     networkmanagerapplet
     gtk3
+    escrotum
   ];
 
   # Copy eww config to ~/.config/eww
@@ -130,6 +131,10 @@
 
       # App launcher
       "super + r" = "rofi -show drun";
+
+      # Screenshots
+      "Print" = "sh -c 'mkdir -p $HOME/Media/Pictures/Screenshots && escrotum $HOME/Media/Pictures/Screenshots/Screenshot-$(date +%Y-%m-%d_%H-%M-%S).png'";
+      "shift + Print" = "sh -c 'mkdir -p $HOME/Media/Pictures/Screenshots && escrotum -s $HOME/Media/Pictures/Screenshots/Screenshot-$(date +%Y-%m-%d_%H-%M-%S).png'";
 
       # Close window
       "super + c" = "bspc node -c";
