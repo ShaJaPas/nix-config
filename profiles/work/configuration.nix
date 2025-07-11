@@ -106,6 +106,7 @@
       "gamemode"
       "video"
       "i2c"
+      "input"
     ];
     packages = [ ];
   };
@@ -121,6 +122,7 @@
       "gamemode"
       "video"
       "i2c"
+      "input"
     ];
     packages = [ ];
   };

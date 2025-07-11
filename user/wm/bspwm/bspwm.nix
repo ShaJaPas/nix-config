@@ -56,6 +56,7 @@
     networkmanagerapplet
     gtk3
     escrotum
+    libinput-gestures
   ];
 
   # Copy eww config to ~/.config/eww
@@ -71,6 +72,8 @@
 
     nm-applet &
     
+    libinput-gestures -c $HOME/.config/libinput-gestures.conf &
+
     bspc config border_width 2
     bspc config window_gap 2
     bspc config split_ratio 0.52
@@ -228,4 +231,9 @@
       animation-for-next-tag = "fly-out";
     };
   };
+
+  xdg.configFile."libinput-gestures.conf".text = ''
+    gesture swipe right 3 bspc desktop -f prev.local
+    gesture swipe left 3 bspc desktop -f next.local
+  '';
 }
