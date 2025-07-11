@@ -25,8 +25,8 @@ toggle() {
 
 # Function to get a list of available Wi-Fi networks in JSON format
 list_networks() {
-    # Get the list of Wi-Fi networks, including the connected one
-    local networks=$(nmcli --terse --fields SSID,SIGNAL,SECURITY,ACTIVE dev wifi list --rescan yes | sort -t: -k2,2 -nr | head -n 10)
+    # Get the list of Wi-Fi networks, including the connected one, ensuring uniqueness by SSID
+    local networks=$(nmcli --terse --fields SSID,SIGNAL,SECURITY,ACTIVE dev wifi list --rescan yes | sort -t: -k4,4r -k2,2nr | awk -F: '!seen[$1]++' | sort -t: -k2,2nr | head -n 10)
     local connected_ssid=$(get_ssid)
     local json_output="["
     
