@@ -71,7 +71,7 @@
     echo UPDATESTARTUPTTY | gpg-connect-agent
 
     nm-applet &
-    
+
     libinput-gestures -c $HOME/.config/libinput-gestures.conf &
 
     bspc config border_width 2
@@ -136,8 +136,10 @@
       "super + r" = "rofi -show drun";
 
       # Screenshots
-      "Print" = "sh -c 'mkdir -p $HOME/Media/Pictures/Screenshots && escrotum $HOME/Media/Pictures/Screenshots/Screenshot-$(date +%Y-%m-%d_%H-%M-%S).png'";
-      "shift + Print" = "sh -c 'mkdir -p $HOME/Media/Pictures/Screenshots && escrotum -s $HOME/Media/Pictures/Screenshots/Screenshot-$(date +%Y-%m-%d_%H-%M-%S).png'";
+      "Print" =
+        "sh -c 'mkdir -p $HOME/Media/Pictures/Screenshots && escrotum $HOME/Media/Pictures/Screenshots/Screenshot-$(date +%Y-%m-%d_%H-%M-%S).png'";
+      "shift + Print" =
+        "sh -c 'mkdir -p $HOME/Media/Pictures/Screenshots && escrotum -s $HOME/Media/Pictures/Screenshots/Screenshot-$(date +%Y-%m-%d_%H-%M-%S).png'";
 
       # Close window
       "super + c" = "bspc node -c";
