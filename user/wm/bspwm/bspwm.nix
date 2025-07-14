@@ -106,7 +106,6 @@
     eww open bar &
 
     eww update brightness_level=$(bash $HOME/.config/eww/scripts/brightness get) &
-    eww update workspaces=$(python3-glib $HOME/.config/eww/scripts/get_workspaces_with_icons.py get) &
 
     # Script to hide bar on fullscreen
     bspc subscribe node_state desktop_focus | while read -r event _ _ _ state _; do

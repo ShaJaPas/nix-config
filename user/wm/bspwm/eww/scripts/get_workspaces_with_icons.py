@@ -5,6 +5,7 @@ import gi
 import os
 import configparser
 import datetime
+import time
 
 gi.require_version('Gtk', '4.0')
 from gi.repository import Gtk, Gdk
@@ -14,9 +15,10 @@ try:
 except ImportError:
     Image = None
 try:
-    from Xlib import X
+    from Xlib import X, error
 except ImportError:
     X = None
+    error = None
 
 ICON_CACHE_DIR = f"/tmp/eww_icon_cache-{os.getuid()}"
 if not os.path.exists(ICON_CACHE_DIR):
@@ -166,16 +168,25 @@ def get_window_info(win, ewmh_conn):
     return None
 
 def get_and_print_workspaces(e):
-    """Get and print workspace and application info."""
+    """Get and print workspace and application info, but only if valid data is found."""
     try:
-        all_windows = e.getClientList()
+        # It's possible getClientList fails if no clients exist yet.
+        # In that case, we can assume an empty list of windows.
+        try:
+            all_windows = e.getClientList()
+            if all_windows is None:
+                all_windows = []
+        except TypeError: # This happens if _NET_CLIENT_LIST is not set
+            all_windows = []
+
         num_desktops = e.getNumberOfDesktops()
         current_desktop = e.getCurrentDesktop()
-    except (X.error.BadWindow, AttributeError):
-        # A window was destroyed while we were querying it.
-        # It's safe to just wait for the next event.
-        print("[]")
-        sys.stdout.flush()
+
+        if num_desktops is None or current_desktop is None or num_desktops == 0:
+            return # Silently return if WM info is incomplete
+
+    except (error.BadWindow if error else tuple(), AttributeError):
+        # An error occurred, likely WM not ready. Don't print, just return.
         return
     
     workspaces = [{"id": i, "display_id": i + 1, "active": i == current_desktop, "apps": []} for i in range(num_desktops)]
@@ -205,14 +216,42 @@ def get_and_print_workspaces(e):
     print(json.dumps(workspaces))
     sys.stdout.flush()
 
+def check_wm_ready(e):
+    """Checks if the WM is ready by querying desktop properties, not clients."""
+    try:
+        num_desktops = e.getNumberOfDesktops()
+        current_desktop = e.getCurrentDesktop()
+        
+        # A WM is ready if it reports at least one desktop.
+        if num_desktops is not None and num_desktops > 0 and current_desktop is not None and current_desktop >= 0:
+            return True
+        return False
+    except Exception:
+        # Catch potential errors during startup
+        return False
+
 def main():
     scan_desktop_files()
     
     e = ewmh.EWMH()
 
+    # For one-shot calls, still try to wait for WM
+    # (This part is used by the bspwm.nix debug command)
     if len(sys.argv) > 1 and sys.argv[1] == 'get':
+        # For one-shot calls, still try to wait for WM
+        if not check_wm_ready(e):
+            time.sleep(0.5)
         get_and_print_workspaces(e)
         return
+
+    # Initial setup: Wait in a loop until the WM is fully ready.
+    for _ in range(20): # Retry for up to 2 seconds
+        if check_wm_ready(e):
+            break
+        time.sleep(0.1)
+
+    # Now that the WM is ready (or we timed out), print the initial state.
+    get_and_print_workspaces(e)
 
     # Store a set of windows we're listening to for property changes
     listened_windows = set()
@@ -220,7 +259,13 @@ def main():
     def update_window_event_listeners():
         """Update event listeners for property changes on all windows."""
         nonlocal listened_windows
-        current_windows = set(e.getClientList())
+        try:
+            client_list = e.getClientList()
+            if client_list is None:
+                client_list = []
+        except TypeError:
+            client_list = []
+        current_windows = set(client_list)
         
         new_windows = current_windows - listened_windows
         for win in new_windows:
@@ -235,8 +280,7 @@ def main():
     def get_and_print_workspaces_event_handler():
         get_and_print_workspaces(e)
 
-    # Initial setup
-    get_and_print_workspaces_event_handler()
+    # Initial listeners are set up after the first successful data fetch
     update_window_event_listeners()
 
     root = e.root
@@ -249,24 +293,28 @@ def main():
 
     # Event loop
     while True:
-        event = e.display.next_event()
-        
-        if event.type == X.PropertyNotify:
-            if event.atom == NET_CLIENT_LIST_ATOM:
-
+        try:
+            event = e.display.next_event()
+            
+            # Update everything if the client list, current desktop, or a window's desktop changes
+            if hasattr(event, 'atom') and event.atom in [NET_CLIENT_LIST_ATOM, NET_CURRENT_DESKTOP_ATOM, NET_WM_DESKTOP_ATOM]:
                 get_and_print_workspaces_event_handler()
                 update_window_event_listeners()
-
-            elif event.atom in [NET_CURRENT_DESKTOP_ATOM, NET_WM_DESKTOP_ATOM]:
+            
+            # Also update if a property on a listened-to window changes
+            elif event.type == X.PropertyNotify:
                 get_and_print_workspaces_event_handler()
+
+        except (error.BadWindow if error else tuple(), KeyboardInterrupt):
+            # Handle cases where a window is destroyed during processing
+            break
 
 if __name__ == "__main__":
     try:
         main()
-    except (X.error.BadWindow, KeyboardInterrupt):
-        # Exit gracefully
-        print("[]")
-        sys.exit(0)
+    except (error.BadWindow if error else tuple(), KeyboardInterrupt):
+        # Exit gracefully and silently on known exit conditions.
+        pass
     except Exception:
-        print("[]")
-        sys.exit(1) 
+        # On any other unhandled exception, also exit silently.
+        pass 
