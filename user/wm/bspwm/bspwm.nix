@@ -57,6 +57,8 @@
     gtk3
     escrotum
     libinput-gestures
+    pavucontrol
+    blueberry
   ];
 
   # Copy eww config to ~/.config/eww
@@ -103,6 +105,7 @@
     }' &
 
     # Launch eww bar
+    eww daemon
     eww open bar &
 
     eww update brightness_level=$(bash $HOME/.config/eww/scripts/brightness get) &
@@ -113,7 +116,7 @@
         if bspc query -N -d focused -n .fullscreen > /dev/null; then
           eww close-all
         else
-          eww open bar
+          eww active-windows | grep -q 'bar: bar' || eww open bar
         fi
       fi
     done &
