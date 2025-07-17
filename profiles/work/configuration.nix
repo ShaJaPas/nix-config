@@ -33,6 +33,7 @@
     "/nix/var/nix/profiles/per-user/root/channels"
   ];
 
+  security.pki.certificates = [ (builtins.readFile ./ca.crt) ];
   # Ensure nix flakes are enabled
   nix.extraOptions = ''
     experimental-features = nix-command flakes
@@ -145,11 +146,9 @@
     tunMode.enable = true;
   };
 
-  hardware.enableAllFirmware = true;
+  hardware.enableRedistributableFirmware = true;
   hardware.i2c.enable = true;
   networking.firewall.enable = false;
-  services.spice-vdagentd.enable = true;
-  virtualisation.spiceUSBRedirection.enable = true;
   programs.nix-ld.enable = true;
 
   environment.shells = with pkgs; [ fish ];
