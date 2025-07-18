@@ -33,7 +33,6 @@
     "/nix/var/nix/profiles/per-user/root/channels"
   ];
 
-  security.pki.certificates = [ (builtins.readFile ./ca.crt) ];
   # Ensure nix flakes are enabled
   nix.extraOptions = ''
     experimental-features = nix-command flakes
