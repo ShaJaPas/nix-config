@@ -8,6 +8,7 @@ let
       ewmh # For interacting with EWMH-compliant window managers.
       pillow # For image manipulation (_NET_WM_ICON).
       pygobject3 # For Gtk/Gdk bindings to find icons.
+      psutil
     ]
   );
 

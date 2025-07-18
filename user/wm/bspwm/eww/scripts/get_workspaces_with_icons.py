@@ -6,6 +6,15 @@ import os
 import configparser
 import datetime
 import time
+import logging
+import psutil
+
+# Setup logging
+LOG_FILE = f"/tmp/eww_icon_script_{os.getuid()}.log"
+logging.basicConfig(filename=LOG_FILE,
+                    filemode='w',
+                    format='%(asctime)s - %(levelname)s - %(message)s',
+                    level=logging.INFO)
 
 gi.require_version('Gtk', '4.0')
 from gi.repository import Gtk, Gdk
@@ -25,6 +34,7 @@ if not os.path.exists(ICON_CACHE_DIR):
     os.makedirs(ICON_CACHE_DIR)
 
 DESKTOP_CLASS_MAP = {}
+DESKTOP_EXEC_MAP = {}
 
 def scan_desktop_files():
     """Scans standard locations for .desktop files and caches their info."""
@@ -49,7 +59,7 @@ def scan_desktop_files():
             
             filepath = os.path.join(d, filename)
             parser = configparser.ConfigParser(interpolation=None)
-            parser.optionxform = str 
+            parser.optionxform = lambda optionstr: optionstr
             try:
                 parser.read(filepath, encoding='utf-8')
                 if 'Desktop Entry' in parser:
@@ -58,11 +68,18 @@ def scan_desktop_files():
                         wm_class = entry['StartupWMClass']
                         DESKTOP_CLASS_MAP[wm_class.lower()] = filepath
                     
+                    if 'Exec' in entry:
+                        exec_cmd = entry['Exec'].split(' ')[0]
+                        exec_name = os.path.basename(exec_cmd)
+                        if exec_name.lower() not in DESKTOP_EXEC_MAP:
+                             DESKTOP_EXEC_MAP[exec_name.lower()] = filepath
+
                     name = os.path.splitext(filename)[0]
                     if name.lower() not in DESKTOP_CLASS_MAP:
                         DESKTOP_CLASS_MAP[name.lower()] = filepath
 
-            except configparser.Error:
+            except configparser.Error as e:
+                logging.warning(f"Could not parse desktop file {filepath}: {e}")
                 continue
 
 def get_icon_name_from_desktop_file(filepath):
@@ -71,12 +88,13 @@ def get_icon_name_from_desktop_file(filepath):
         return None
     
     parser = configparser.ConfigParser(interpolation=None)
-    parser.optionxform = str
+    parser.optionxform = lambda optionstr: optionstr
     try:
         parser.read(filepath, encoding='utf-8')
         if 'Desktop Entry' in parser and 'Icon' in parser['Desktop Entry']:
             return parser['Desktop Entry']['Icon']
-    except configparser.Error:
+    except configparser.Error as e:
+        logging.warning(f"Could not parse desktop file for icon name {filepath}: {e}")
         return None
     return None
 
@@ -96,7 +114,8 @@ def get_icon_path_from_theme(icon_name, size=32):
             icon_file = paintable.get_file()
             if icon_file:
                 return icon_file.get_path()
-    except Exception:
+    except Exception as e:
+        logging.warning(f"Could not get icon path for '{icon_name}': {e}")
         return None
     return None
 
@@ -111,60 +130,95 @@ def save_icon_from_data(win_id, icons):
         icon_path = os.path.join(ICON_CACHE_DIR, f"{win_id}.png")
         img.save(icon_path, "PNG")
         return icon_path
-    except Exception:
+    except Exception as e:
+        logging.warning(f"Could not save icon from data for win {win_id}: {e}")
+        return None
+
+def get_pid_from_window(win, ewmh_conn):
+    """Gets the PID of the process that owns a window."""
+    if not X: return None
+    try:
+        NET_WM_PID_ATOM = ewmh_conn.display.get_atom('_NET_WM_PID')
+        pid_prop = win.get_full_property(NET_WM_PID_ATOM, X.AnyPropertyType)
+        if pid_prop and pid_prop.value:
+            return pid_prop.value[0]
+    except Exception as e:
+        logging.warning(f"Could not get PID for window {win.id}: {e}")
+    return None
+
+def get_exe_from_pid(pid):
+    """Gets the executable name from a PID."""
+    if not pid:
+        return None
+    try:
+        process = psutil.Process(pid)
+        return process.name()
+    except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess) as e:
+        logging.info(f"Could not get process name for PID {pid}: {e}")
         return None
 
 def get_window_info(win, ewmh_conn):
     """Extracts application info by finding its .desktop file, with fallbacks."""
     icon_path = None
-    wm_class = None
-    try:
-        # Method 1: .desktop file
-        wm_class = win.get_wm_class()
-        if wm_class:
-            class_names_to_try = [c.lower() for c in wm_class if c]
-            desktop_filepath = None
-            for name in class_names_to_try:
-                desktop_filepath = DESKTOP_CLASS_MAP.get(name)
+    
+    # Method 1: Get executable from PID and match with .desktop file
+    pid = get_pid_from_window(win, ewmh_conn)
+    exe_name = get_exe_from_pid(pid)
+    if exe_name:
+        desktop_filepath = DESKTOP_EXEC_MAP.get(exe_name.lower())
+        if desktop_filepath:
+            icon_name = get_icon_name_from_desktop_file(desktop_filepath)
+            icon_path = get_icon_path_from_theme(icon_name)
+
+    # Method 2: Fallback to WM_CLASS if PID method fails
+    if not icon_path:
+        try:
+            wm_class = win.get_wm_class()
+            if wm_class:
+                class_names_to_try = [c.lower() for c in wm_class if c]
+                desktop_filepath = None
+                for name in class_names_to_try:
+                    desktop_filepath = DESKTOP_CLASS_MAP.get(name)
+                    if desktop_filepath:
+                        break
+                    if not desktop_filepath:
+                        desktop_filepath = DESKTOP_EXEC_MAP.get(name)
+                        if desktop_filepath:
+                            break
                 if desktop_filepath:
-                    break
-            if desktop_filepath:
-                icon_name = get_icon_name_from_desktop_file(desktop_filepath)
-                icon_path = get_icon_path_from_theme(icon_name)
+                    icon_name = get_icon_name_from_desktop_file(desktop_filepath)
+                    icon_path = get_icon_path_from_theme(icon_name)
+        except Exception:
+            # This can fail if the window is destroyed, so we don't need to log an error.
+            pass
 
-        # Method 2: Fallback to direct methods if .desktop fails
-        if not icon_path and wm_class:
-            class_name = wm_class[0] or wm_class[1]
-            if class_name:
-                icon_path = get_icon_path_from_theme(class_name.lower())
+    # Method 3: Fallback to get icon from _NET_WM_ICON
+    if not icon_path and X:
+        try:
+            NET_WM_ICON_ATOM = ewmh_conn.display.get_atom('_NET_WM_ICON')
+            prop = win.get_full_property(NET_WM_ICON_ATOM, X.AnyPropertyType)
+            if prop and prop.value:
+                icons_raw = prop.value
+                icons = []
+                offset = 0
+                while offset < len(icons_raw):
+                    width, height = icons_raw[offset], icons_raw[offset+1]
+                    if width == 0 or height == 0: break
+                    offset += 2
+                    size = width * height
+                    if offset + size > len(icons_raw): break
+                    data = icons_raw[offset : offset + size]
+                    icons.append((width, height, data))
+                    offset += size
+                if icons:
+                    icon_path = save_icon_from_data(win.id, icons)
+        except Exception as e:
+            logging.warning(f"Could not get _NET_WM_ICON for window {win.id}: {e}")
+            pass
 
-        # Fallback 2b: get icon from _NET_WM_ICON
-        if not icon_path and X:
-            try:
-                NET_WM_ICON_ATOM = ewmh_conn.display.get_atom('_NET_WM_ICON')
-                prop = win.get_full_property(NET_WM_ICON_ATOM, X.AnyPropertyType)
-                if prop and prop.value:
-                    icons_raw = prop.value
-                    icons = []
-                    offset = 0
-                    while offset < len(icons_raw):
-                        width, height = icons_raw[offset], icons_raw[offset+1]
-                        if width == 0 or height == 0: break
-                        offset += 2
-                        size = width * height
-                        if offset + size > len(icons_raw): break
-                        data = icons_raw[offset : offset + size]
-                        icons.append((width, height, data))
-                        offset += size
-                    if icons:
-                        icon_path = save_icon_from_data(win.id, icons)
-            except Exception:
-                pass
-
-        if icon_path:
-            return {"icon": icon_path}
-    except Exception:
-        pass
+    if icon_path:
+        return {"icon": icon_path}
+    
     return None
 
 def get_and_print_workspaces(e):
@@ -185,8 +239,11 @@ def get_and_print_workspaces(e):
         if num_desktops is None or current_desktop is None or num_desktops == 0:
             return # Silently return if WM info is incomplete
 
-    except (error.BadWindow if error else tuple(), AttributeError):
-        # An error occurred, likely WM not ready. Don't print, just return.
+    except Exception as e:
+        if error and isinstance(e, error.BadWindow):
+            logging.warning(f"A window was destroyed while querying workspaces: {e}")
+        else:
+            logging.warning(f"Error getting workspace list, WM may not be ready: {e}")
         return
     
     workspaces = [{"id": i, "display_id": i + 1, "active": i == current_desktop, "apps": []} for i in range(num_desktops)]
@@ -226,8 +283,9 @@ def check_wm_ready(e):
         if num_desktops is not None and num_desktops > 0 and current_desktop is not None and current_desktop >= 0:
             return True
         return False
-    except Exception:
+    except Exception as e:
         # Catch potential errors during startup
+        logging.warning(f"Error checking WM readiness: {e}")
         return False
 
 def main():
@@ -256,11 +314,11 @@ def main():
     # Store a set of windows we're listening to for property changes
     listened_windows = set()
 
-    def update_window_event_listeners():
+    def update_window_event_listeners(ewmh_conn):
         """Update event listeners for property changes on all windows."""
         nonlocal listened_windows
         try:
-            client_list = e.getClientList()
+            client_list = ewmh_conn.getClientList()
             if client_list is None:
                 client_list = []
         except TypeError:
@@ -268,12 +326,17 @@ def main():
         current_windows = set(client_list)
         
         new_windows = current_windows - listened_windows
-        for win in new_windows:
-            try:
-                win.change_attributes(event_mask=X.PropertyChangeMask)
-            except X.error.BadWindow:
-                # Window might have been destroyed before we could add a listener
-                pass
+        if X:
+            for win in new_windows:
+                try:
+                    win.change_attributes(event_mask=X.PropertyChangeMask)
+                except Exception as ex:
+                    if error and isinstance(ex, error.BadWindow):
+                        # Window might have been destroyed before we could add a listener
+                        logging.info(f"Window {win.id} destroyed before event listener attachment.")
+                        pass # It's a recoverable error
+                    else:
+                        logging.warning(f"Could not set event mask on window {win.id}: {ex}")
 
         listened_windows = current_windows
 
@@ -281,7 +344,11 @@ def main():
         get_and_print_workspaces(e)
 
     # Initial listeners are set up after the first successful data fetch
-    update_window_event_listeners()
+    update_window_event_listeners(e)
+
+    if not X:
+        logging.warning("Xlib not available, event listening will be disabled.")
+        return
 
     root = e.root
     root.change_attributes(event_mask=X.PropertyChangeMask)
@@ -299,22 +366,33 @@ def main():
             # Update everything if the client list, current desktop, or a window's desktop changes
             if hasattr(event, 'atom') and event.atom in [NET_CLIENT_LIST_ATOM, NET_CURRENT_DESKTOP_ATOM, NET_WM_DESKTOP_ATOM]:
                 get_and_print_workspaces_event_handler()
-                update_window_event_listeners()
+                update_window_event_listeners(e)
             
             # Also update if a property on a listened-to window changes
             elif event.type == X.PropertyNotify:
                 get_and_print_workspaces_event_handler()
 
-        except (error.BadWindow if error else tuple(), KeyboardInterrupt):
-            # Handle cases where a window is destroyed during processing
+        except KeyboardInterrupt:
+            logging.info("Script interrupted by user.")
+            break
+        except Exception as ex:
+            if error and isinstance(ex, error.BadWindow):
+                logging.warning(f"BadWindow error in event loop, likely a window was destroyed: {ex}")
+                continue # This is a recoverable error, so we continue the loop.
+            
+            logging.error(f"Unexpected error in event loop: {ex}", exc_info=True)
+            # To avoid spamming logs on repeated errors, we break the loop.
             break
 
 if __name__ == "__main__":
     try:
         main()
-    except (error.BadWindow if error else tuple(), KeyboardInterrupt):
-        # Exit gracefully and silently on known exit conditions.
+    except KeyboardInterrupt:
+        logging.info("Script interrupted by user.")
         pass
-    except Exception:
-        # On any other unhandled exception, also exit silently.
+    except Exception as e:
+        if error and isinstance(e, error.BadWindow):
+            logging.warning(f"Exiting due to BadWindow error in main: {e}")
+        else:
+            logging.critical("Unhandled exception in main, exiting.", exc_info=True)
         pass 
