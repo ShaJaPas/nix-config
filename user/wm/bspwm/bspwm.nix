@@ -59,6 +59,7 @@
     libinput-gestures
     pavucontrol
     blueberry
+    polkit_gnome
   ];
 
   # Copy eww config to ~/.config/eww
@@ -73,6 +74,8 @@
     echo UPDATESTARTUPTTY | gpg-connect-agent
 
     nm-applet &
+
+    ${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1 &
 
     libinput-gestures -c $HOME/.config/libinput-gestures.conf &
 
