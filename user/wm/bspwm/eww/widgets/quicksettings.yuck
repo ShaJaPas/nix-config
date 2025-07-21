@@ -66,7 +66,7 @@
             (image :visible {device.active} :path "assets/tick.svg" :image-width 14)))))
     (box :orientation "v" :space-evenly false :spacing 5
         (box :class "separator")
-        (eventbox :class "sound-output-settings-link" :cursor "pointer"
+        (eventbox :class "sound-output-settings-link" :cursor "pointer" :onclick "pavucontrol &"
             (label :class "sound-settings" :text "Sound Settings" :halign "start")))))
 
 (defwidget sound_input_menu []
@@ -83,7 +83,7 @@
             (image :visible {device.active} :path "assets/tick.svg" :image-width 14)))))
     (box :orientation "v" :space-evenly false :spacing 5
         (box :class "separator")
-        (eventbox :class "sound-output-settings-link" :cursor "pointer"
+        (eventbox :class "sound-output-settings-link" :cursor "pointer" :onclick "pavucontrol &"
             (label :class "sound-settings" :text "Sound Settings" :halign "start")))))
 
 (defwidget wifi_menu []
@@ -125,7 +125,7 @@
               (image :visible {device.connected} :path "assets/tick.svg" :image-width 14))))))
     (box :orientation "v" :space-evenly false :spacing 5
         (box :class "separator")
-        (eventbox :class "sound-output-settings-link" :cursor "pointer"
+        (eventbox :class "sound-output-settings-link" :cursor "pointer" :onclick "blueberry &"
             (label :class "sound-settings" :text "Bluetooth Settings" :halign "start")))))
 
 (defwidget vpn_menu [connections]

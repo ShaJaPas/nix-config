@@ -1,11 +1,22 @@
-#!/bin/bash
-MUTE=$(pamixer --get-mute)
-VOL=$(pamixer --get-volume)
+#!/usr/bin/env bash
 
-if [[ "$MUTE" == "true" ]]; then
-  STATUS="muted"
-else
-  STATUS="unmuted"
-fi
+get_volume() {
+    MUTE=$(pamixer --get-mute)
+    VOL=$(pamixer --get-volume)
 
-jq -n --arg status "$STATUS" --argjson level "$VOL" '{"status":$status, "level":$level}' 
+    if [[ "$MUTE" == "true" ]]; then
+      STATUS="muted"
+    else
+      STATUS="unmuted"
+    fi
+
+    printf '{"status":"%s", "level":%s}\n' "$STATUS" "$VOL"
+}
+
+get_volume
+
+pactl subscribe | while read -r event; do
+    if echo "$event" | grep -q "on sink"; then
+        get_volume
+    fi
+done 

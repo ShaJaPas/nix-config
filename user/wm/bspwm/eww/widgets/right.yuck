@@ -3,7 +3,7 @@
 (defpoll net_speed :interval "1s" "bash scripts/get_net_speed")
 (defpoll keyboard_layout :interval "1s" "bash scripts/get_layout")
 
-(defpoll volume :interval "1s" :initial '{"status": "muted", "level": 0}' "bash scripts/get_volume")
+(deflisten volume :initial '{"status": "muted", "level": 0}' "bash scripts/get_volume")
 (defpoll battery :interval "10s" :initial '{"status": "Unknown", "capacity": 0, "online": "0"}' "bash scripts/get_battery")
 (defpoll wifi_status :initial 0 :interval "1s" "bash scripts/get_wifi_status")
 
@@ -25,7 +25,7 @@
       (eventbox :class "system-tray-group" :onclick "bash scripts/toggle_widget quicksettings"
         (box :class "system-tray-gr" :spacing 10 :space-evenly false
             (image :image-width 17 :image-height 17 :path {wifi_status == 0 ? "assets/network-disable.svg" : (wifi_status > 66 ? "assets/network-strong.svg" : (wifi_status > 33 ? "assets/network-ok.svg" : "assets/network-weak.svg"))})
-            (image :image-width 17 :image-height 17 :path {volume.status == "muted" ? "assets/audio-muted.svg" : (volume.level > 50 ? "assets/audio.svg" : "assets/audio-half.svg")})
+            (image :image-width 17 :image-height 17 :path {volume.status == "muted" || volume.level == 0 ? "assets/audio-muted.svg" : (volume.level > 50 ? "assets/audio.svg" : "assets/audio-half.svg")})
             (box :spacing 5 :space-evenly false (image :image-width 17 :image-height 17 :path "assets/battery.svg") "${battery.capacity}%")
         )
       )

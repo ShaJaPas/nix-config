@@ -31,6 +31,7 @@
     cargo-msrv
     cargo-sort
     cargo-watch
+    cargo-deny
     rust-bindgen
   ];
 

@@ -77,9 +77,9 @@ list_networks() {
 }
 
 listen_networks() {
-    while true; do
+    list_networks
+    nmcli monitor | while read -r; do
         list_networks
-        sleep 5
     done
 }
 
