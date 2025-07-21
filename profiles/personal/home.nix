@@ -8,29 +8,30 @@
 {
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
-  home.username = userSettings.username;
-  home.homeDirectory = "/home/" + userSettings.username;
+  home = {
+    inherit (userSettings) username;
+    homeDirectory = "/home/" + userSettings.username;
+    stateVersion = "24.11"; # Please read the comment before changing.
+
+    packages = with pkgs; [
+      # Core
+      fish
+      wezterm
+      starship
+      git
+
+      # Other
+      yandex-music
+      steam
+      discord
+      lutris
+    ];
+  };
 
   programs.home-manager.enable = true;
 
   imports = [
     ../work/home.nix # Personal is essentially work system
-  ];
-
-  home.stateVersion = "24.11"; # Please read the comment before changing.
-
-  home.packages = with pkgs; [
-    # Core
-    fish
-    wezterm
-    starship
-    git
-
-    # Other
-    yandex-music
-    steam
-    discord
-    lutris
   ];
 
   xdg.enable = true;

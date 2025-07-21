@@ -8,23 +8,25 @@
     ./fonts.nix
   ];
 
-  services.touchegg.enable = true;
-  services.libinput = {
-    touchpad = {
-      horizontalScrolling = true;
-      disableWhileTyping = true;
+  services = {
+    touchegg.enable = true;
+    libinput = {
+      touchpad = {
+        horizontalScrolling = true;
+        disableWhileTyping = true;
+      };
     };
-  };
-  # Configure X11
-  services.xserver = {
-    videoDrivers = [ "amdgpu" ];
+    # Configure X11
+    xserver = {
+      videoDrivers = [ "amdgpu" ];
 
-    enable = true;
-    xkb = {
-      variant = "";
-      options = "grp:alt_shift_toggle";
-      layout = "us,ru";
+      enable = true;
+      xkb = {
+        variant = "";
+        options = "grp:alt_shift_toggle";
+        layout = "us,ru";
+      };
+      excludePackages = [ pkgs.xterm ];
     };
-    excludePackages = [ pkgs.xterm ];
   };
 }

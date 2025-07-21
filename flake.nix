@@ -64,11 +64,11 @@
       };
 
       pkgs = import inputs.nixpkgs {
-        system = systemSettings.system;
+        inherit (systemSettings) system;
         config = {
           allowUnfree = true;
           android_sdk.accept_license = true;
-          allowUnfreePredicate = (_: true);
+          allowUnfreePredicate = _: true;
         };
         overlays = [
           (final: prev: {
@@ -90,15 +90,15 @@
       };
 
       pkgs-stable = import inputs.nixpkgs-stable {
-        system = systemSettings.system;
+        inherit (systemSettings) system;
         config = {
           allowUnfree = true;
           android_sdk.accept_license = true;
-          allowUnfreePredicate = (_: true);
+          allowUnfreePredicate = _: true;
         };
       };
 
-      lib = inputs.nixpkgs.lib;
+      inherit (inputs.nixpkgs) lib;
       home-manager = inputs.home-manager-unstable;
 
     in
@@ -135,7 +135,7 @@
       };
       nixosConfigurations = {
         system = lib.nixosSystem {
-          system = systemSettings.system;
+          inherit (systemSettings) system;
           modules = [
             (./. + "/profiles" + ("/" + systemSettings.profile) + "/configuration.nix")
           ];
@@ -158,10 +158,12 @@
     nixpkgs-stable.url = "nixpkgs/nixos-24.11";
     chaotic = {
       url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
-      inputs.fenix.follows = "";
-      inputs.home-manager.follows = "";
-      inputs.flake-schemas.follows = "";
-      inputs.jovian.follows = "";
+      inputs = {
+        fenix.follows = "";
+        home-manager.follows = "";
+        flake-schemas.follows = "";
+        jovian.follows = "";
+      };
     };
     #yandex-browser.url = "github:Teu5us/nix-yandex-browser";
     #yandex-browser.inputs.nixpkgs.follows = "nixpkgs";
@@ -172,7 +174,9 @@
     home-manager-stable.url = "github:nix-community/home-manager/release-24.11";
     home-manager-stable.inputs.nixpkgs.follows = "nixpkgs-stable";
 
-    yandex-browser.url = "github:miuirussia/yandex-browser.nix";
-    yandex-browser.inputs.nixpkgs.follows = "nixpkgs";
+    yandex-browser = {
+      url = "github:miuirussia/yandex-browser.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 }

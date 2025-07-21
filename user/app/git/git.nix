@@ -7,11 +7,13 @@
 
 {
   home.packages = [ pkgs.git ];
-  programs.git.enable = true;
-  programs.git.userName = userSettings.name;
-  programs.git.userEmail = userSettings.email;
-  programs.git.extraConfig = {
-    init.defaultBranch = "master";
-    core.editor = "nano";
+  programs.git = {
+    enable = true;
+    userName = userSettings.name;
+    userEmail = userSettings.email;
+    extraConfig = {
+      init.defaultBranch = "master";
+      core.editor = "nano";
+    };
   };
 }

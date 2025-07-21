@@ -9,8 +9,41 @@
 {
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
-  home.username = userSettings.username;
-  home.homeDirectory = "/home/" + userSettings.username;
+  home = {
+    inherit (userSettings) username;
+    homeDirectory = "/home/" + userSettings.username;
+    stateVersion = "24.11"; # Please read the comment before changing.
+    packages = with pkgs; [
+      # Core
+      fish
+      wezterm
+      starship
+      git
+
+      wireshark
+      bloomrpc
+      audio-recorder
+      onlyoffice-desktopeditors
+      evince
+      telegram-desktop
+      htop
+      code-cursor
+      openssl
+      ffmpeg
+      pinta
+      obsidian
+      eog
+    ];
+    sessionVariables = {
+      BSPWM_SOCKET = "/tmp/bspwm-${userSettings.username}.sock";
+      EDITOR = userSettings.editor;
+      SPAWNEDITOR = userSettings.spawnEditor;
+      TERM = userSettings.term;
+      BROWSER = userSettings.browser;
+      FZF_DEFAULT_OPTS = "--ansi --preview-window 'right:60%' --preview 'bat --color=always --style=header,grid --line-range :300 {}' --bind 'enter:execute(micro {})'";
+      #TERM = "xterm-256color";
+    };
+  };
 
   programs.home-manager.enable = true;
 
@@ -31,42 +64,5 @@
     ../../user/xdg/xdg.nix # XDG
   ];
 
-  home.stateVersion = "24.11"; # Please read the comment before changing.
-
-  home.packages = (
-    with pkgs;
-    [
-      # Core
-      fish
-      wezterm
-      starship
-      git
-
-      wireshark
-      bloomrpc
-      audio-recorder
-      onlyoffice-desktopeditors
-      evince
-      telegram-desktop
-      htop
-      code-cursor
-      openssl
-      ffmpeg
-      pinta
-      obsidian
-      eog
-    ]
-  );
-
   programs.java.enable = true;
-
-  home.sessionVariables = {
-    BSPWM_SOCKET = "/tmp/bspwm-${userSettings.username}.sock";
-    EDITOR = userSettings.editor;
-    SPAWNEDITOR = userSettings.spawnEditor;
-    TERM = userSettings.term;
-    BROWSER = userSettings.browser;
-    FZF_DEFAULT_OPTS = "--ansi --preview-window 'right:60%' --preview 'bat --color=always --style=header,grid --line-range :300 {}' --bind 'enter:execute(micro {})'";
-    #TERM = "xterm-256color";
-  };
 }

@@ -4,7 +4,7 @@
   # Import x11 config
   imports = [ ./x11.nix ];
 
-  services.xserver = {
+  services = {
     displayManager.gdm.enable = true;
     desktopManager.gnome.enable = true;
   };
