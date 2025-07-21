@@ -18,6 +18,20 @@
 
   services.libinput.touchpad.naturalScrolling = true;
 
+  systemd.services.disable-sddm-pipewire = {
+    description = "Disable PipeWire services for the sddm user";
+    after = [ "user-runtime-dir@sddm.service" ];
+    before = [ "display-manager.service" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig.Type = "oneshot";
+    script = ''
+      # The user instance should be up now.
+      ${pkgs.systemd}/bin/systemctl --user --machine sddm@ stop pipewire.service pipewire.socket wireplumber.service > /dev/null 2>&1 || true
+      ${pkgs.systemd}/bin/systemctl --user --machine sddm@ disable pipewire.service pipewire.socket wireplumber.service > /dev/null 2>&1
+      ${pkgs.systemd}/bin/systemctl --user --machine sddm@ mask pipewire.service pipewire.socket wireplumber.service > /dev/null 2>&1
+    '';
+  };
+
   services.autorandr = {
     enable = true;
     profiles = {
