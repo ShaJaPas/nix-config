@@ -2,7 +2,7 @@
   description = "Flake";
 
   outputs =
-    inputs@{ self, nixpkgs, ... }:
+    inputs@{ nixpkgs, ... }:
     let
       # ---- SYSTEM SETTINGS ---- #
       systemSettings = {
@@ -71,7 +71,7 @@
           allowUnfreePredicate = _: true;
         };
         overlays = [
-          (final: prev: {
+          (_: _: {
             go-wrk = pkgs.buildGoModule rec {
               pname = "go-wrk";
               version = "0.10";

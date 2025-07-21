@@ -37,7 +37,7 @@ jobs:
         run: nix run nixpkgs#statix check . -L
 
       - name: Run deadnix
-        run: nix run nixpkgs#deadnix . -L
+        run: nix run nixpkgs#deadnix . -L -- --fail
 
       - name: Replace user placeholders for CI
         run: |

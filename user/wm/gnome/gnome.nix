@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ pkgs, ... }:
 let
   wallpaperImg = pkgs.fetchurl {
     url = "https://i.ytimg.com/vi/R1nvDRgQTYQ/maxresdefault.jpg";

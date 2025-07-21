@@ -4,7 +4,6 @@
   systemSettings,
   workSettings,
   personalSettings,
-  inputs,
   ...
 }:
 {

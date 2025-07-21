@@ -17,7 +17,7 @@ let
   systemDeps = with pkgs; [
     gobject-introspection
     gtk4
-    (gdk-pixbuf.overrideAttrs (oldAttrs: {
+    (gdk-pixbuf.overrideAttrs (_: {
       loaders = [ librsvg ];
     }))
     adwaita-icon-theme
