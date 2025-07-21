@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+
+      # NOTE: You will need to create a cachix cache and set the CACHIX_AUTH_TOKEN secret in your repository settings.
+      # Or you can remove this step to disable caching.
+      - name: Setup cachix
+        uses: cachix/cachix-action@v15
+        with:
+          name: nix-config-cache
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+
+      - name: Check formatting
+        run: |
+          nix fmt .
+          git diff --exit-code
+
+      - name: Run statix
+        run: nix run nixpkgs#statix check . -L
+
+      - name: Run deadnix
+        run: nix run nixpkgs#deadnix . -L
+
+      - name: Run flake checks
+        run: nix flake check -L
+
+      # This is the most important check, it ensures your configuration can be built.
+      # Uncomment it when you are ready.
+      # - name: Build NixOS configuration
+      #   run: nix build .#system -L
