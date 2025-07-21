@@ -15,18 +15,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Replace user placeholders for CI
-        run: |
-          sed -i '/workSettings = rec {/,/};/s/username = "\\*\\*\\*";/username = "workuser";/' flake.nix
-          sed -i '/workSettings = rec {/,/};/s/name = "\\*\\*\\*";/name = "Work User";/' flake.nix
-          sed -i '/workSettings = rec {/,/};/s/email = "\\*\\*\\*";/email = "work@example.com";/' flake.nix
-          sed -i '/personalSettings = rec {/,/};/s/username = "\\*\\*\\*";/username = "personaluser";/' flake.nix
-          sed -i '/personalSettings = rec {/,/};/s/name = "\\*\\*\\*";/name = "Personal User";/' flake.nix
-          sed -i '/personalSettings = rec {/,/};/s/email = "\\*\\*\\*";/email = "personal@example.com";/' flake.nix
-          echo "--- flake.nix after replacement ---"
-          cat flake.nix
-          echo "-------------------------------------"
-
       - name: Install Nix
         uses: cachix/install-nix-action@v27
         with:
@@ -50,6 +38,24 @@ jobs:
 
       - name: Run deadnix
         run: nix run nixpkgs#deadnix . -L
+
+      - name: Replace user placeholders for CI
+        run: |
+          sed -i -E '
+            /^\s*workSettings = rec \{/,/^\s*};/ {
+              s/(username\s*=\s*)"\*\*\*"/ \1"workuser"/
+              s/(name\s*=\s*)"\*\*\*"/ \1"Work User"/
+              s/(email\s*=\s*)"\*\*\*"/ \1"work@example.com"/
+            }
+            /^\s*personalSettings = rec \{/,/^\s*};/ {
+              s/(username\s*=\s*)"\*\*\*"/ \1"personaluser"/
+              s/(name\s*=\s*)"\*\*\*"/ \1"Personal User"/
+              s/(email\s*=\s*)"\*\*\*"/ \1"personal@example.com"/
+            }
+          ' flake.nix
+          echo "--- flake.nix after replacement ---"
+          cat flake.nix
+          echo "-------------------------------------"
 
       - name: Run flake checks
         run: nix flake check -L
