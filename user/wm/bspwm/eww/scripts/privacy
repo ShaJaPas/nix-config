@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+
+# Функция для получения состояния устройства (заблокировано/разблокировано)
+get_device_state() {
+    local device=$1
+    if [ "$device" = "camera" ]; then
+        # Проверяем права доступа к видео устройству
+        if [ "$(stat -c %a /dev/video0 2>/dev/null)" = "0" ]; then
+            echo "blocked"
+        else
+            echo "unblocked"
+        fi
+    elif [ "$device" = "microphone" ]; then
+        # Проверяем состояние микрофона через PulseAudio
+        if pactl list sources | grep -q "Mute: yes"; then
+            echo "blocked"
+        else
+            echo "unblocked"
+        fi
+    fi
+}
+
+# Функция для переключения состояния устройства
+toggle_device() {
+    local device=$1
+    local current_state=$(get_device_state "$device")
+    
+    if [ "$device" = "camera" ]; then
+        if [ "$current_state" = "blocked" ]; then
+            systemctl start unblock-camera
+        else
+            systemctl start block-camera
+        fi
+    elif [ "$device" = "microphone" ]; then
+        if [ "$current_state" = "blocked" ]; then
+            # Unmute all source devices in PulseAudio
+            for source in $(pactl list short sources | cut -f1); do
+                pactl set-source-mute "$source" 0
+            done
+        else
+            # Mute all source devices in PulseAudio
+            for source in $(pactl list short sources | cut -f1); do
+                pactl set-source-mute "$source" 1
+            done
+        fi
+    fi
+}
+
+# Функция для получения JSON с состоянием устройств
+get_status() {
+    local camera_state=$(get_device_state "camera")
+    local mic_state=$(get_device_state "microphone")
+    echo "{\"camera\": \"$camera_state\", \"microphone\": \"$mic_state\"}"
+}
+
+case "$1" in
+    "status")
+        get_status
+        ;;
+    "toggle-camera")
+        toggle_device "camera"
+        get_status
+        ;;
+    "toggle-mic")
+        toggle_device "microphone"
+        get_status
+        ;;
+    *)
+        echo "Usage: $0 {status|toggle-camera|toggle-mic}"
+        exit 1
+        ;;
+esac 

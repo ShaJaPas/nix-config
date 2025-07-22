@@ -15,7 +15,7 @@
     ../../system/hardware/opengl.nix
     ../../system/hardware/printing.nix
     ../../system/hardware/bluetooth.nix
-    (./. + "../../../system/wm" + ("/" + systemSettings.wm) + ".nix") # My window manager
+    (./. + "../../../system/wm" + ("/" + systemSettings.wm) + ("/" + systemSettings.wm) + ".nix") # My window manager
     ../../system/app/virtualization.nix
     (import ../../system/app/docker.nix {
       storageDriver = null;

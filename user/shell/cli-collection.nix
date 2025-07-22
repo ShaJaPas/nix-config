@@ -17,7 +17,7 @@
     patchelf
     lsof
     bind
-    nix-search-cli
+    nh
     unzip
     zip
 

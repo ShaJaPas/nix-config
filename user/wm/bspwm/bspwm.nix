@@ -109,7 +109,8 @@
 
     # Launch eww bar
     eww daemon
-    eww open bar &
+    eww close-all
+    eww active-windows | grep -q 'bar: bar' || eww open bar
 
     eww update brightness_level=$(bash $HOME/.config/eww/scripts/brightness get) &
 

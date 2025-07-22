@@ -2,7 +2,7 @@
 
 {
   # Import x11 config
-  imports = [ ./x11.nix ];
+  imports = [ ../general/x11.nix ];
 
   services = {
     displayManager.gdm.enable = true;

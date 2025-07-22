@@ -8,8 +8,13 @@
 (defpoll volume_muted :initial "no" :interval "1s" "bash scripts/audio get-mute sinks")
 (defpoll mic_muted :initial "no" :interval "1s" "bash scripts/audio get-mute sources")
 (defpoll airplane_status :initial "false" :interval "1h" "bash scripts/airplane status")
+(defpoll privacy_status :initial '{"camera": "unblocked", "microphone": "unblocked"}' :interval "999h" "bash scripts/privacy status")
 
 (defvar brightness_level 100)
+(defvar show_power_menu false)
+(defvar show_sound_output_menu false)
+(defvar show_sound_input_menu false)
+(defvar active_menu "none")
 
 (defpoll wifi_enabled :interval "3s" "bash scripts/wifi status")
 (defpoll wifi_network_name :interval "3s" "bash scripts/wifi ssid")
@@ -20,12 +25,6 @@
 (defpoll bluetooth_connected_device :interval "5s" :initial "" "bash scripts/bluetooth get-connected-name")
 
 (deflisten vpn_data :initial '{"connections": [], "enabled": false, "name": "Not Connected"}' "bash scripts/vpn-listen")
-
-(defvar show_power_menu false)
-(defvar show_sound_output_menu false)
-(defvar show_sound_input_menu false)
-(defvar active_menu "none")
-
 
 ;; --- Widgets ---
 (defwidget qs_toggle_button [icon text ?sub_text ?is-active]
@@ -164,8 +163,38 @@
         (box :class "sound-output-item-box" :orientation "h" :space-evenly false :spacing 10
           (label :text "Switch User..." :halign "start" :hexpand true))))))
 
+(defwidget privacy_toggle [icon text state ?onclick]
+  (box :class "privacy-toggle-item" :space-evenly false
+    (box :orientation "h" :space-evenly false :spacing 15 :hexpand true
+      (box :class "privacy-toggle-icon"
+        (image :path "${icon}" :image-width 16))
+      (label :text text :halign "start" :hexpand true))
+    (eventbox :cursor "pointer"
+              :onclick onclick
+      (box :class "toggle-track ${state ? 'on' : 'off'}"
+        (box :class "toggle-thumb"
+             :halign "${state ? 'end' : 'start'}")))))
+
+(defwidget privacy_menu []
+  (box :class "sound-output-menu" :orientation "v" :space-evenly false :spacing 15
+    (box :orientation "h" :space-evenly false :spacing 15 :halign "start"
+      (image :path "assets/privacy_passive.svg" :image-width 25)
+      (label :text "Privacy Controls" :class "sound-output-header" :halign "start"))
+    (box :orientation "v" :space-evenly false :spacing 15 :class "sound-output-list"
+      (privacy_toggle
+        :icon "assets/eye_passive.svg"
+        :text "Camera"
+        :state {privacy_status.camera == "blocked"}
+        :onclick "bash scripts/privacy toggle-camera && eww update privacy_status=\"$(bash scripts/privacy status)\"")
+      (privacy_toggle
+        :icon "assets/microphone_high_sound.svg"
+        :text "Microphone"
+        :state {privacy_status.microphone == "blocked"}
+        :onclick "bash scripts/privacy toggle-mic && eww update privacy_status=\"$(bash scripts/privacy status)\""))))
+
 (defwidget qs_toggles_grid []
   (box :class "qs-toggles-grid" :orientation "v" :space-evenly false :spacing 10
+    ;; Wi-Fi and Bluetooth block
     (box :orientation "v" :space-evenly false :spacing 0
       (box :orientation "h" :spacing 10
         (qs_double_button
@@ -186,34 +215,50 @@
           (wifi_menu))
       (revealer :transition "slidedown" :reveal {active_menu == "bluetooth"}
           (bluetooth_menu)))
-    (box :orientation "h" :spacing 10
-      (eventbox :onclick "bash scripts/power_profile.sh toggle"
-        (qs_toggle_button
-          :icon {power_profile_data.icon}
-          :text "Power Mode"
-          :sub_text {power_profile_data.sub_text}
-          :is-active {power_profile_data.is_active}))
-      (qs_double_button
-        :icon "assets/privacy"
-        :main_text "Privacy"
-        :sub_text "Microphone"
-        :is-active true))
-    (box :orientation "v" :space-evenly false :spacing "0"
-    (box :orientation "h" :spacing 10
+
+    ;; Power Mode and Privacy block
+    (box :orientation "v" :space-evenly false :spacing 0
+      (box :orientation "h" :spacing 10
+        ;; Power Mode
+        (eventbox :onclick "bash scripts/power_profile.sh toggle"
+          (qs_toggle_button
+            :icon {power_profile_data.icon}
+            :text "Power Mode"
+            :sub_text {power_profile_data.sub_text}
+            :is-active {power_profile_data.is_active}))
+        
+        ;; Privacy
+        (box :orientation "v" :space-evenly false :spacing 0
+          (qs_double_button
+            :icon "assets/privacy"
+            :main_text "Privacy"
+            :sub_text "${privacy_status.camera == 'blocked' && privacy_status.microphone == 'blocked' ? 'All Blocked' : 
+                       privacy_status.camera == 'blocked' ? 'Camera' :
+                       privacy_status.microphone == 'blocked' ? 'Microphone' : 'All Allowed'}"
+            :is-active {privacy_status.camera == "blocked" || privacy_status.microphone == "blocked"}
+            :button_click "eww update active_menu='${active_menu == "privacy" ? "none" : "privacy"}'"
+            :next_click "eww update active_menu='${active_menu == "privacy" ? "none" : "privacy"}'"))
+      )
+      (revealer :transition "slidedown" :reveal {active_menu == "privacy"}
+          (privacy_menu)))
+
+    ;; VPN and Airplane Mode block
+    (box :orientation "v" :space-evenly false :spacing 0
+      (box :orientation "h" :spacing 10
         (qs_double_button
-            :icon "assets/vpn"
-            :main_text "VPN"
-              :sub_text {vpn_data.name ?: "Not Connected"}
-              :is-active {vpn_data.enabled}
-              :button_click "eww update active_menu='${active_menu == "vpn" ? "none" : "vpn"}'"
-              :next_click "eww update active_menu='${active_menu == "vpn" ? "none" : "vpn"}'")
+          :icon "assets/vpn"
+          :main_text "VPN"
+          :sub_text {vpn_data.name ?: "Not Connected"}
+          :is-active {vpn_data.enabled}
+          :button_click "eww update active_menu='${active_menu == "vpn" ? "none" : "vpn"}'"
+          :next_click "eww update active_menu='${active_menu == "vpn" ? "none" : "vpn"}'")
         (eventbox :onclick "bash scripts/airplane toggle &"
-            (qs_toggle_button
-                :icon "assets/airplane"
-                :text "Airplane Mode"
-                  :is-active {airplane_status == "true"}))))
+          (qs_toggle_button
+            :icon "assets/airplane"
+            :text "Airplane Mode"
+            :is-active {airplane_status == "true"})))
       (revealer :transition "slidedown" :reveal {active_menu == "vpn"}
-          (vpn_menu :connections {vpn_data.connections}))))
+          (vpn_menu :connections {vpn_data.connections})))))
 
 (defwidget quicksettings []
   (box :class "qs-container" :orientation "v" :space-evenly false :spacing 20 :valign "start"
@@ -229,12 +274,13 @@
               (eventbox :class "btn-container" :cursor "pointer" :onclick "xsecurelock &"
                 (box :class "qs-action-btn" (image :path "assets/lock_screen.svg" :image-width 22)))
               (eventbox :class "btn-container" :cursor "pointer" :onclick "eww update show_power_menu=${!show_power_menu}"
-                (box :class "qs-action-btn" (image :path "assets/power_off.svg" :image-width 22)))
-          ))
+                (box :class "qs-action-btn" (image :path "assets/power_off.svg" :image-width 22)))))
       (revealer :transition "slidedown" :reveal {show_power_menu}
           (power_menu)))
 
+    ;; Main Content
     (box :orientation "v" :space-evenly false :spacing 10 :valign "start"
+        ;; Volume Control
         (box :orientation "v" :space-evenly false
             (box :class "qs-slider-container" :orientation "h" :space-evenly false :spacing 15
                 (eventbox :class "btn-container" :cursor "pointer" :onclick "bash scripts/audio toggle-mute sinks && eww update volume_muted=$(bash scripts/audio get-mute sinks)"
@@ -245,6 +291,7 @@
             (revealer :transition "slidedown" :reveal {show_sound_output_menu}
                 (sound_output_menu)))
         
+        ;; Microphone Control
         (box :orientation "v" :space-evenly false
             (box :class "qs-slider-container" :orientation "h" :space-evenly false :spacing 15
                 (eventbox :class "btn-container" :cursor "pointer" :onclick "bash scripts/audio toggle-mute sources && eww update mic_muted=$(bash scripts/audio get-mute sources)"
@@ -255,6 +302,7 @@
             (revealer :transition "slidedown" :reveal {show_sound_input_menu}
                 (sound_input_menu)))
 
+        ;; Brightness Control
         (box :class "qs-slider-container" :orientation "h" :space-evenly false :spacing 15
             (eventbox :class "btn-container" :cursor "pointer"
             (box :class "qs-slider-icon-btn" (image :path "assets/brightness.svg" :image-width 14)))
@@ -262,6 +310,5 @@
             (eventbox :class "btn-container" :cursor "pointer"
             (box :class "qs-slider-icon-btn" (image :path "assets/next.svg" :image-width 14))))
         
-        (qs_toggles_grid))
-  )
-)
+        ;; Toggles Grid
+        (qs_toggles_grid))))

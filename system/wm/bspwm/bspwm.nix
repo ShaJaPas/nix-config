@@ -1,7 +1,10 @@
 { pkgs, ... }:
 {
   # Import x11 config
-  imports = [ ./x11.nix ];
+  imports = [
+    ../general/x11.nix
+    ./privacy-control.nix
+  ];
 
   services = {
     displayManager.sddm = {
