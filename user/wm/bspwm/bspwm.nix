@@ -70,6 +70,7 @@
 
   xsession.windowManager.bspwm.enable = true;
   xsession.windowManager.bspwm.extraConfig = ''
+    systemctl start restore-camera-state
     ${pkgs.autorandr}/bin/autorandr -c
     echo UPDATESTARTUPTTY | gpg-connect-agent
 
