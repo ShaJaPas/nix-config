@@ -22,7 +22,7 @@ if [ "$COMMAND" = "list" ]; then
             BEGIN {
                 RS = "";
                 FS = "\n";
-                print "[";
+                printf "[";
                 first = 1
             }
             {
@@ -60,13 +60,13 @@ if [ "$COMMAND" = "list" ]; then
                     if (first) {
                         first = 0
                     } else {
-                        print ","
+                        printf ","
                     }
-                    printf "  {\"name\": \"%s\", \"type\": \"%s\", \"active\": %s}", description, type, active
+                    printf "{\"name\":\"%s\",\"type\":\"%s\",\"active\":%s}", description, type, active
                 }
             }
             END {
-                print "\n]"
+                printf "]\n"
             }
         '
     else
@@ -74,7 +74,7 @@ if [ "$COMMAND" = "list" ]; then
         BEGIN {
             RS = "";
             FS = "\n";
-            print "[";
+            printf "[";
             first = 1
         }
         {
@@ -116,13 +116,13 @@ if [ "$COMMAND" = "list" ]; then
                 if (first) {
                     first = 0
                 } else {
-                    print ","
+                    printf ","
                 }
-                printf "  {\"name\": \"%s\", \"type\": \"%s\", \"active\": %s}", description, type, active
+                printf "{\"name\":\"%s\",\"type\":\"%s\",\"active\":%s}", description, type, active
             }
         }
         END {
-            print "\n]"
+            printf "]\n"
         }
     '
     fi
@@ -187,5 +187,26 @@ elif [ "$COMMAND" = "toggle-mute" ]; then
     exit 0
 fi
 
-echo "Usage: $0 list|set|get-volume|set-volume|get-mute|toggle-mute sinks|sources [value]" >&2
+# --- LISTEN FOR CHANGES ---
+if [ "$COMMAND" = "listen" ]; then
+    if [ "$TYPE" != "sinks" ] && [ "$TYPE" != "sources" ]; then
+        echo "Error: 'listen' requires a type ('sinks' or 'sources')." >&2
+        exit 1
+    fi
+
+    # Initial list
+    bash "$0" list "$TYPE"
+    
+    singular_type=${TYPE%s}
+    # Listen for events and relist
+    pactl subscribe | while read -r event; do
+        if [[ $event == *"on $singular_type"* || $event == *"on card"* ]]; then
+            sleep 0.5 # Give it a moment to settle
+            bash "$0" list "$TYPE"
+        fi
+    done
+    exit 0
+fi
+
+echo "Usage: $0 list|set|get-volume|set-volume|get-mute|toggle-mute|listen sinks|sources [value]" >&2
 exit 1 

@@ -1,8 +1,8 @@
 ;; quicksettings.yuck
 
 ;; --- Variables ---
-(defpoll audio_devices :initial "[]" :interval "10m" "bash scripts/audio list sinks")
-(defpoll input_devices :initial "[]" :interval "10m" "bash scripts/audio list sources")
+(deflisten audio_devices "bash scripts/audio listen sinks")
+(deflisten input_devices "bash scripts/audio listen sources")
 (defpoll volume_level :initial 100 :interval "1s" "bash scripts/audio get-volume sinks")
 (defpoll mic_volume_level :initial 100 :interval "1s" "bash scripts/audio get-volume sources")
 (defpoll volume_muted :initial "no" :interval "1s" "bash scripts/audio get-mute sinks")
