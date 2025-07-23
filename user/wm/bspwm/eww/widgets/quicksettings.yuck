@@ -23,6 +23,7 @@
 (defpoll bluetooth_enabled :interval "3s" "bash scripts/bluetooth status")
 (defpoll bluetooth_devices :initial "[]" :interval "5s" "bash scripts/bluetooth list")
 (defpoll bluetooth_connected_device :interval "5s" :initial "" "bash scripts/bluetooth get-connected-name")
+(defpoll bluetooth_connected_count :initial 0 :interval "5s" "bash scripts/bluetooth list | jq '[.[] | select(.connected)] | length'")
 
 (deflisten vpn_data :initial '{"connections": [], "enabled": false, "name": "Not Connected"}' "bash scripts/vpn-listen")
 
@@ -117,11 +118,11 @@
         (label :text "No paired devices found." :class "subtext" :halign "center" :style "margin: 10px 0;"))
       (box :orientation "v" :space-evenly false :spacing 5 :visible {bluetooth_devices != "[]"}
         (for device in bluetooth_devices
-          (eventbox :class "sound-output-item ${device.connected ? 'active' : ''}" :onclick "bash scripts/bluetooth ${device.connected ? 'disconnect' : 'connect'} ${device.mac} && eww update bluetooth_devices=$(bash scripts/bluetooth list)" :cursor "pointer"
-            (box :class "sound-output-item-box" :orientation "h" :space-evenly false :spacing 10
-              (image :path "assets/bluetooth_on_passive.svg" :image-width 16)
-              (label :text {strlength(device.name) > 38 ? "${substring(device.name, 0, 35)}..." : device.name} :halign "start" :hexpand true)
-              (image :visible {device.connected} :path "assets/tick.svg" :image-width 14))))))
+          (privacy_toggle
+            :icon "assets/bluetooth_on_passive.svg"
+            :text {strlength(device.name) > 38 ? "${substring(device.name, 0, 35)}..." : device.name}
+            :state {device.connected}
+            :onclick "bash scripts/bluetooth ${device.connected ? 'disconnect' : 'connect'} ${device.mac} && eww update bluetooth_devices=\"$(bash scripts/bluetooth list)\" && eww update bluetooth_connected_device=$(bash scripts/bluetooth get-connected-name) && eww update bluetooth_connected_count=$(bash scripts/bluetooth list | jq '[.[] | select(.connected)] | length') &"))))
     (box :orientation "v" :space-evenly false :spacing 5
         (box :class "separator")
         (eventbox :class "sound-output-settings-link" :cursor "pointer" :onclick "blueberry &"
@@ -207,9 +208,9 @@
         (qs_double_button
           :icon "assets/bluetooth_on"
           :main_text "Bluetooth"
-          :sub_text {bluetooth_connected_device ?: (bluetooth_enabled ? "On" : "Off")}
+          :sub_text { bluetooth_enabled == "true" ? (bluetooth_connected_count > 1 ? "${bluetooth_connected_count} connected" : bluetooth_connected_device ?: "On") : "Off" }
           :is-active {bluetooth_enabled}
-          :button_click "bash scripts/bluetooth toggle && eww update bluetooth_enabled=$(bash scripts/bluetooth status) && eww update bluetooth_connected_device=$(bash scripts/bluetooth get-connected-name)"
+          :button_click "bash scripts/bluetooth toggle && eww update bluetooth_enabled=$(bash scripts/bluetooth status) && eww update bluetooth_connected_device=$(bash scripts/bluetooth get-connected-name) && eww update bluetooth_devices=\"$(bash scripts/bluetooth list)\" && eww update bluetooth_connected_count=$(bash scripts/bluetooth list | jq '[.[] | select(.connected)] | length') &"
           :next_click "eww update active_menu='${active_menu == "bluetooth" ? "none" : "bluetooth"}'"))
       (revealer :transition "slidedown" :reveal {active_menu == "wifi"}
           (wifi_menu))

@@ -52,12 +52,14 @@ list_devices() {
 
 # Function to get the name of the connected device
 get_connected_device_name() {
-    local device_info=$(echo -e 'devices\nquit' | bluetoothctl)
-    local connected_device=$(echo "$device_info" | grep -E "Device .* Connected: yes" | head -n 1)
+    local paired_devices=$(bluetoothctl devices Paired | awk '{print $2}')
 
-    if [[ -n "$connected_device" ]]; then
-        echo "$connected_device" | awk '{for (i=4; i<=NF; i++) printf $i " "; print ""}' | sed 's/ $//'
-    fi
+    for mac in $paired_devices; do
+        if bluetoothctl info "$mac" | grep -q "Connected: yes"; then
+            bluetoothctl info "$mac" | grep "Name:" | awk -F': ' '{print $2}'
+            return
+        fi
+    done
 }
 
 # Function to connect to a device
