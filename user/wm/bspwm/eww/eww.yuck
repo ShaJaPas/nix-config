@@ -55,6 +55,3 @@
     :focusable true
     :windowtype "dialog"
     (wifi_auth_dialog))
-
-(defpoll power_profile_data :interval "5s"
-    "bash scripts/power_profile.sh")

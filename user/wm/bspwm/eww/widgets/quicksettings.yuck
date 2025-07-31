@@ -9,6 +9,7 @@
 (defpoll mic_muted :initial "no" :interval "1s" "bash scripts/audio get-mute sources")
 (defpoll airplane_status :initial "false" :interval "1h" "bash scripts/airplane status")
 (defpoll privacy_status :initial '{"camera": "unblocked", "microphone": "unblocked"}' :interval "999h" "bash scripts/privacy status")
+(defpoll power_profile_data :interval "5s" :initial '{"profile": "unknown", "icon": "assets/power_profile_balanced", "is_active": false, "sub_text": "Unknown"}' "bash scripts/power_profile.sh")
 
 (defvar brightness_level 100)
 (defvar show_power_menu false)
@@ -221,7 +222,7 @@
     (box :orientation "v" :space-evenly false :spacing 0
       (box :orientation "h" :spacing 10
         ;; Power Mode
-        (eventbox :onclick "bash scripts/power_profile.sh toggle"
+        (eventbox :onclick "eww update power_profile_data=\"$(bash scripts/power_profile.sh toggle)\" &"
           (qs_toggle_button
             :icon {power_profile_data.icon}
             :text "Power Mode"

@@ -4,6 +4,7 @@
   imports = [
     ../general/x11.nix
     ./privacy-control.nix
+    ./power-profile.nix
   ];
 
   services = {

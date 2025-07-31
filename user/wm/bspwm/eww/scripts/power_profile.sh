@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# This script uses the CPU scaling governor to control power profiles.
-# It may require passwordless sudo for the tee command to change the governor.
+# This script uses systemd services to control power profiles.
 
 function get_current_governor() {
     cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
@@ -52,32 +51,44 @@ function output_json() {
 }
 
 function set_governor() {
-    local governor=$1
-    echo "$governor" | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor > /dev/null
+    local profile=$1
+    case "$profile" in
+        "powersave")
+            systemctl start set-power-profile-powersave.service
+            ;;
+        "balanced")
+            systemctl start set-power-profile-balanced.service
+            ;;
+        "performance")
+            systemctl start set-power-profile-performance.service
+            ;;
+    esac
 }
 
 function toggle_governor() {
     current_governor=$(get_current_governor)
-    next_governor=""
+    next_governor_name=""
 
     case "$current_governor" in
         "powersave")
-            next_governor="ondemand"
+            next_governor_name="balanced"
             ;;
         "schedutil" | "ondemand")
-            next_governor="performance"
+            next_governor_name="performance"
             ;;
         "performance")
-            next_governor="powersave"
+            next_governor_name="powersave"
             ;;
         *)
-            # Fallback to ondemand if something is wrong
-            next_governor="ondemand"
+            # Fallback to balanced if something is wrong
+            next_governor_name="balanced"
             ;;
     esac
-    
-    set_governor "$next_governor"
-    output_json "$next_governor"
+
+    set_governor "$next_governor_name"
+    # Wait a bit for the governor to change
+    sleep 0.1
+    output_json "$(get_current_governor)"
 }
 
 if [ "$1" == "toggle" ]; then
