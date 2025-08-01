@@ -15,7 +15,7 @@ if [ "$COMMAND" = "list" ]; then
     fi
 
     DEFAULT_DEVICE_CMD="pactl info | awk -F': ' '/Default $([ "$TYPE" = "sinks" ] && echo "Sink" || echo "Source")/ {print \$2}'"
-    DEFAULT_DEVICE_NAME=$(eval $DEFAULT_DEVICE_CMD)
+    DEFAULT_DEVICE_NAME=$(eval "$DEFAULT_DEVICE_CMD")
     
     if [ "$TYPE" = "sources" ]; then
         pactl list sources | grep -v "Monitor of" | awk -v default_device="$DEFAULT_DEVICE_NAME" '
@@ -170,19 +170,19 @@ function get_pactl_target() {
 }
 
 if [ "$COMMAND" = "get-volume" ]; then
-    TARGET=$(get_pactl_target $TYPE)
+    TARGET=$(get_pactl_target "$TYPE")
     pactl "get-$( [ "$TYPE" = "sinks" ] && echo "sink" || echo "source" )-volume" "$TARGET" | awk '/Volume:/ { print $5 }' | tr -d '%'
     exit 0
 elif [ "$COMMAND" = "set-volume" ]; then
-    TARGET=$(get_pactl_target $TYPE)
+    TARGET=$(get_pactl_target "$TYPE")
     pactl "set-$( [ "$TYPE" = "sinks" ] && echo "sink" || echo "source" )-volume" "$TARGET" "$ARG%"
     exit 0
 elif [ "$COMMAND" = "get-mute" ]; then
-    TARGET=$(get_pactl_target $TYPE)
+    TARGET=$(get_pactl_target "$TYPE")
     pactl "get-$( [ "$TYPE" = "sinks" ] && echo "sink" || echo "source" )-mute" "$TARGET" | awk '{print $2}'
     exit 0
 elif [ "$COMMAND" = "toggle-mute" ]; then
-    TARGET=$(get_pactl_target $TYPE)
+    TARGET=$(get_pactl_target "$TYPE")
     pactl "set-$( [ "$TYPE" = "sinks" ] && echo "sink" || echo "source" )-mute" "$TARGET" "toggle"
     exit 0
 fi

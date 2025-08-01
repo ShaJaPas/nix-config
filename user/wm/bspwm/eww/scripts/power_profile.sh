@@ -25,7 +25,8 @@ function get_icon() {
 
 function output_json() {
     local governor=$1
-    local icon=$(get_icon $governor)
+    local icon
+    icon=$(get_icon "$governor")
     local is_active="false"
     if [ "$governor" == "performance" ]; then
         is_active="true"
@@ -66,8 +67,9 @@ function set_governor() {
 }
 
 function toggle_governor() {
+    local current_governor
     current_governor=$(get_current_governor)
-    next_governor_name=""
+    local next_governor_name=""
 
     case "$current_governor" in
         "powersave")

@@ -57,6 +57,9 @@ jobs:
           cat flake.nix
           echo "-------------------------------------"
 
+      - name: Run eww scripts check
+        run: nix-shell -p shellcheck --run "find user/wm/bspwm/eww/scripts/ -type f ! -name '*.py' -exec shellcheck {} +"
+
       - name: Run flake checks
         run: nix flake check -L
 

@@ -23,7 +23,8 @@ get_device_state() {
 # Функция для переключения состояния устройства
 toggle_device() {
     local device=$1
-    local current_state=$(get_device_state "$device")
+    local current_state
+    current_state=$(get_device_state "$device")
     
     if [ "$device" = "camera" ]; then
         if [ "$current_state" = "blocked" ]; then
@@ -48,8 +49,10 @@ toggle_device() {
 
 # Функция для получения JSON с состоянием устройств
 get_status() {
-    local camera_state=$(get_device_state "camera")
-    local mic_state=$(get_device_state "microphone")
+    local camera_state
+    local mic_state
+    camera_state=$(get_device_state "camera")
+    mic_state=$(get_device_state "microphone")
     echo "{\"camera\": \"$camera_state\", \"microphone\": \"$mic_state\"}"
 }
 

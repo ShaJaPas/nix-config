@@ -6,20 +6,19 @@ IFACE=$(ip route | grep '^default' | awk '{print $5}' | head -n1)
 prev_file="/tmp/eww-net-$IFACE-$UID.dat"
 
 if [ -f "$prev_file" ]; then
-    read prev_rx prev_tx prev_time < "$prev_file"
+    read -r prev_rx _ prev_time < "$prev_file"
 else
     prev_rx=0
-    prev_tx=0
     prev_time=0
 fi
 
 curr_time=$(date +%s)
-read curr_rx < "/sys/class/net/$IFACE/statistics/rx_bytes"
-read curr_tx < "/sys/class/net/$IFACE/statistics/tx_bytes"
+read -r curr_rx < "/sys/class/net/$IFACE/statistics/rx_bytes"
+read -r curr_tx < "/sys/class/net/$IFACE/statistics/tx_bytes"
 
 echo "$curr_rx $curr_tx $curr_time" > "$prev_file"
 
-if [ $prev_time -eq 0 ]; then
+if [ "$prev_time" -eq 0 ]; then
     echo "0 KB/s"
     exit
 fi
@@ -30,13 +29,13 @@ time_diff=$((curr_time - prev_time))
 rx_bps=$(((curr_rx - prev_rx) / time_diff))
 
 format_speed() {
-    if [ $1 -lt 1024 ]; then
+    if [ "$1" -lt 1024 ]; then
         echo "${1} B/s"
-    elif [ $1 -lt 1048576 ]; then
+    elif [ "$1" -lt 1048576 ]; then
         echo "$(($1 / 1024)) KB/s"
     else
         echo "$(($1 / 1048576)) MB/s"
     fi
 }
 
-echo "$(format_speed $rx_bps)"
+format_speed "$rx_bps"

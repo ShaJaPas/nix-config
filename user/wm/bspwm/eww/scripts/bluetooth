@@ -20,14 +20,18 @@ toggle() {
 
 # Function to list paired devices in JSON format
 list_devices() {
-    local device_info=$(echo -e 'devices Paired\nquit' | bluetoothctl)
-    local devices=$(echo "$device_info" | grep "Device")
+    local device_info
+    local devices
+    device_info=$(echo -e 'devices Paired\nquit' | bluetoothctl)
+    devices=$(echo "$device_info" | grep "Device")
     local json_output="["
 
     while read -r line; do
         if [[ -n "$line" ]]; then
-            local mac=$(echo "$line" | awk '{print $2}')
-            local name=$(echo "$line" | awk '{for (i=3; i<=NF; i++) printf $i " "; print ""}' | sed 's/ $//')
+            local mac
+            local name
+            mac=$(echo "$line" | awk '{print $2}')
+            name=$(echo "$line" | awk '{for (i=3; i<=NF; i++) printf $i " "; print ""}' | sed 's/ $//')
             
             local is_connected="false"
             if echo -e "info $mac\nquit" | bluetoothctl | grep -q "Connected: yes"; then
@@ -52,7 +56,8 @@ list_devices() {
 
 # Function to get the name of the connected device
 get_connected_device_name() {
-    local paired_devices=$(bluetoothctl devices Paired | awk '{print $2}')
+    local paired_devices
+    paired_devices=$(bluetoothctl devices Paired | awk '{print $2}')
 
     for mac in $paired_devices; do
         if bluetoothctl info "$mac" | grep -q "Connected: yes"; then
@@ -71,7 +76,6 @@ connect() {
 disconnect() {
     bluetoothctl disconnect "$1"
 }
-
 
 # Main logic to handle arguments
 case "$1" in

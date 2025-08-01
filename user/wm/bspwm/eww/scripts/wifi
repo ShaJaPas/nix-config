@@ -26,8 +26,10 @@ toggle() {
 # Function to get a list of available Wi-Fi networks in JSON format
 list_networks() {
     # Get the list of Wi-Fi networks, including the connected one, ensuring uniqueness by SSID
-    local networks=$(nmcli --terse --fields SSID,SIGNAL,SECURITY,ACTIVE dev wifi list --rescan yes | sort -t: -k4,4r -k2,2nr | awk -F: '!seen[$1]++' | sort -t: -k2,2nr | head -n 10)
-    local connected_ssid=$(get_ssid)
+    local networks
+    local connected_ssid
+    networks=$(nmcli --terse --fields SSID,SIGNAL,SECURITY,ACTIVE dev wifi list --rescan yes | sort -t: -k4,4r -k2,2nr | awk -F: '!seen[$1]++' | sort -t: -k2,2nr | head -n 10)
+    connected_ssid=$(get_ssid)
     local json_output="["
     
     # Use a while loop to process each line of the networks output
@@ -89,24 +91,20 @@ connect_network() {
 
     # First, try to connect with the given password. This might fail if a
     # conflicting connection profile with a wrong password already exists.
-    nmcli --wait 30 device wifi connect "$SSID" password "$PASSWORD" >/dev/null 2>&1
-
-    # If the first attempt fails, delete the old profile and try again.
-    # This handles cases where the saved password was wrong.
-    if [ $? -ne 0 ]; then
+    if ! nmcli --wait 30 device wifi connect "$SSID" password "$PASSWORD" >/dev/null 2>&1; then
+        # If the first attempt fails, delete the old profile and try again.
+        # This handles cases where the saved password was wrong.
         nmcli connection delete "$SSID" >/dev/null 2>&1
-        nmcli --wait 30 device wifi connect "$SSID" password "$PASSWORD" >/dev/null 2>&1
+        if ! nmcli --wait 30 device wifi connect "$SSID" password "$PASSWORD" >/dev/null 2>&1; then
+            # On failure, set error state
+            eww update wifi_auth_failed=true
+            return 1
+        fi
     fi
 
-    if [ $? -eq 0 ]; then
-        # On success, reset error state and close dialog
-        eww  update wifi_auth_failed=false && eww close wifi_auth_dialog
-    else
-        # On failure, set error state
-        eww update wifi_auth_failed=true
-    fi
+    # On success, reset error state and close dialog
+    eww update wifi_auth_failed=false && eww close wifi_auth_dialog
 }
-
 
 # Main logic to handle arguments
 case "$1" in
