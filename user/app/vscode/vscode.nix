@@ -44,6 +44,7 @@
         fill-labs.dependi
         rust-lang.rust-analyzer
         bierner.markdown-mermaid
+        timonwong.shellcheck
       ];
     };
   };
