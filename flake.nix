@@ -13,7 +13,7 @@
         locale = "en_US.UTF-8"; # select locale
         grubDevice = "nodev"; # device identifier for grub; only used for legacy (bios) boot mode
         gpuType = "amd"; # amd, intel or nvidia; only makes some slight mods for amd at the moment
-        wm = "gnome"; # Selected window manager or desktop environment; must select one in both ./user/wm/ and ./system/wm/
+        wm = "bspwm"; # Selected window manager or desktop environment; must select one in both ./user/wm/ and ./system/wm/
       };
 
       # ----- USER SETTINGS ----- #
