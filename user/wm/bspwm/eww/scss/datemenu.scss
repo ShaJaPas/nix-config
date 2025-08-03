@@ -26,6 +26,43 @@
   margin-top: 0.5rem;
 }
 
+.datemenu-notif-list {
+  background-color: #313244;
+  border-radius: 0.5rem;
+  margin-right: 1.5rem;
+  padding: 1rem;
+  min-height: 300px; // Or whatever height you prefer
+  .datemenu-notif-list-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+}
+
+.datemenu-notif-card {
+  background-color: #45475a;
+  padding: 0.8rem;
+  border-radius: 0.5rem;
+  .datemenu-notif-card-appname {
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: #cdd6f4;
+  }
+  .datemenu-notif-card-time {
+    font-size: 0.8rem;
+    color: #a6adc8;
+    margin-left: 0.5rem;
+  }
+  .datemenu-notif-card-summary {
+    font-size: 0.9rem;
+    color: #bac2de;
+  }
+  .datemenu-notif-card-body {
+    font-size: 0.8rem;
+    color: #a6adc8;
+  }
+}
+
 calendar:selected {
   color: rgb(185, 128, 47);
   //background-color: #727fe3;

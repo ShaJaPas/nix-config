@@ -7,17 +7,36 @@
       (box :class "toggle-thumb"
            :halign "${dnd_active ? 'end' : 'start'}")))) 
 
+(deflisten notifications :initial "[]" "bash scripts/listen_notifications.sh")
+
+(defpoll current_uptime :interval "10s" "awk '{print int($1)}' /proc/uptime")
+
+(defwidget notification_card [icon appname summary body timestamp]
+  (box :class "datemenu-notif-card" :orientation "h" :space-evenly false :spacing 12
+    (image :path icon :image-width 32 :image-height 32)
+    (box :orientation "v" :space-evenly false :hexpand true
+      (box :orientation "h" :space-evenly false
+        (label :text appname :halign "start" :class "datemenu-notif-card-appname")
+        (label :text "${ current_uptime != "" ? ( (current_uptime - timestamp) < 60 ? 'Just now' : (current_uptime - timestamp) < 3600 ? round((current_uptime - timestamp) / 60, 0) + ' minutes ago' : round((current_uptime - timestamp) / 3600, 0) + ' hours ago' ) : "" }" :halign "end" :hexpand true :class "datemenu-notif-card-time"))
+      (label :text summary :halign "start" :wrap true :limit-width 40 :class "datemenu-notif-card-summary")
+      (label :text body :halign "start" :wrap true :limit-width 40 :class "datemenu-notif-card-body"))))
+
 (defwidget datemenu []
   (box :orientation "h" :space-evenly "false" :class "datemenu-widget" :hexpand true 
     (box :orientation "v" :space-evenly "false" :hexpand true :vexpand true
-      (centerbox :orientation "v" :class "datemenu-notif-bar" :hexpand true :vexpand true
-        (box)
-        (box :orientation "v" :space-evenly "false"
-          (image :path "assets/bell.svg" :class "datemenu-notif-icon" :image-width 80 :image-height 80)
-          (label :text "No Notifications" :class "datemenu-notif-text")
-        )
-        (box)
-        )
+      (overlay :vexpand true :hexpand true
+        (centerbox :orientation "v" :class "datemenu-notif-bar" :hexpand true :vexpand true :visible {arraylength(notifications) == 0}
+          (box)
+          (box :orientation "v" :space-evenly "false"
+            (image :path "assets/bell.svg" :class "datemenu-notif-icon" :image-width 80 :image-height 80)
+            (label :text "No Notifications" :class "datemenu-notif-text"))
+          (box))
+        (box :class "datemenu-notif-list" :orientation "v" :space-evenly false :visible {arraylength(notifications) > 0} :vexpand true :hexpand true
+          (label :text "Notifications" :class "datemenu-notif-list-title" :halign "start")
+          (scroll :vscroll true :hscroll false :vexpand true :hexpand true
+            (box :orientation "v" :space-evenly false :spacing 8
+              (for notif in notifications
+                (notification_card :icon {notif.icon != "null" ? notif.icon : 'assets/bell.svg'} :appname {notif.appname} :summary {notif.summary} :body {notif.body} :timestamp {notif.timestamp}))))))
       (box :orientation "h" :space-evenly "false" :spacing 5 :halign "start" :class "datemenu-dnd"
         (label :class "dnt_text" :text "Do Not Disturb")
         (toggle_button)

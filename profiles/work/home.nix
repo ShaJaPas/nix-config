@@ -27,6 +27,7 @@
       telegram-desktop
       htop
       code-cursor
+      windsurf
       openssl
       ffmpeg
       pinta
