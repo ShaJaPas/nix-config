@@ -71,7 +71,13 @@
           allowUnfreePredicate = _: true;
         };
         overlays = [
-          (_: _: {
+          (_: super: {
+            dunst = super.dunst.overrideAttrs (oldAttrs: {
+              patches = (oldAttrs.patches or [ ]) ++ [
+                ./patches/dunst-raw-icon.patch
+              ];
+            });
+
             go-wrk = pkgs.buildGoModule rec {
               pname = "go-wrk";
               version = "0.10";

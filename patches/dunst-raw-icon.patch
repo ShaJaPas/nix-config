@@ -1,0 +1,25 @@
+diff --git a/src/dbus.c b/src/dbus.c
+index 8c9aa45..cb8291d 100644
+--- a/src/dbus.c
++++ b/src/dbus.c
+@@ -382,11 +382,19 @@ static void dbus_cb_dunst_NotificationListHistory(GDBusConnection *connection,
+                 category  = (n->category  == NULL) ? "" : n->category;
+                 default_action_name= (n->default_action_name == NULL) ?
+                         "" : n->default_action_name;
+-                icon_path = (n->icon_path == NULL) ? "" : n->icon_path;
+                 urgency   = notification_urgency_to_string(n->urgency);
+                 urls      = (n->urls      == NULL) ? "" : n->urls;
+                 stack_tag = (n->stack_tag == NULL) ? "" : n->stack_tag;
+ 
++                char raw_icon_path[256] = "";
++                if (STR_EMPTY(n->icon_path) && n->icon) {
++                        snprintf(raw_icon_path, sizeof(raw_icon_path), "/tmp/dunst-icon-%d-%ld.png", n->id, (long)g_get_real_time());
++                        cairo_surface_write_to_png(n->icon, raw_icon_path);
++                        icon_path = raw_icon_path;
++                } else {
++                        icon_path = (n->icon_path == NULL) ? "" : n->icon_path;
++                }
++
+                 g_variant_builder_add(&n_builder, "{sv}", "body", g_variant_new_string(body));
+                 g_variant_builder_add(&n_builder, "{sv}", "message", g_variant_new_string(msg));
+                 g_variant_builder_add(&n_builder, "{sv}", "summary", g_variant_new_string(summary));
