@@ -37,9 +37,11 @@
             (box :orientation "v" :space-evenly false :spacing 8
               (for notif in notifications
                 (notification_card :icon {notif.icon != "null" ? notif.icon : 'assets/bell.svg'} :appname {notif.appname} :summary {notif.summary} :body {notif.body} :timestamp {notif.timestamp}))))))
-      (box :orientation "h" :space-evenly "false" :spacing 5 :halign "start" :class "datemenu-dnd"
-        (label :class "dnt_text" :text "Do Not Disturb")
-        (toggle_button)
+      (box :orientation "h" :space-evenly "false" :spacing 5 :class "datemenu-dnd"
+        (box :orientation "h" :space-evenly false :spacing 5 :halign "start" :hexpand true
+          (label :class "dnt_text" :text "Do Not Disturb")
+          (toggle_button))
+        (button :onclick "dunstctl history-clear && eww update notifications='[]' &" :halign "end" :class "datemenu-clear-button" :visible {arraylength(notifications) > 0} "Clear")
       )
     )
     (box :orientation "v" :space-evenly "false" :class "datemenu-calendar-bar"
