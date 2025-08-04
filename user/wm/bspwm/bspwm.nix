@@ -115,6 +115,7 @@
 
     eww update brightness_level=$(bash $HOME/.config/eww/scripts/brightness get) &
     eww update current_uptime=$(awk '{print int($1)}' /proc/uptime) &
+    eww update dnd_active=$(bash $HOME/.config/eww/scripts/dnd.sh get) &
 
     # Script to hide bar on fullscreen
     bspc subscribe node_state desktop_focus | while read -r event _ _ _ state _; do

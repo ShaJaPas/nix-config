@@ -1,8 +1,8 @@
-(defvar dnd_active false)
+(defpoll dnd_active :interval "1s" "bash scripts/dnd.sh get")
 
 (defwidget toggle_button []
   (eventbox :cursor "pointer"
-            :onclick "eww update dnd_active=${!dnd_active}"
+            :onclick "bash scripts/dnd.sh toggle && eww update dnd_active=$(bash scripts/dnd.sh get) &"
     (box :class "toggle-track ${dnd_active ? 'on' : 'off'}"
       (box :class "toggle-thumb"
            :halign "${dnd_active ? 'end' : 'start'}")))) 
