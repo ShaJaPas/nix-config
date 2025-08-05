@@ -8,8 +8,8 @@
                 :halign "center"
                 clock
                 (box :class "notifications-indicator" :space-evenly "false" :halign "center"
-                     :visible {arraylength(notifications) != "0"}
-                  "󰂚 ${arraylength(notifications)}")
+                     :visible {dnd_active == 'true' || arraylength(notifications) > 0}
+                  "${dnd_active == 'true' ? '󰂛' : '󰂚 ' + arraylength(notifications)}")
                 ))
         )
     )
