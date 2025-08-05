@@ -47,9 +47,9 @@ list_networks() {
 
         # Determine the signal strength icon
         local signal_strength_icon=""
-        if [[ "$signal" -gt 75 ]]; then
+        if [[ "$signal" -gt 66 ]]; then
             signal_strength_icon="network-strong"
-        elif [[ "$signal" -gt 50 ]]; then
+        elif [[ "$signal" -gt 33 ]]; then
             signal_strength_icon="network-ok"
         else
             signal_strength_icon="network-weak"
