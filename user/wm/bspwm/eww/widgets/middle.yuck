@@ -4,8 +4,12 @@
     (box :class "middle-widget" :halign "end"
         (eventbox :class "date-time" :halign "end"
             :onclick "bash scripts/toggle_widget datemenu"
-            (box :class "date"
+            (box :class "date" :space-evenly false :spacing 10
                 :halign "center"
-                clock))
+                clock
+                (box :class "notifications-indicator" :space-evenly "false" :halign "center"
+                     :visible {arraylength(notifications) != "0"}
+                  "󰂚 ${arraylength(notifications)}")
+                ))
         )
     )
