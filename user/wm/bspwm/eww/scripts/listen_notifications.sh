@@ -14,4 +14,5 @@ while read -r _; do
     # Every time a signal is received on the interface, we refresh the list.
     # This is simpler and more reliable than trying to parse the dbus-monitor output.
     get_notifications
+    eww update current_uptime=$(awk '{print int($1)}' /proc/uptime) &
 done 
