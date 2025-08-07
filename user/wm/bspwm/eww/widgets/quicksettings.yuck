@@ -1,8 +1,8 @@
 ;; quicksettings.yuck
 
 ;; --- Variables ---
-(deflisten audio_devices "bash scripts/audio listen sinks")
-(deflisten input_devices "bash scripts/audio listen sources")
+(deflisten audio_devices :initial '[]' "bash scripts/audio listen sinks")
+(deflisten input_devices :initial '[]' "bash scripts/audio listen sources")
 (defpoll volume_level :initial 100 :interval "1s" "bash scripts/audio get-volume sinks")
 (defpoll mic_volume_level :initial 100 :interval "1s" "bash scripts/audio get-volume sources")
 (defpoll volume_muted :initial "no" :interval "1s" "bash scripts/audio get-mute sinks")
@@ -17,11 +17,11 @@
 (defvar show_sound_input_menu false)
 (defvar active_menu "none")
 
-(defpoll wifi_enabled :interval "3s" "bash scripts/wifi status")
+(defpoll wifi_enabled :initial "false" :interval "3s" "bash scripts/wifi status")
 (defpoll wifi_network_name :interval "3s" "bash scripts/wifi ssid")
-(deflisten wifi_networks "bash scripts/wifi listen")
+(deflisten wifi_networks :initial '[]' "bash scripts/wifi listen")
 
-(defpoll bluetooth_enabled :interval "3s" "bash scripts/bluetooth status")
+(defpoll bluetooth_enabled :initial "false" :interval "3s" "bash scripts/bluetooth status")
 (defpoll bluetooth_devices :initial "[]" :interval "5s" "bash scripts/bluetooth list")
 (defpoll bluetooth_connected_device :interval "5s" :initial "" "bash scripts/bluetooth get-connected-name")
 (defpoll bluetooth_connected_count :initial 0 :interval "5s" "bash scripts/bluetooth list | jq '[.[] | select(.connected)] | length'")
@@ -63,7 +63,7 @@
         (eventbox :class "sound-output-item ${device.active ? 'active' : ''}" :onclick "bash scripts/audio set sinks \"${device.name}\" && eww -с ~/eww-config update audio_devices=\"$(bash scripts/audio list sinks)\"" :cursor "pointer"
           (box :class "sound-output-item-box" :orientation "h" :space-evenly false :spacing 10
             (image :path "assets/${device.type}.svg" :image-width 16)
-            (label :text {strlength("${device.type} – ${device.name}") > 38 ? "${substring("${device.type} – ${device.name}", 0, 35)}..." : "${device.type} – ${device.name}"} :halign "start" :hexpand true)
+            (label :text "${device.type} – ${device.name}" :limit-width 35 :halign "start" :hexpand true)
             (image :visible {device.active} :path "assets/tick.svg" :image-width 14)))))
     (box :orientation "v" :space-evenly false :spacing 5
         (box :class "separator")
@@ -80,7 +80,7 @@
         (eventbox :class "sound-output-item ${device.active ? 'active' : ''}" :onclick "bash scripts/audio set sources \"${device.name}\" && eww update input_devices=\"$(bash scripts/audio list sources)\" && eww update mic_volume_level=\"$(bash scripts/audio get-volume sources)\" && eww update mic_muted=\"$(bash scripts/audio get-mute sources)\"" :cursor "pointer"
           (box :class "sound-output-item-box" :orientation "h" :space-evenly false :spacing 10
             (image :path "assets/microphone_high_sound.svg" :image-width 16)
-            (label :text {strlength("${device.type} – ${device.name}") > 38 ? "${substring("${device.type} – ${device.name}", 0, 35)}..." : "${device.type} – ${device.name}"} :halign "start" :hexpand true)
+            (label :text "${device.type} – ${device.name}" :limit-width 35 :halign "start" :hexpand true)
             (image :visible {device.active} :path "assets/tick.svg" :image-width 14)))))
     (box :orientation "v" :space-evenly false :spacing 5
         (box :class "separator")
@@ -121,7 +121,7 @@
         (for device in bluetooth_devices
           (privacy_toggle
             :icon "assets/bluetooth_on_passive.svg"
-            :text {strlength(device.name) > 38 ? "${substring(device.name, 0, 35)}..." : device.name}
+            :text {device.name}
             :state {device.connected}
             :onclick "bash scripts/bluetooth ${device.connected ? 'disconnect' : 'connect'} ${device.mac} && eww update bluetooth_devices=\"$(bash scripts/bluetooth list)\" && eww update bluetooth_connected_device=$(bash scripts/bluetooth get-connected-name) && eww update bluetooth_connected_count=$(bash scripts/bluetooth list | jq '[.[] | select(.connected)] | length') &"))))
     (box :orientation "v" :space-evenly false :spacing 5
@@ -145,7 +145,7 @@
                   :cursor "pointer"
           (box :class "sound-output-item-box" :orientation "h" :space-evenly false :spacing 10
             (image :path "assets/vpn_passive.svg" :image-width 16)
-            (label :text "${connection.name}" :halign "start" :hexpand true)
+            (label :text "${connection.name}" :halign "start" :hexpand true :limit-width 35)
             (image :visible {connection.active} :path "assets/tick.svg" :image-width 14)))))))
 
 (defwidget power_menu []
@@ -176,7 +176,7 @@
     (box :orientation "h" :space-evenly false :spacing 15 :hexpand true
       (box :class "privacy-toggle-icon"
         (image :path "${icon}" :image-width 16))
-      (label :text text :halign "start" :hexpand true))
+      (label :text text :limit-width 35 :halign "start" :hexpand true))
     (eventbox :cursor "pointer"
               :onclick onclick
       (box :class "toggle-track ${state ? 'on' : 'off'}"
