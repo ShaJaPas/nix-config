@@ -116,6 +116,7 @@
           inherit pkgs;
           modules = [
             ./profiles/work/home.nix
+            inputs.sops-nix.nixosModules.sops
           ];
           extraSpecialArgs = {
             # pass config variables from above
@@ -129,6 +130,7 @@
           inherit pkgs;
           modules = [
             ./profiles/personal/home.nix
+            inputs.sops-nix.homeManagerModules.sops
           ];
           extraSpecialArgs = {
             # pass config variables from above
@@ -159,6 +161,8 @@
     };
 
   inputs = {
+    sops-nix.url = "github:mic92/sops-nix";
+    sops-nix.inputs.nixpkgs.follows = "nixpkgs";
 
     nixpkgs.url = "nixpkgs/nixos-unstable";
     nixpkgs-stable.url = "nixpkgs/nixos-24.11";

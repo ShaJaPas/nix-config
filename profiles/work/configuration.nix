@@ -135,6 +135,12 @@
     defaultUserShell = pkgs.fish;
   };
 
+  programs = {
+    nix-ld.enable = true;
+    fish.enable = true;
+    gamemode.enable = true;
+  };
+
   # System packages
   environment = {
     systemPackages = with pkgs; [
@@ -149,16 +155,6 @@
       linuxKernel.packages.linux_zen.perf
     ];
     shells = with pkgs; [ fish ];
-  };
-
-  programs = {
-    nekoray = {
-      enable = true;
-      tunMode.enable = true;
-    };
-    nix-ld.enable = true;
-    fish.enable = true;
-    gamemode.enable = true;
   };
 
   hardware.enableRedistributableFirmware = true;

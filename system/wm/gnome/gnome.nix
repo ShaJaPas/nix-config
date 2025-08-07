@@ -4,6 +4,11 @@
   # Import x11 config
   imports = [ ../general/x11.nix ];
 
+  programs.nekoray = {
+    enable = true;
+    tunMode.enable = true;
+  };
+
   services = {
     displayManager.gdm.enable = true;
     desktopManager.gnome.enable = true;

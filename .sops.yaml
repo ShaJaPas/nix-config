@@ -1,0 +1,4 @@
+# /home/shajapas/nix-config/.sops.yaml
+creation_rules:
+  - path_regex: .*\.json$
+    age: 'age15csgrnd3hepa8tvqxqerze5cvzjp3087v29cxed00p7qf7mxvdds7ckya8'

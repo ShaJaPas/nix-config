@@ -76,4 +76,11 @@
       ${pkgs.systemd}/bin/systemctl --user --machine sddm@ mask pipewire.service pipewire.socket wireplumber.service > /dev/null 2>&1
     '';
   };
+
+  security.wrappers.sing-box = {
+    capabilities = "cap_net_admin+ep";
+    source = "${pkgs.sing-box}/bin/sing-box";
+    owner = "root";
+    group = "root";
+  };
 }

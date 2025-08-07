@@ -136,7 +136,13 @@
       (label :text "VPN" :class "sound-output-header" :halign "start"))
     (box :orientation "v" :space-evenly false :spacing 5 :class "sound-output-list"
       (for connection in connections
-        (eventbox :class "sound-output-item ${connection.active ? 'active' : ''}" :onclick "bash scripts/vpn ${connection.active ? 'disconnect' : 'connect'} '${connection.name}'" :cursor "pointer"
+        (eventbox :class "sound-output-item ${connection.active ? 'active' : ''}" 
+                  :onclick {
+                    connection.type == "nmcli" ? 
+                      "bash scripts/vpn ${connection.active ? 'disconnect' : 'connect'} '${connection.name}' &" :
+                      "bash scripts/vpn ${connection.active ? 'disconnect-singbox' : 'connect-singbox'} '${connection.name}' &"
+                  }
+                  :cursor "pointer"
           (box :class "sound-output-item-box" :orientation "h" :space-evenly false :spacing 10
             (image :path "assets/vpn_passive.svg" :image-width 16)
             (label :text "${connection.name}" :halign "start" :hexpand true)

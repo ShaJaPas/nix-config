@@ -2,64 +2,122 @@
 
 set -euo pipefail
 
-get_active_vpn() {
+# Find active nmcli VPN
+get_active_nmcli_vpn() {
     nmcli -g NAME,TYPE,DEVICE,STATE con show --active | awk -F: '$2=="vpn" && $4=="activated" {print $1}' | head -n 1
 }
 
+# Find active sing-box profile by checking running processes for the config file
+get_active_singbox_profile_file() {
+    pgrep -af "sing-box run" | sed -n 's/.*run -c [^ ]*\/\([^ ]*\.json\).*/\1/p' | head -n 1 || true
+}
+
+# Get active VPN name (nmcli or sing-box)
+get_active_vpn_name() {
+    local active_nmcli
+    active_nmcli=$(get_active_nmcli_vpn)
+    if [ -n "$active_nmcli" ]; then
+        echo "$active_nmcli"
+        return
+    fi
+
+    local active_singbox_file
+    active_singbox_file=$(get_active_singbox_profile_file)
+    if [ -n "$active_singbox_file" ]; then
+        # Format the name from 'some-name.json' to 'Some Name'
+        basename "$active_singbox_file" .json | sed -e 's/-/ /g' -e 's/\b\(.\)/\u\1/g'
+    fi
+}
+
+
 case "${1:-}" in
     status)
-        if [ -n "$(get_active_vpn)" ]; then
+        if [ -n "$(get_active_vpn_name)" ]; then
             echo "true"
         else
             echo "false"
         fi
         ;;
     get-connected-name)
-        get_active_vpn
+        get_active_vpn_name
         ;;
     list)
-        active_vpn=$(get_active_vpn)
-        connections=$(nmcli -g NAME,TYPE con show | grep ":vpn$")
+        active_vpn_name=$(get_active_vpn_name)
         
-        json="["
-        first=true
-        while IFS= read -r line; do
-            if [ -z "$line" ]; then
-                continue
-            fi
-            name=$(echo "$line" | cut -d: -f1)
-            if [ "$first" = false ]; then
-                json="$json,"
-            fi
-            first=false
+        # Get nmcli connections as a JSON array
+        nmcli_connections=$(nmcli -g NAME,TYPE con show | grep ":vpn$" || true)
+        nmcli_json="[]"
+        if [ -n "$nmcli_connections" ]; then
+            nmcli_json=$(echo "$nmcli_connections" | while IFS= read -r line; do
+                name=$(echo "$line" | cut -d: -f1)
+                active="false"
+                if [ "$name" = "$active_vpn_name" ]; then
+                    active="true"
+                fi
+                echo "{\"name\":\"$name\",\"active\":$active,\"type\":\"nmcli\"}"
+            done | jq -c -s '.')
+        fi
 
-            active="false"
-            if [ "$name" = "$active_vpn" ]; then
-                active="true"
-            fi
-            
-            json="$json{\"name\":\"$name\",\"active\":$active}"
-        done <<< "$connections"
-        json="$json]"
-        echo "$json"
+        # Get sing-box connections as a JSON array
+        singbox_dir="$HOME/.config/sing-box"
+        singbox_json="[]"
+        if [ -d "$singbox_dir" ]; then
+            active_singbox_profile_file=$(get_active_singbox_profile_file)
+            singbox_json=$(find "$singbox_dir" -maxdepth 1 -name "*.json" | while IFS= read -r file; do
+                filename=$(basename "$file")
+                # Format name from 'my-vpn.json' to 'My Vpn'
+                formatted_name=$(basename "$filename" .json | sed -e 's/-/ /g' -e 's/\b\(.\)/\u\1/g')
+                active="false"
+                if [ "$filename" = "$active_singbox_profile_file" ]; then
+                    active="true"
+                fi
+                echo "{\"name\":\"$formatted_name\",\"active\":$active,\"type\":\"sing-box\"}"
+            done | jq -c -s '.')
+        fi
+
+        # Merge both JSON arrays
+        echo "$nmcli_json" "$singbox_json" | jq -c -s '.[0] + .[1]'
         ;;
     listen-data)
         connections_json=$(bash "$0" list)
         status=$(bash "$0" status)
         connected_name=$(bash "$0" get-connected-name)
+        if [ -z "$connected_name" ]; then
+            connected_name="Not Connected"
+        fi
         echo "{\"connections\": $connections_json, \"enabled\": $status, \"name\": \"$connected_name\"}"
         ;;
     connect)
         nmcli con up id "$2"
         ;;
     disconnect)
-        active_vpn=$(get_active_vpn)
+        active_vpn=$(get_active_nmcli_vpn)
         if [ -n "$active_vpn" ]; then
             nmcli con down id "$active_vpn"
         fi
         ;;
+    connect-singbox)
+        # Convert 'My Vpn Name' to 'my-vpn-name.json'
+        filename=$(echo "$2" | sed -e 's/ /-/g' -e 's/\b\(.[^ ]*\)/\L\1/g').json
+        config_path="$HOME/.config/sing-box/$filename"
+
+        if [ -f "$config_path" ]; then
+            # Stop any other running sing-box instance first
+            pkill -f "sing-box run" || true
+            # Wait a moment for the process to die
+            sleep 0.5
+            # Start the new profile in the background
+            (nohup sing-box run -c "$config_path" >/dev/null 2>&1 &)
+        else
+            echo "Error: Config file not found at $config_path" >&2
+            exit 1
+        fi
+        ;;
+    disconnect-singbox)
+        pkill -f "sing-box run" || true
+        ;;
     *)
-        echo "Usage: $0 {status|get-connected-name|list|connect|disconnect|listen-data}"
+        echo "Usage: $0 {status|list|connect|disconnect|connect-singbox|disconnect-singbox|...}"
         exit 1
         ;;
 esac 
