@@ -276,7 +276,31 @@
           (box :halign "start" :hexpand "true"
             (eventbox :class "btn-container"
               (box :class "qs-action-btn" :orientation "h" :space-evenly false :spacing 10
-                  (image :path "assets/battery_blue.svg" :image-width 20)
+                  (image :image-width 20 :path {
+                    battery.status == "Charging" ? (
+                      battery.capacity >= 100 ? "assets/battery-level-100-charged_blue.svg" :
+                      battery.capacity >= 90 ? "assets/battery-level-90-charging_blue.svg" :
+                      battery.capacity >= 80 ? "assets/battery-level-80-charging_blue.svg" :
+                      battery.capacity >= 70 ? "assets/battery-level-70-charging_blue.svg" :
+                      battery.capacity >= 60 ? "assets/battery-level-60-charging_blue.svg" :
+                      battery.capacity >= 50 ? "assets/battery-level-50-charging_blue.svg" :
+                      battery.capacity >= 40 ? "assets/battery-level-40-charging_blue.svg" :
+                      battery.capacity >= 30 ? "assets/battery-level-30-charging_blue.svg" :
+                      battery.capacity >= 20 ? "assets/battery-level-20-charging_blue.svg" :
+                      "assets/battery-level-10-charging_blue.svg"
+                    ) : (
+                      battery.capacity >= 100 ? "assets/battery-level-100_blue.svg" :
+                      battery.capacity >= 90 ? "assets/battery-level-90_blue.svg" :
+                      battery.capacity >= 80 ? "assets/battery-level-80_blue.svg" :
+                      battery.capacity >= 70 ? "assets/battery-level-70_blue.svg" :
+                      battery.capacity >= 60 ? "assets/battery-level-60_blue.svg" :
+                      battery.capacity >= 50 ? "assets/battery-level-50_blue.svg" :
+                      battery.capacity >= 40 ? "assets/battery-level-40_blue.svg" :
+                      battery.capacity >= 30 ? "assets/battery-level-30_blue.svg" :
+                      battery.capacity >= 20 ? "assets/battery-level-20_blue.svg" :
+                      "assets/battery-level-10_blue.svg"
+                    )
+                  })
                   (label :class "battery-pecentage" :text "${battery.capacity}%"))))
           (box :class "qs-header-actions" :halign "end" :spacing 5
               (eventbox :class "btn-container" :cursor "pointer" :onclick "xsecurelock &"

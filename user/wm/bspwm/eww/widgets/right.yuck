@@ -28,7 +28,33 @@
               (image :image-width 17 :image-height 17 :path "assets/vpn.svg"))
             (image :image-width 17 :image-height 17 :path {wifi_status == 0 ? "assets/network-disable.svg" : (wifi_status > 66 ? "assets/network-strong.svg" : (wifi_status > 33 ? "assets/network-ok.svg" : "assets/network-weak.svg"))})
             (image :image-width 17 :image-height 17 :path {volume.status == "muted" || volume.level == 0 ? "assets/audio-muted.svg" : (volume.level > 50 ? "assets/audio.svg" : "assets/audio-half.svg")})
-            (box :spacing 5 :space-evenly false (image :image-width 17 :image-height 17 :path "assets/battery.svg") "${battery.capacity}%")
+            (box :spacing 5 :space-evenly false 
+              (image :image-width 17 :image-height 17 :path {
+                battery.status == "Charging" ? (
+                  battery.capacity >= 100 ? "assets/battery-level-100-charged.svg" :
+                  battery.capacity >= 90 ? "assets/battery-level-90-charging.svg" :
+                  battery.capacity >= 80 ? "assets/battery-level-80-charging.svg" :
+                  battery.capacity >= 70 ? "assets/battery-level-70-charging.svg" :
+                  battery.capacity >= 60 ? "assets/battery-level-60-charging.svg" :
+                  battery.capacity >= 50 ? "assets/battery-level-50-charging.svg" :
+                  battery.capacity >= 40 ? "assets/battery-level-40-charging.svg" :
+                  battery.capacity >= 30 ? "assets/battery-level-30-charging.svg" :
+                  battery.capacity >= 20 ? "assets/battery-level-20-charging.svg" :
+                  "assets/battery-level-10-charging.svg"
+                ) : (
+                  battery.capacity >= 100 ? "assets/battery-level-100.svg" :
+                  battery.capacity >= 90 ? "assets/battery-level-90.svg" :
+                  battery.capacity >= 80 ? "assets/battery-level-80.svg" :
+                  battery.capacity >= 70 ? "assets/battery-level-70.svg" :
+                  battery.capacity >= 60 ? "assets/battery-level-60.svg" :
+                  battery.capacity >= 50 ? "assets/battery-level-50.svg" :
+                  battery.capacity >= 40 ? "assets/battery-level-40.svg" :
+                  battery.capacity >= 30 ? "assets/battery-level-30.svg" :
+                  battery.capacity >= 20 ? "assets/battery-level-20.svg" :
+                  "assets/battery-level-10.svg"
+                )
+              }) 
+              "${battery.capacity}%")
         )
       )
     )
