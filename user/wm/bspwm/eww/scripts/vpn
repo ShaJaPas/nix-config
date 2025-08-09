@@ -89,6 +89,9 @@ case "${1:-}" in
         ;;
     connect)
         nmcli con up id "$2"
+        # Save last used VPN info
+        mkdir -p "$HOME/.cache"
+        echo "$2|nmcli" > "$HOME/.cache/eww_last_vpn"
         ;;
     disconnect)
         active_vpn=$(get_active_nmcli_vpn)
@@ -108,6 +111,9 @@ case "${1:-}" in
             sleep 0.5
             # Start the new profile in the background
             (nohup sing-box run -c "$config_path" >/dev/null 2>&1 &)
+            # Save last used VPN info
+            mkdir -p "$HOME/.cache"
+            echo "$2|sing-box" > "$HOME/.cache/eww_last_vpn"
         else
             echo "Error: Config file not found at $config_path" >&2
             exit 1
@@ -116,8 +122,66 @@ case "${1:-}" in
     disconnect-singbox)
         pkill -f "sing-box run" || true
         ;;
+    toggle)
+        # Check if any VPN is currently active
+        active_vpn_name=$(get_active_vpn_name)
+        
+        if [ -n "$active_vpn_name" ]; then
+            # VPN is active, disconnect it
+            active_nmcli=$(get_active_nmcli_vpn)
+            if [ -n "$active_nmcli" ]; then
+                nmcli con down id "$active_nmcli"
+            else
+                # Must be sing-box
+                pkill -f "sing-box run" || true
+            fi
+        else
+            # No VPN is active, connect to the last used one
+            # Check if there's a last used VPN stored
+            last_used_file="$HOME/.cache/eww_last_vpn"
+            
+            if [ -f "$last_used_file" ]; then
+                last_vpn_info=$(cat "$last_used_file")
+                vpn_name=$(echo "$last_vpn_info" | cut -d'|' -f1)
+                vpn_type=$(echo "$last_vpn_info" | cut -d'|' -f2)
+                
+                if [ "$vpn_type" = "nmcli" ]; then
+                    nmcli con up id "$vpn_name"
+                elif [ "$vpn_type" = "sing-box" ]; then
+                    filename=$(echo "$vpn_name" | sed -e 's/ /-/g' -e 's/\b\(.[^ ]*\)/\L\1/g').json
+                    config_path="$HOME/.config/sing-box/$filename"
+                    if [ -f "$config_path" ]; then
+                        pkill -f "sing-box run" || true
+                        sleep 0.5
+                        (nohup sing-box run -c "$config_path" >/dev/null 2>&1 &)
+                    fi
+                fi
+            else
+                # No last used VPN, try to connect to the first available one
+                connections_json=$(bash "$0" list)
+                first_connection=$(echo "$connections_json" | jq -r '.[0] // empty')
+                
+                if [ -n "$first_connection" ] && [ "$first_connection" != "null" ]; then
+                    vpn_name=$(echo "$first_connection" | jq -r '.name')
+                    vpn_type=$(echo "$first_connection" | jq -r '.type')
+                    
+                    if [ "$vpn_type" = "nmcli" ]; then
+                        nmcli con up id "$vpn_name"
+                    elif [ "$vpn_type" = "sing-box" ]; then
+                        filename=$(echo "$vpn_name" | sed -e 's/ /-/g' -e 's/\b\(.[^ ]*\)/\L\1/g').json
+                        config_path="$HOME/.config/sing-box/$filename"
+                        if [ -f "$config_path" ]; then
+                            pkill -f "sing-box run" || true
+                            sleep 0.5
+                            (nohup sing-box run -c "$config_path" >/dev/null 2>&1 &)
+                        fi
+                    fi
+                fi
+            fi
+        fi
+        ;;
     *)
-        echo "Usage: $0 {status|list|connect|disconnect|connect-singbox|disconnect-singbox|...}"
+        echo "Usage: $0 {status|list|connect|disconnect|connect-singbox|disconnect-singbox|toggle|...}"
         exit 1
         ;;
 esac 

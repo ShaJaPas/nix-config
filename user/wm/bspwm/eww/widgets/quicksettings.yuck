@@ -258,7 +258,7 @@
           :main_text "VPN"
           :sub_text {vpn_data.name ?: "Not Connected"}
           :is-active {vpn_data.enabled}
-          :button_click "eww update active_menu='${active_menu == "vpn" ? "none" : "vpn"}'"
+          :button_click "bash scripts/vpn toggle &"
           :next_click "eww update active_menu='${active_menu == "vpn" ? "none" : "vpn"}'")
         (eventbox :onclick "bash scripts/airplane toggle &"
           (qs_toggle_button
