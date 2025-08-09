@@ -23,6 +23,7 @@
     mimeApps = {
       enable = true;
       associations.added = {
+        "inode/directory" = [ "org.gnome.Nautilus.desktop" ];
         "application/pdf" = [ "org.gnome.Evince.desktop" ];
         "application/postscript" = [ "org.gnome.Evince.desktop" ];
         "image/vnd.djvu" = [ "org.gnome.Evince.desktop" ];
@@ -73,6 +74,7 @@
         "text/csv" = [ "onlyoffice-desktopeditors.desktop" ];
       };
       defaultApplications = {
+        "inode/directory" = [ "org.gnome.Nautilus.desktop" ];
         "application/pdf" = [ "org.gnome.Evince.desktop" ];
         "application/postscript" = [ "org.gnome.Evince.desktop" ];
         "image/vnd.djvu" = [ "org.gnome.Evince.desktop" ];
