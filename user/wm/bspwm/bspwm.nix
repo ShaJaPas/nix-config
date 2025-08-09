@@ -152,12 +152,14 @@
     bspc subscribe desktop_layout node_add node_remove | while read -r event _; do
       # Check if current desktop is in monocle layout or has only one window
       if [ "$(bspc query -T -d focused | jq -r '.layout')" = "monocle" ] || [ "$(bspc query -N -d focused | wc -l)" -eq 1 ]; then
-        # Set property to disable rounded corners for all windows on current desktop
+        # Set property to disable rounded corners only for non-dialog windows
         for window in $(bspc query -N -d focused); do
-          xprop -id "$window" -f _BSPWM_MONOCLE 32c -set _BSPWM_MONOCLE 1 2>/dev/null || true
+          if ! xprop -id "$window" | grep -q "_NET_WM_WINDOW_TYPE(ATOM) = _NET_WM_WINDOW_TYPE_DIALOG"; then
+            xprop -id "$window" -f _BSPWM_MONOCLE 32c -set _BSPWM_MONOCLE 1 2>/dev/null || true
+          fi
         done
       else
-        # Remove property to enable rounded corners
+        # Remove property to enable rounded corners for all windows
         for window in $(bspc query -N -d focused); do
           xprop -id "$window" -remove _BSPWM_MONOCLE 2>/dev/null || true
         done
