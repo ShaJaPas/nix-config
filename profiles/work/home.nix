@@ -26,7 +26,7 @@
       evince
       telegram-desktop
       htop
-      code-cursor
+      #code-cursor
       windsurf
       openssl
       ffmpeg

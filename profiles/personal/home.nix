@@ -21,9 +21,9 @@
       git
 
       # Other
-      yandex-music
+      #yandex-music
       steam
-      discord
+      #discord
       lutris
     ];
   };
