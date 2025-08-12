@@ -4,6 +4,10 @@
   lib,
   ...
 }:
+let
+  extract-window-icon = pkgs.callPackage ./extract-window-icon { };
+  bspwm-workspaces = pkgs.callPackage ./bspwm-workspaces { };
+in
 {
   imports = [
     ./rofi/rofi.nix
@@ -80,6 +84,8 @@
     pavucontrol
     blueberry
     polkit_gnome
+    extract-window-icon
+    bspwm-workspaces
   ];
 
   # Copy eww config to ~/.config/eww
