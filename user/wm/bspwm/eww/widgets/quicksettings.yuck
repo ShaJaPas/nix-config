@@ -106,7 +106,7 @@
                     (image :visible {network.active} :path "assets/tick.svg" :image-width 14)))))
     (box :orientation "v" :space-evenly false :spacing 5
         (box :class "separator")
-        (eventbox :class "sound-output-settings-link" :cursor "pointer"
+        (eventbox :class "sound-output-settings-link" :cursor "pointer" :onclick "nm-connection-editor &"
             (label :class "sound-settings" :text "All Networks" :halign "start")))))
 
 (defwidget bluetooth_menu []

@@ -116,6 +116,8 @@
 
     bspc rule -a steam state=floating sticky=on
     bspc rule -a Eww layer=below
+    bspc rule -a Nm-connection-editor state=floating
+    bspc rule -a Blueberry.py state=floating
 
     # Name desktops
     bspc monitor -d 1 2 3 4 5 6 7 8 9
@@ -148,22 +150,30 @@
       fi
     done &
 
-    # Script to manage rounded corners in monocle mode
-    bspc subscribe desktop_layout node_add node_remove | while read -r event _; do
-      # Check if current desktop is in monocle layout or has only one window
-      if [ "$(bspc query -T -d focused | jq -r '.layout')" = "monocle" ] || [ "$(bspc query -N -d focused | wc -l)" -eq 1 ]; then
-        # Set property to disable rounded corners only for non-dialog windows
-        for window in $(bspc query -N -d focused); do
-          if ! xprop -id "$window" | grep -q "_NET_WM_WINDOW_TYPE(ATOM) = _NET_WM_WINDOW_TYPE_DIALOG"; then
-            xprop -id "$window" -f _BSPWM_MONOCLE 32c -set _BSPWM_MONOCLE 1 2>/dev/null || true
-          fi
-        done
-      else
-        # Remove property to enable rounded corners for all windows
-        for window in $(bspc query -N -d focused); do
+    # Script to manage rounded corners based on window state
+    bspc subscribe desktop_layout node_add node_remove node_state | while read -r event _; do
+      for window in $(bspc query -N -d focused); do
+        # Skip dialog windows - they always keep rounded corners
+        if xprop -id "$window" | grep -q "_NET_WM_WINDOW_TYPE(ATOM) = _NET_WM_WINDOW_TYPE_DIALOG"; then
           xprop -id "$window" -remove _BSPWM_MONOCLE 2>/dev/null || true
-        done
-      fi
+          continue
+        fi
+        
+        # Check if window is floating
+        if bspc query -N -n "$window.floating" > /dev/null 2>&1; then
+          # Floating windows always have rounded corners
+          xprop -id "$window" -remove _BSPWM_MONOCLE 2>/dev/null || true
+        else
+          # For tiled windows, check if they occupy full space
+          if [ "$(bspc query -T -d focused | jq -r '.layout')" = "monocle" ] || [ "$(bspc query -N -d focused -n .tiled | wc -l)" -eq 1 ]; then
+            # Tiled window occupies full space - disable rounded corners
+            xprop -id "$window" -f _BSPWM_MONOCLE 32c -set _BSPWM_MONOCLE 1 2>/dev/null || true
+          else
+            # Multiple tiled windows - enable rounded corners
+            xprop -id "$window" -remove _BSPWM_MONOCLE 2>/dev/null || true
+          fi
+        fi
+      done
     done &
   '';
 
