@@ -1,18 +1,22 @@
 {
+  lib,
   stdenv,
+  pkg-config,
   glib,
   cairo,
-  pkg-config,
   xorg,
 }:
 
-stdenv.mkDerivation {
+stdenv.mkDerivation rec {
   pname = "extract-window-icon";
-  version = "0.1";
+  version = "0.1.0";
 
   src = ./.;
 
-  nativeBuildInputs = [ pkg-config ];
+  nativeBuildInputs = [
+    pkg-config
+  ];
+
   buildInputs = [
     glib
     cairo
@@ -22,12 +26,27 @@ stdenv.mkDerivation {
   ];
 
   buildPhase = ''
-    gcc $CFLAGS extract-window-icon.c -o extract-window-icon \
-    $(pkg-config --cflags --libs glib-2.0 xcb xcb-atom xcb-icccm xcb-ewmh xcb-util cairo cairo-png cairo-xcb)
+    runHook preBuild
+
+    $CC $CFLAGS extract-window-icon.c -o extract-window-icon \
+      $(pkg-config --cflags --libs glib-2.0 xcb xcb-atom xcb-icccm xcb-ewmh xcb-util cairo cairo-png cairo-xcb)
+
+    runHook postBuild
   '';
 
   installPhase = ''
-    mkdir -p $out/bin
-    install -m755 extract-window-icon $out/bin
+    runHook preInstall
+
+    install -Dm755 extract-window-icon $out/bin/extract-window-icon
+
+    runHook postInstall
   '';
+
+  meta = {
+    description = "Extract window icons from X11 applications";
+    homepage = "https://github.com/shajapas/nix-config";
+    license = lib.licenses.mit;
+    platforms = lib.platforms.linux;
+    maintainers = [ ];
+  };
 }

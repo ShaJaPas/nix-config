@@ -1,35 +1,48 @@
 {
-  pkgs ? import <nixpkgs> { },
+  lib,
+  stdenv,
+  pkg-config,
+  xorg,
 }:
 
-pkgs.stdenv.mkDerivation {
+stdenv.mkDerivation rec {
   pname = "bspwm-workspaces";
   version = "1.0.0";
 
   src = ./.;
 
-  buildInputs = with pkgs; [
+  nativeBuildInputs = [
+    pkg-config
+  ];
+
+  buildInputs = [
     xorg.libX11
     xorg.libXext
   ];
 
-  nativeBuildInputs = with pkgs; [
-    gcc
-    pkg-config
-  ];
-
   buildPhase = ''
-    gcc -Wall -Wextra -O2 -std=c99 -o bspwm-workspaces workspaces.c -lX11
+    runHook preBuild
+
+    $CC $CFLAGS -Wall -Wextra -O2 -std=c99 \
+      -o bspwm-workspaces workspaces.c \
+      $(pkg-config --cflags --libs x11)
+
+    runHook postBuild
   '';
 
   installPhase = ''
-    mkdir -p $out/bin
-    cp bspwm-workspaces $out/bin/
+    runHook preInstall
+
+    install -Dm755 bspwm-workspaces $out/bin/bspwm-workspaces
+
+    runHook postInstall
   '';
 
-  meta = with pkgs.lib; {
+  meta = {
     description = "Fast bspwm workspace monitor with JSON output";
-    license = licenses.mit;
-    platforms = platforms.linux;
+    homepage = "https://github.com/shajapas/nix-config";
+    license = lib.licenses.mit;
+    platforms = lib.platforms.linux;
+    maintainers = [ ];
   };
 }
