@@ -116,7 +116,7 @@
           inherit pkgs;
           modules = [
             ./profiles/work/home.nix
-            inputs.sops-nix.nixosModules.sops
+            inputs.sops-nix.homeManagerModules.sops
           ];
           extraSpecialArgs = {
             # pass config variables from above
@@ -169,7 +169,6 @@
     chaotic = {
       url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
       inputs = {
-        fenix.follows = "";
         home-manager.follows = "";
         flake-schemas.follows = "";
         jovian.follows = "";
