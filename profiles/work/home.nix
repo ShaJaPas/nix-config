@@ -33,6 +33,7 @@
       pinta
       obsidian
       eog
+      file-roller
     ];
     sessionVariables = {
       BSPWM_SOCKET = "/tmp/bspwm-${userSettings.username}.sock";

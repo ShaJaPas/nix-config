@@ -18,8 +18,6 @@
     lsof
     bind
     nh
-    unzip
-    zip
 
     # rust
     cargo

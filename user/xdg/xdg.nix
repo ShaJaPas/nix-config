@@ -72,6 +72,19 @@
         "application/vnd.ms-excel" = [ "onlyoffice-desktopeditors.desktop" ];
         "application/vnd.ms-powerpoint" = [ "onlyoffice-desktopeditors.desktop" ];
         "text/csv" = [ "onlyoffice-desktopeditors.desktop" ];
+
+        # Archive formats for File Roller
+        "application/zip" = [ "org.gnome.FileRoller.desktop" ];
+        "application/x-zip-compressed" = [ "org.gnome.FileRoller.desktop" ];
+        "application/x-rar-compressed" = [ "org.gnome.FileRoller.desktop" ];
+        "application/x-7z-compressed" = [ "org.gnome.FileRoller.desktop" ];
+        "application/x-tar" = [ "org.gnome.FileRoller.desktop" ];
+        "application/x-gzip" = [ "org.gnome.FileRoller.desktop" ];
+        "application/x-bzip2" = [ "org.gnome.FileRoller.desktop" ];
+        "application/x-xz" = [ "org.gnome.FileRoller.desktop" ];
+        "application/x-compressed-tar" = [ "org.gnome.FileRoller.desktop" ];
+        "application/x-bzip-compressed-tar" = [ "org.gnome.FileRoller.desktop" ];
+        "application/x-xz-compressed-tar" = [ "org.gnome.FileRoller.desktop" ];
       };
       defaultApplications = {
         "inode/directory" = [ "org.gnome.Nautilus.desktop" ];
@@ -123,6 +136,19 @@
         "application/vnd.ms-excel" = [ "onlyoffice-desktopeditors.desktop" ];
         "application/vnd.ms-powerpoint" = [ "onlyoffice-desktopeditors.desktop" ];
         "text/csv" = [ "onlyoffice-desktopeditors.desktop" ];
+
+        # Archive formats for File Roller
+        "application/zip" = [ "org.gnome.FileRoller.desktop" ];
+        "application/x-zip-compressed" = [ "org.gnome.FileRoller.desktop" ];
+        "application/x-rar-compressed" = [ "org.gnome.FileRoller.desktop" ];
+        "application/x-7z-compressed" = [ "org.gnome.FileRoller.desktop" ];
+        "application/x-tar" = [ "org.gnome.FileRoller.desktop" ];
+        "application/x-gzip" = [ "org.gnome.FileRoller.desktop" ];
+        "application/x-bzip2" = [ "org.gnome.FileRoller.desktop" ];
+        "application/x-xz" = [ "org.gnome.FileRoller.desktop" ];
+        "application/x-compressed-tar" = [ "org.gnome.FileRoller.desktop" ];
+        "application/x-bzip-compressed-tar" = [ "org.gnome.FileRoller.desktop" ];
+        "application/x-xz-compressed-tar" = [ "org.gnome.FileRoller.desktop" ];
       };
     };
   };
