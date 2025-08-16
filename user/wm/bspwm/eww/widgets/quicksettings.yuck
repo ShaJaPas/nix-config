@@ -303,7 +303,7 @@
                   })
                   (label :class "battery-pecentage" :text "${battery.capacity}%"))))
           (box :class "qs-header-actions" :halign "end" :spacing 5
-              (eventbox :class "btn-container" :cursor "pointer" :onclick "xsecurelock &"
+              (eventbox :class "btn-container" :cursor "pointer" :onclick "bash scripts/lock.sh &"
                 (box :class "qs-action-btn" (image :path "assets/lock_screen.svg" :image-width 22)))
               (eventbox :class "btn-container" :cursor "pointer" :onclick "eww update show_power_menu=${!show_power_menu}"
                 (box :class "qs-action-btn" (image :path "assets/power_off.svg" :image-width 22)))))

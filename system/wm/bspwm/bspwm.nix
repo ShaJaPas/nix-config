@@ -59,8 +59,10 @@
     udev.extraRules = ''ACTION=="change", SUBSYSTEM=="drm", RUN+="${pkgs.autorandr}/bin/autorandr -c"'';
   };
 
+  security.pam.services.i3lock.enable = true;
   environment.systemPackages = with pkgs; [
     sddm-astronaut
+    i3lock-color
   ];
 
   systemd.services.disable-sddm-pipewire = {

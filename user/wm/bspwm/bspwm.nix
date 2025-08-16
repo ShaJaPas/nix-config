@@ -74,7 +74,6 @@ in
     eww
     nautilus
     mission-center
-    xsecurelock
     brightnessctl
     ddcutil
     networkmanagerapplet
@@ -197,6 +196,8 @@ in
 
       # App launcher
       "super + r" = "rofi -show drun";
+      # Lock screen
+      "super + l" = "bash $HOME/.config/eww/scripts/lock.sh &";
 
       # Screenshots
       "Print" =
