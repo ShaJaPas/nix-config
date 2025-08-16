@@ -77,7 +77,14 @@
   # Networking
   networking = {
     hostName = systemSettings.hostname; # Define your hostname.
-    networkmanager.enable = true; # Use networkmanager
+    networkmanager = {
+      # Use networkmanager
+      enable = true;
+      plugins = with pkgs; [
+        networkmanager-vpnc
+        networkmanager-openconnect
+      ];
+    };
     firewall.enable = false;
   };
 
@@ -149,8 +156,6 @@
       git
       home-manager
       wpa_supplicant
-      networkmanager-vpnc
-      networkmanager-openconnect
       gparted
       linuxKernel.packages.linux_zen.perf
     ];
