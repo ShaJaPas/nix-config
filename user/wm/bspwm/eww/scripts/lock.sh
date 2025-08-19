@@ -33,4 +33,4 @@ i3lock-color \
 --indicator                  \
 --time-str="%H:%M:%S"        \
 --date-str="%A, %Y-%m-%d"    \
---keylayout 1
+--keylayout 1 && (xset dpms force off 2>/dev/null || true)
