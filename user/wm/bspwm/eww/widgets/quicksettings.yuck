@@ -195,7 +195,7 @@
         :state {privacy_status.camera == "blocked"}
         :onclick "bash scripts/privacy toggle-camera && eww update privacy_status=\"$(bash scripts/privacy status)\"")
       (privacy_toggle
-        :icon "assets/microphone_high_sound.svg"
+        :icon "assets/microphone.svg"
         :text "Microphone"
         :state {privacy_status.microphone == "blocked"}
         :onclick "bash scripts/privacy toggle-mic && eww update privacy_status=\"$(bash scripts/privacy status)\""))))
