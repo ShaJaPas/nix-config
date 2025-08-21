@@ -28,7 +28,7 @@ stdenv.mkDerivation rec {
   buildPhase = ''
     runHook preBuild
 
-    $CC $CFLAGS extract-window-icon.c -o extract-window-icon \
+    $CC $CFLAGS extract-window-icon.c -o extract-x11-icon \
       $(pkg-config --cflags --libs glib-2.0 xcb xcb-atom xcb-icccm xcb-ewmh xcb-util cairo cairo-png cairo-xcb)
 
     runHook postBuild
@@ -37,7 +37,8 @@ stdenv.mkDerivation rec {
   installPhase = ''
     runHook preInstall
 
-    install -Dm755 extract-window-icon $out/bin/extract-window-icon
+    install -Dm755 extract-x11-icon $out/bin/extract-x11-icon
+    install -Dm755 ./extract-window-icon $out/bin/extract-window-icon
 
     runHook postInstall
   '';

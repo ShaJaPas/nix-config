@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+
+# Unified Window Icon Extractor - C fallback + optimized filesystem search
+# Usage: ./get-window-icon.sh <window_id> <output_file>
+
+set -euo pipefail
+
+WINDOW_ID="${1:-}"
+OUTPUT_FILE="${2:-}"
+
+if [[ -z "$WINDOW_ID" || -z "$OUTPUT_FILE" ]]; then
+    echo "Usage: $0 <window_id> <output_file>" >&2
+    exit 1
+fi
+
+# First try the C application (fastest for _NET_WM_ICON and WM_HINTS)
+if extract-x11-icon "$WINDOW_ID" "$OUTPUT_FILE" 2>/dev/null; then
+    # C application succeeded
+    exit 0
+fi
+
+# C application failed, use integrated filesystem search logic
+# Get window info and PID in one call
+WINDOW_DATA=$(xprop -id "$WINDOW_ID" WM_CLASS _NET_WM_PID 2>/dev/null) || {
+    echo "No icon found for window $WINDOW_ID" >&2
+    exit 0
+}
+
+# Extract PID and class using parameter expansion
+PID=${WINDOW_DATA##*_NET_WM_PID*= }
+PID=${PID%% *}
+if [[ -z "$PID" || "$PID" == "$WINDOW_DATA" ]]; then
+    echo "No icon found for window $WINDOW_ID" >&2
+    exit 0
+fi
+
+# Extract app class efficiently
+APP_CLASS=${WINDOW_DATA##*WM_CLASS*= \"*\", \"}
+APP_CLASS=${APP_CLASS%%\"*}
+APP_CLASS=${APP_CLASS,,}  # Convert to lowercase
+
+# Get executable path
+EXEC_PATH=$(readlink -f "/proc/$PID/exe" 2>/dev/null) || {
+    echo "No icon found for window $WINDOW_ID" >&2
+    exit 0
+}
+
+# Find package directory
+if [[ "$EXEC_PATH" =~ ^/nix/store/([^/]+) ]]; then
+    PKG_DIR="/nix/store/${BASH_REMATCH[1]}"
+    
+    # For Electron apps, find real app directory (optimized)
+    if [[ "$EXEC_PATH" == *electron* ]]; then
+        CMDLINE=$(tr '\0' ' ' < "/proc/$PID/cmdline" 2>/dev/null)
+        if [[ "$CMDLINE" =~ (/nix/store/[^/]*-[^/]*)/share/[^/]*/app\.asar ]]; then
+            PKG_DIR="${BASH_REMATCH[1]}"
+        fi
+    fi
+    
+    # Generate app name from package
+    APP_NAME=${PKG_DIR##*/}
+    APP_NAME=${APP_NAME#*-}
+    APP_NAME=${APP_NAME%%-[0-9]*}
+    
+    # Predefined icon sizes for fastest lookup (most common first)
+    SIZES=(512 256 1024 128 64 48 32)
+    
+    # Try hicolor directories with direct path construction
+    for hicolor_base in "/share/icons/hicolor" "/usr/share/icons/hicolor"; do
+        hicolor_dir="$PKG_DIR$hicolor_base"
+        [[ ! -d "$hicolor_dir" ]] && continue
+        
+        # Try icon names in priority order
+        for icon_name in "$APP_CLASS" "$APP_NAME" "${APP_CLASS%-*}" "${APP_NAME%-*}"; do
+            [[ -z "$icon_name" ]] && continue
+            
+            # Check sizes directly without find command
+            for size in "${SIZES[@]}"; do
+                icon_path="$hicolor_dir/${size}x${size}/apps/${icon_name}.png"
+                if [[ -f "$icon_path" ]]; then
+                    rm -f "$OUTPUT_FILE" && cp "$icon_path" "$OUTPUT_FILE"
+                    echo "Found filesystem icon: $icon_path, saved to $OUTPUT_FILE" >&2
+                    exit 0
+                fi
+            done
+        done
+    done
+    
+    # Ultra-fast fallback: check common icon locations directly
+    for icon_name in "$APP_CLASS" "$APP_NAME"; do
+        [[ -z "$icon_name" ]] && continue
+        
+        # Check most common paths first
+        for path in "$PKG_DIR/share/pixmaps/${icon_name}.png" \
+                   "$PKG_DIR/usr/share/pixmaps/${icon_name}.png" \
+                   "$PKG_DIR/share/icons/${icon_name}.png" \
+                   "$PKG_DIR/usr/share/icons/${icon_name}.png"; do
+            if [[ -f "$path" ]]; then
+                rm -f "$OUTPUT_FILE" && cp "$path" "$OUTPUT_FILE"
+                echo "Found filesystem icon: $path, saved to $OUTPUT_FILE" >&2
+                exit 0
+            fi
+        done
+    done
+fi
+
+echo "No icon found for window $WINDOW_ID" >&2
+exit 0
