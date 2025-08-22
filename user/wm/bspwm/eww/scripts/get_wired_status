@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+# Check if there's an active wired connection
+# We'll check if any ethernet interface is connected and has an IP
+
+WIRED_STATUS=0
+
+# Get all ethernet interfaces
+for iface in $(ip -o link show | awk -F': ' '{print $2}' | grep -E '^(en|eth)'); do
+    # Check if interface is up and has an IP address
+    if ip link show "$iface" | grep -q 'state UP' && ip addr show "$iface" | grep -q 'inet '; then
+        WIRED_STATUS=1
+        break
+    fi
+done
+
+echo $WIRED_STATUS
