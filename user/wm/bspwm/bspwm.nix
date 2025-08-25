@@ -87,10 +87,98 @@ in
     bspwm-workspaces
   ];
 
-  # Copy eww config to ~/.config/eww
-  xdg.configFile."eww" = {
-    source = ./eww;
-    recursive = true;
+  xdg.configFile = {
+    # Copy eww config to ~/.config/eww
+    "eww" = {
+      source = ./eww;
+      recursive = true;
+    };
+
+    # Custom picom configuration with animations support
+    "picom/picom.conf".text = ''
+      # Backend
+      backend = "glx";
+
+      # GLX backend settings for integrated graphics
+      glx-no-stencil = true;
+      glx-no-rebind-pixmap = true;
+      use-damage = true;
+
+      # Performance settings
+      vsync = true;
+      mark-wmwin-focused = true;
+      mark-ovredir-focused = true;
+      detect-rounded-corners = true;
+      detect-client-opacity = true;
+      detect-transient = true;
+
+      # Shadows (Hyprland-style)
+      shadow = true;
+      shadow-radius = 15;
+      shadow-offset-x = -8;
+      shadow-offset-y = -8;
+      shadow-opacity = 0.4;
+      shadow-color = "#000000";
+      shadow-exclude = [
+        "window_type = 'dock'",
+        "window_type = 'desktop'",
+        "_GTK_FRAME_EXTENTS@:c",
+        "class_g = 'slop'"
+      ];
+
+      # Rounded corners
+      corner-radius = 10;
+      rounded-corners-exclude = [
+        "window_type = 'dock'",
+        "window_type = 'desktop'",
+        "_BSPWM_MONOCLE@",
+        "fullscreen"
+      ];
+
+      # Animations (Fast and snappy)
+      animations = (
+        {
+          triggers = ["open", "show"];
+          preset = "appear";
+          scale = 0.9;
+          duration = 0.12;
+        },
+        {
+          triggers = ["close", "hide"];
+          preset = "disappear";
+          scale = 0.9;
+          duration = 0.1;
+        },
+        {
+          triggers = ["geometry"];
+          preset = "geometry";
+          duration = 0.08;
+        },
+        {
+          triggers = ["workspace-in"];
+          preset = "slide-in";
+          direction = "right";
+          duration = 0.15;
+        },
+        {
+          triggers = ["workspace-out"];
+          preset = "slide-out";
+          direction = "left";
+          duration = 0.15;
+        }
+      );
+
+      # Fast fading
+      fading = true;
+      fade-in-step = 0.08;
+      fade-out-step = 0.1;
+      fade-delta = 5;
+    '';
+
+    "libinput-gestures.conf".text = ''
+      gesture swipe right 3 bspc desktop -f prev.local
+      gesture swipe left 3 bspc desktop -f next.local
+    '';
   };
 
   xsession.windowManager.bspwm.enable = true;
@@ -255,53 +343,5 @@ in
   };
 
   # Picom (compositor) configuration for animations, shadows, and rounded corners
-  services.picom = {
-    package = pkgs.picom-pijulius;
-    enable = true;
-    backend = "glx";
-    vSync = true;
-    settings = {
-      # Shadows
-      shadow = false;
-      #shadow-radius = 12;
-      #shadow-offset-x = -12;
-      #shadow-offset-y = -12;
-      #shadow-opacity = 0.6;
-
-      # Rounded corners
-      corner-radius = 10;
-      rounded-corners-exclude = [
-        "window_type = 'dock'"
-        "window_type = 'desktop'"
-        "_BSPWM_MONOCLE@"
-        "fullscreen"
-      ];
-
-      # Blur
-      #blur-method = "dual_kawase";
-      #blur-strength = 8;
-      #blur-background = true;
-      #blur-background-exclude = [
-      #  "window_type = 'dock'"
-      #  "window_type = 'desktop'"
-      #  "_GTK_FRAME_EXTENTS@"
-      #];
-
-      # Animations
-      animations = true;
-      animation-stiffness = 150;
-      animation-dampening = 20;
-      animation-mass = 1;
-      animation-window-mass = 1;
-      animation-for-open-window = "zoom";
-      animation-for-unmap-window = "zoom";
-      animation-for-prev-tag = "fly-in";
-      animation-for-next-tag = "fly-out";
-    };
-  };
-
-  xdg.configFile."libinput-gestures.conf".text = ''
-    gesture swipe right 3 bspc desktop -f prev.local
-    gesture swipe left 3 bspc desktop -f next.local
-  '';
+  services.picom.enable = true;
 }
