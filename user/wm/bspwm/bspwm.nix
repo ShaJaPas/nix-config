@@ -112,7 +112,6 @@ in
       detect-client-opacity = true;
       detect-transient = true;
 
-      # Shadows (Hyprland-style)
       shadow = true;
       shadow-radius = 15;
       shadow-offset-x = -8;
@@ -122,7 +121,6 @@ in
       shadow-exclude = [
         "window_type = 'dock'",
         "window_type = 'desktop'",
-        "_GTK_FRAME_EXTENTS@:c",
         "class_g = 'slop'"
       ];
 
@@ -148,23 +146,6 @@ in
           preset = "disappear";
           scale = 0.9;
           duration = 0.1;
-        },
-        {
-          triggers = ["geometry"];
-          preset = "geometry";
-          duration = 0.08;
-        },
-        {
-          triggers = ["workspace-in"];
-          preset = "slide-in";
-          direction = "right";
-          duration = 0.15;
-        },
-        {
-          triggers = ["workspace-out"];
-          preset = "slide-out";
-          direction = "left";
-          duration = 0.15;
         }
       );
 
