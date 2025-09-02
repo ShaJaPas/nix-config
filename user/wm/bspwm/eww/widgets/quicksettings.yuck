@@ -27,6 +27,7 @@
 (defpoll bluetooth_connected_count :initial 0 :interval "5s" "bash scripts/bluetooth list | jq '[.[] | select(.connected)] | length'")
 
 (deflisten vpn_data :initial '{"connections": [], "enabled": false, "name": "Not Connected"}' "bash scripts/vpn-listen")
+(defvar vpn_connections_with_ping "[]")
 
 ;; --- Widgets ---
 (defwidget qs_toggle_button [icon text ?sub_text ?is-active]
@@ -136,7 +137,7 @@
       (label :text "VPN" :class "sound-output-header" :halign "start"))
     (box :orientation "v" :space-evenly false :spacing 5 :class "sound-output-list"
       (for connection in connections
-        (eventbox :class "sound-output-item ${connection.active ? 'active' : ''}" 
+        (eventbox :class "sound-output-item ${connection.active ? 'active' : ''} ${connection.available == false ? 'unavailable' : ''}" 
                   :onclick {
                     connection.type == "nmcli" ? 
                       "bash scripts/vpn ${connection.active ? 'disconnect' : 'connect'} '${connection.name}' &" :
@@ -145,7 +146,9 @@
                   :cursor "pointer"
           (box :class "sound-output-item-box" :orientation "h" :space-evenly false :spacing 10
             (image :path "assets/vpn_passive.svg" :image-width 16)
-            (label :text "${connection.name}" :halign "start" :hexpand true :limit-width 35)
+            (box :orientation "h" :space-evenly false :spacing 5 :hexpand true
+              (label :text "${connection.name}" :halign "start" :limit-width 20)
+              (label :text "${connection.ping ?: ''}" :halign "start" :class "vpn-ping ${connection.available == false ? 'ping-unavailable' : 'ping-available'}" :visible {connection.ping != "" && connection.ping != "unknown"}))
             (image :visible {connection.active} :path "assets/tick.svg" :image-width 14)))))))
 
 (defwidget power_menu []
@@ -259,14 +262,14 @@
           :sub_text {vpn_data.name ?: "Not Connected"}
           :is-active {vpn_data.enabled}
           :button_click "bash scripts/vpn toggle &"
-          :next_click "eww update active_menu='${active_menu == "vpn" ? "none" : "vpn"}'")
+          :next_click "bash scripts/vpn-menu-toggle '${active_menu}' &")
         (eventbox :onclick "bash scripts/airplane toggle &"
           (qs_toggle_button
             :icon "assets/airplane"
             :text "Airplane Mode"
             :is-active {airplane_status == "true"})))
       (revealer :transition "slidedown" :reveal {active_menu == "vpn"}
-          (vpn_menu :connections {vpn_data.connections})))))
+          (vpn_menu :connections {vpn_connections_with_ping != "[]" ? vpn_connections_with_ping : vpn_data.connections})))))
 
 (defwidget quicksettings []
   (box :class "qs-container" :orientation "v" :space-evenly false :spacing 20 :valign "start"

@@ -180,6 +180,33 @@
 
       &.active {
       }
+
+      &.unavailable {
+        opacity: 0.6;
+        background-color: #4a3333;
+        
+        &:hover {
+          background-color: #5a3d3d;
+        }
+      }
+    }
+  }
+
+  .vpn-ping {
+    font-size: 0.8em;
+    font-weight: normal;
+    padding: 2px 6px;
+    border-radius: 4px;
+    min-width: 40px;
+
+    &.ping-available {
+      background-color: #a6da95;
+      color: #24273a;
+    }
+
+    &.ping-unavailable {
+      background-color: #ed8796;
+      color: #24273a;
     }
   }
 

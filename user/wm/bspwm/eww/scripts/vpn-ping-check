@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# This script adds ping information to VPN connections JSON
+# Usage: vpn-ping-check <connections_json>
+
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 <connections_json>" >&2
+    exit 1
+fi
+
+connections_json="$1"
+CACHE_FILE="/tmp/eww_vpn_connections_with_ping.json"
+LOCK_FILE="/tmp/eww_vpn_ping_check.lock"
+
+# Check if ping check is already running
+if [ -f "$LOCK_FILE" ]; then
+    # If lock file exists but process is not running, remove stale lock
+    if ! kill -0 "$(cat "$LOCK_FILE")" 2>/dev/null; then
+        rm -f "$LOCK_FILE"
+    else
+        # Ping check already running, just output cached data if available
+        if [ -f "$CACHE_FILE" ]; then
+            cat "$CACHE_FILE"
+        else
+            # Fallback to input data without ping
+            echo "$connections_json"
+        fi
+        exit 0
+    fi
+fi
+
+# Create lock file
+echo $$ > "$LOCK_FILE"
+
+# Function to cleanup on exit
+cleanup() {
+    rm -f "$LOCK_FILE"
+}
+trap cleanup EXIT
+
+# Add ping information to each connection
+echo "$connections_json" | jq -c '
+map(
+    if .address != "" then
+        . + {"ping": "checking", "available": true}
+    else
+        . + {"ping": "unknown", "available": true}
+    end
+)' > /tmp/vpn_connections_temp.json
+
+# Check ping for each connection with an address
+echo "$connections_json" | jq -r '.[] | select(.address != "") | .address' | while IFS= read -r address; do
+    if [ -n "$address" ]; then
+        # Use the ping command with 2 second timeout
+        ping_result=$(timeout 2s ping -i 0.002 -c 4 -W 1 "$address" 2>/dev/null | grep "time=" | tail -n 1 | sed -n 's/.*time=\([0-9.]*\).*/\1/p' || echo "")
+        if [ -n "$ping_result" ]; then
+            # Calculate average ping from the 4 pings
+            avg_ping=$(timeout 2s ping -i 0.002 -c 4 -W 1 "$address" 2>/dev/null | tail -n 1 | sed -n 's/.*= [0-9.]*\/\([0-9.]*\)\/.*/\1/p' || echo "")
+            if [ -n "$avg_ping" ]; then
+                ping_ms="${avg_ping}ms"
+                available=true
+            else
+                ping_ms="${ping_result}ms"
+                available=true
+            fi
+        else
+            ping_ms="timeout"
+            available=false
+        fi
+        
+        # Update the JSON with ping results
+        jq --arg addr "$address" --arg ping "$ping_ms" --argjson avail "$available" '
+        map(if .address == $addr then .ping = $ping | .available = $avail else . end)
+        ' /tmp/vpn_connections_temp.json > /tmp/vpn_connections_temp2.json
+        mv /tmp/vpn_connections_temp2.json /tmp/vpn_connections_temp.json
+    fi
+done
+
+# Cache and output the result
+cat /tmp/vpn_connections_temp.json > "$CACHE_FILE"
+cat "$CACHE_FILE"
+rm -f /tmp/vpn_connections_temp.json /tmp/vpn_connections_temp2.json

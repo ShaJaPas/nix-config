@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+CURRENT_MENU="$1"
+
+if [ "$CURRENT_MENU" = "vpn" ]; then
+    # Menu is currently open, close it
+    eww update active_menu='none'
+    eww update vpn_connections_with_ping='[]'
+else
+    # Menu is currently closed, open it and start ping check
+    eww update active_menu='vpn'
+    # Get VPN connections and trigger ping check in background
+    (
+        connections_json=$(bash "$(dirname "$0")/vpn" list)
+        ping_result=$(bash "$(dirname "$0")/vpn-ping-check" "$connections_json")
+        eww update vpn_connections_with_ping="$ping_result"
+    ) &
+fi
