@@ -11,8 +11,10 @@ if [ $# -eq 0 ]; then
 fi
 
 connections_json="$1"
-CACHE_FILE="/tmp/eww_vpn_connections_with_ping.json"
-LOCK_FILE="/tmp/eww_vpn_ping_check.lock"
+USER_CACHE_DIR="${XDG_RUNTIME_DIR:-$HOME/.cache}/eww"
+mkdir -p "$USER_CACHE_DIR"
+CACHE_FILE="$USER_CACHE_DIR/vpn_connections_with_ping.json"
+LOCK_FILE="$USER_CACHE_DIR/vpn_ping_check.lock"
 
 # Check if ping check is already running
 if [ -f "$LOCK_FILE" ]; then
@@ -48,7 +50,7 @@ map(
     else
         . + {"ping": "unknown", "available": true}
     end
-)' > /tmp/vpn_connections_temp.json
+)' > "$USER_CACHE_DIR/vpn_connections_temp.json"
 
 # Check ping for each connection with an address
 echo "$connections_json" | jq -r '.[] | select(.address != "") | .address' | while IFS= read -r address; do
@@ -73,12 +75,12 @@ echo "$connections_json" | jq -r '.[] | select(.address != "") | .address' | whi
         # Update the JSON with ping results
         jq --arg addr "$address" --arg ping "$ping_ms" --argjson avail "$available" '
         map(if .address == $addr then .ping = $ping | .available = $avail else . end)
-        ' /tmp/vpn_connections_temp.json > /tmp/vpn_connections_temp2.json
-        mv /tmp/vpn_connections_temp2.json /tmp/vpn_connections_temp.json
+        ' "$USER_CACHE_DIR/vpn_connections_temp.json" > "$USER_CACHE_DIR/vpn_connections_temp2.json"
+        mv "$USER_CACHE_DIR/vpn_connections_temp2.json" "$USER_CACHE_DIR/vpn_connections_temp.json"
     fi
 done
 
 # Cache and output the result
-cat /tmp/vpn_connections_temp.json > "$CACHE_FILE"
+cat "$USER_CACHE_DIR/vpn_connections_temp.json" > "$CACHE_FILE"
 cat "$CACHE_FILE"
-rm -f /tmp/vpn_connections_temp.json /tmp/vpn_connections_temp2.json
+rm -f "$USER_CACHE_DIR/vpn_connections_temp.json" "$USER_CACHE_DIR/vpn_connections_temp2.json"
