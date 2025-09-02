@@ -7,6 +7,7 @@
 let
   extract-window-icon = pkgs.callPackage ./extract-window-icon { };
   bspwm-workspaces = pkgs.callPackage ./bspwm-workspaces { };
+  xkb-layout-monitor = pkgs.callPackage ./xkb-layout-monitor { };
 in
 {
   imports = [
@@ -85,6 +86,7 @@ in
     polkit_gnome
     extract-window-icon
     bspwm-workspaces
+    xkb-layout-monitor
   ];
 
   xdg.configFile = {

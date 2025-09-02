@@ -1,7 +1,7 @@
 (defpoll mem_usage :interval "5s" "bash scripts/get_mem_usage")
 (defpoll cpu_freq :interval "2s" "bash scripts/get_cpu_freq")
 (defpoll net_speed :interval "1s" "bash scripts/get_net_speed")
-(defpoll keyboard_layout :interval "1s" "bash scripts/get_layout")
+(deflisten keyboard_layout :initial "en" "xkb-layout-monitor")
 
 (deflisten volume :initial '{"status": "muted", "level": 0}' "bash scripts/get_volume")
 (defpoll battery :interval "10s" :initial '{"status": "Unknown", "capacity": 0, "online": "0"}' "bash scripts/get_battery")
