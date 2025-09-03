@@ -73,8 +73,8 @@ case "${1:-}" in
                         # Cache is less than 5 minutes old, use cached IP
                         address=$(cat "$dns_cache_file")
                     else
-                        # Cache miss or expired, resolve and cache
-                        resolved_ip=$(nslookup "$address" 8.8.8.8 2>/dev/null | awk '/^Address: / { print $2 }' | head -n1 || echo "")
+                        # Cache miss or expired, resolve and cache with 2 second timeout
+                        resolved_ip=$(timeout 2s nslookup "$address" 2>/dev/null | awk '/^Address: / { print $2 }' | head -n1 || echo "")
                         if [ -n "$resolved_ip" ]; then
                             echo "$resolved_ip" > "$dns_cache_file"
                             address="$resolved_ip"
