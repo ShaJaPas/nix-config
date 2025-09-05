@@ -15,6 +15,12 @@ in
     ./dunst.nix
   ];
 
+  home.pointerCursor = {
+    name = "Adwaita";
+    package = pkgs.adwaita-icon-theme;
+    size = 24;
+  };
+
   gtk = {
     enable = true;
     font = {
@@ -33,6 +39,7 @@ in
     cursorTheme = {
       name = "Adwaita";
       package = pkgs.adwaita-icon-theme;
+      size = 24;
     };
 
     gtk3.extraConfig = {
@@ -169,6 +176,8 @@ in
     systemctl start restore-camera-state
     ${pkgs.autorandr}/bin/autorandr -c
     echo UPDATESTARTUPTTY | gpg-connect-agent
+
+    xsetroot -cursor_name left_ptr
 
     nm-applet &
 
