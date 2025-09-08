@@ -330,7 +330,7 @@ in
       "super + Escape" = "pkill -USR1 -x sxhkd";
 
       # Logout from bspwm
-      "super + shift + q" = "bspc quit; pkill -x sxhkd";
+      "super + shift + q" = "killall -u $USER";
     };
   };
 
