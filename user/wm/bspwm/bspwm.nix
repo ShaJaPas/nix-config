@@ -203,6 +203,7 @@ in
     bspc rule -a Eww layer=below
     bspc rule -a Nm-connection-editor state=floating
     bspc rule -a Blueberry.py state=floating
+    bspc rule -a pavucontrol state=floating
 
     # Name desktops
     bspc monitor -d 1 2 3 4 5 6 7 8 9
