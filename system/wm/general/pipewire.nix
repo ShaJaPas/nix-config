@@ -1,7 +1,6 @@
 _:
 
 {
-  # Pipewire
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -9,6 +8,13 @@ _:
     alsa.support32Bit = true;
     pulse.enable = true;
     jack.enable = true;
+
+    extraConfig.pipewire."99-silent-bell.conf" = {
+      "context.properties" = {
+        "module.x11.bell" = false;
+      };
+    };
+
     wireplumber.extraConfig."99-disable-suspend" = {
       "monitor.alsa.rules" = [
         {
@@ -22,7 +28,7 @@ _:
           ];
           actions = {
             update-props = {
-              "session.suspend-timeout-seconds" = 0;
+              "session.suspend-timeout-seconds" = 1;
             };
           };
         }
