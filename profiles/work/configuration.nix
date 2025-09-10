@@ -157,7 +157,7 @@
       home-manager
       wpa_supplicant
       gparted
-      linuxKernel.packages.linux_zen.perf
+      perf
     ];
     shells = with pkgs; [ fish ];
   };

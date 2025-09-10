@@ -1,9 +1,13 @@
 _: {
   programs.ssh = {
     enable = true;
-    extraConfig = ''
-      SetEnv TERM=xterm-256color
-    '';
+    enableDefaultConfig = false;
+    matchBlocks."*" = {
+      sendEnv = [ "TERM" ];
+      setEnv = {
+        TERM = "xterm-256color";
+      };
+    };
   };
 
   # Hack to fix SSH warnings/errors due to a file permissions check in fhs env
