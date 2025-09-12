@@ -23,7 +23,7 @@
       (eventbox :class "kb-layout"
         (box :class "kb-lang" keyboard_layout)
       )
-      (eventbox :class "system-tray-group" :onclick "bash scripts/toggle_widget quicksettings"
+      (eventbox :class "system-tray-group" :onclick "eww update show_power_menu=false show_sound_output_menu=false show_sound_input_menu=false active_menu='none' && bash scripts/toggle_widget quicksettings"
         (box :class "system-tray-gr" :spacing 10 :space-evenly false
             (box :visible {vpn_data.enabled}
               (image :image-width 17 :image-height 17 :path "assets/vpn.svg"))
