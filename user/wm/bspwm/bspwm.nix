@@ -225,15 +225,27 @@ in
     eww update current_uptime=$(awk '{print int($1)}' /proc/uptime) &
     eww update dnd_active=$(bash $HOME/.config/eww/scripts/dnd.sh get) &
 
-    # Script to hide bar on fullscreen
-    bspc subscribe node_state desktop_focus | while read -r event _ _ _ state _; do
-      if [ "$event" = "desktop_focus" ] || [ "$state" = "fullscreen" ]; then
-        if bspc query -N -d focused -n .fullscreen > /dev/null; then
-          eww close-all
-        else
-          eww active-windows | grep -q 'bar: bar' || eww open bar
-        fi
-      fi
+    # Script to hide bar on fullscreen and handle window removal
+    bspc subscribe node_state desktop_focus node_remove | while read -r event _ _ _ state _; do
+      case "$event" in
+        "desktop_focus"|"node_remove")
+          # Always check bar visibility on desktop focus or node removal
+          if bspc query -N -d focused -n .fullscreen > /dev/null 2>&1; then
+            eww close-all
+          else
+            eww active-windows | grep -q 'bar: bar' || eww open bar
+          fi
+          ;;
+        "node_state")
+          if [ "$state" = "fullscreen" ]; then
+            if bspc query -N -d focused -n .fullscreen > /dev/null 2>&1; then
+              eww close-all
+            else
+              eww active-windows | grep -q 'bar: bar' || eww open bar
+            fi
+          fi
+          ;;
+      esac
     done &
 
     # Script to manage rounded corners based on window state
