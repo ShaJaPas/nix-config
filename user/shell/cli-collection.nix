@@ -18,6 +18,11 @@
     lsof
     bind
     nh
+    expect
+    (curl.override {
+      # Enable c-ares support
+      c-aresSupport = true;
+    })
 
     # rust
     cargo
@@ -30,6 +35,7 @@
     cargo-sort
     cargo-watch
     cargo-deny
+    cargo-edit
     rust-bindgen
   ];
 

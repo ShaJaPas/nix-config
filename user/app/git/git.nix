@@ -5,7 +5,10 @@
 }:
 
 {
-  home.packages = [ pkgs.git ];
+  home.packages = [
+    pkgs.git
+    pkgs.git-crypt
+  ];
   programs.git = {
     enable = true;
     userName = userSettings.name;

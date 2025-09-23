@@ -34,6 +34,8 @@
       obsidian
       eog
       file-roller
+      thunderbird
+      ansible
     ];
     sessionVariables = {
       BSPWM_SOCKET = "/tmp/bspwm-${userSettings.username}.sock";
