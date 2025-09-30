@@ -249,8 +249,9 @@ in
     done &
 
     # Script to manage rounded corners based on window state
-    bspc subscribe desktop_layout node_add node_remove node_state | while read -r event _; do
-      for window in $(bspc query -N -d focused); do
+    update_corners_for_desktop() {
+      local desktop="$1"
+      for window in $(bspc query -N -d "$desktop"); do
         # Skip dialog windows - they always keep rounded corners
         if xprop -id "$window" | grep -q "_NET_WM_WINDOW_TYPE(ATOM) = _NET_WM_WINDOW_TYPE_DIALOG"; then
           xprop -id "$window" -remove _BSPWM_MONOCLE 2>/dev/null || true
@@ -263,7 +264,7 @@ in
           xprop -id "$window" -remove _BSPWM_MONOCLE 2>/dev/null || true
         else
           # For tiled windows, check if they occupy full space
-          if [ "$(bspc query -T -d focused | jq -r '.layout')" = "monocle" ] || [ "$(bspc query -N -d focused -n .tiled | wc -l)" -eq 1 ]; then
+          if [ "$(bspc query -T -d "$desktop" | jq -r '.layout')" = "monocle" ] || [ "$(bspc query -N -d "$desktop" -n .tiled | wc -l)" -eq 1 ]; then
             # Tiled window occupies full space - disable rounded corners
             xprop -id "$window" -f _BSPWM_MONOCLE 32c -set _BSPWM_MONOCLE 1 2>/dev/null || true
           else
@@ -272,6 +273,20 @@ in
           fi
         fi
       done
+    }
+
+    bspc subscribe desktop_layout node_add node_remove node_state node_transfer | while read -r event monitor desktop node _; do
+      case "$event" in
+        "node_transfer")
+          # Update corners for both source and destination desktops
+          update_corners_for_desktop "$(bspc query -D -d focused)"
+          update_corners_for_desktop "$desktop"
+          ;;
+        *)
+          # Update corners for focused desktop
+          update_corners_for_desktop "$(bspc query -D -d focused)"
+          ;;
+      esac
     done &
   '';
 
