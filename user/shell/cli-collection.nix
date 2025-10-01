@@ -23,6 +23,7 @@
       # Enable c-ares support
       c-aresSupport = true;
     })
+    socat
 
     # rust
     cargo
