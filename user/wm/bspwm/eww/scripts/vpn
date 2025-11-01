@@ -92,8 +92,9 @@ case "${1:-}" in
             active_singbox_profile_file=$(get_active_singbox_profile_file)
             singbox_json=$(find "$singbox_dir" -maxdepth 1 -name "*.json" | while IFS= read -r file; do
                 filename=$(basename "$file")
+                base_name=$(basename "$filename" .json)
                 # Format name from 'my-vpn.json' to 'My Vpn'
-                formatted_name=$(basename "$filename" .json | sed -e 's/-/ /g' -e 's/\b\(.\)/\u\1/g')
+                formatted_name=$(echo "$base_name" | sed 's/-/ /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2))}1')
                 active="false"
                 if [ "$filename" = "$active_singbox_profile_file" ]; then
                     active="true"
