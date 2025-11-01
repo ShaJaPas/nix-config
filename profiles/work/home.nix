@@ -44,6 +44,8 @@
       TERM = userSettings.term;
       BROWSER = userSettings.browser;
       FZF_DEFAULT_OPTS = "--ansi --preview-window 'right:60%' --preview 'bat --color=always --style=header,grid --line-range :300 {}' --bind 'enter:execute(micro {})'";
+      # Force Qt applications to use GTK
+      QT_QPA_PLATFORMTHEME = "gtk3";
       #TERM = "xterm-256color";
     };
   };

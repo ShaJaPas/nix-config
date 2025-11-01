@@ -169,10 +169,15 @@
 
   xdg.portal = {
     enable = true;
-    config.common.default = "gtk";
-    extraPortals = [
-      pkgs.xdg-desktop-portal-gtk
+    extraPortals = with pkgs; [
+      xdg-desktop-portal-gtk
     ];
+    config = {
+      common = {
+        default = [ "gtk" ];
+        "org.freedesktop.impl.portal.FileChooser" = [ "gtk" ];
+      };
+    };
   };
 
   # It is ok to leave this unchanged for compatibility purposes
