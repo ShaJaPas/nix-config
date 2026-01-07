@@ -2,6 +2,7 @@
   pkgs,
   userSettings,
   systemSettings,
+  pkgs-stable,
   ...
 }:
 
@@ -11,7 +12,7 @@
   home = {
     inherit (userSettings) username;
     homeDirectory = "/home/" + userSettings.username;
-    stateVersion = "24.11"; # Please read the comment before changing.
+    stateVersion = "25.11"; # Please read the comment before changing.
     packages = with pkgs; [
       # Core
       fish
@@ -26,8 +27,7 @@
       evince
       telegram-desktop
       htop
-      #code-cursor
-      windsurf
+      pkgs-stable.code-cursor
       openssl
       ffmpeg
       pinta

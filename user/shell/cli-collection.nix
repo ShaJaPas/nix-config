@@ -24,6 +24,7 @@
       c-aresSupport = true;
     })
     socat
+    busybox
 
     # rust
     cargo

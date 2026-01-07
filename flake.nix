@@ -18,9 +18,9 @@
 
       # ----- USER SETTINGS ----- #
       workSettings = rec {
-        username = "***"; # username
-        name = "***"; # name/identifier
-        email = "***"; # email (used for certain configurations)
+        username = "konstantin"; # username
+        name = "Константин Куликов"; # name/identifier
+        email = "kulikov@kribrum.ru"; # email (used for certain configurations)
         # window manager type (hyprland or x11) translator
         browser = "yandex-browser"; # Default browser; must select one from ./user/app/browser/
         term = "wezterm"; # Default terminal command;
@@ -41,9 +41,9 @@
             );
       };
       personalSettings = rec {
-        username = "***"; # username
-        name = "***"; # name/identifier
-        email = "***"; # email (used for certain configurations)
+        username = "shajapas"; # username
+        name = "ShaJaPas"; # name/identifier
+        email = "shajapas@gmail.com"; # email (used for certain configurations)
         browser = "yandex-browser"; # Default browser; must select one from ./user/app/browser/
         term = "wezterm"; # Default terminal command;
         editor = "code"; # Default editor;
@@ -165,7 +165,7 @@
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
 
     nixpkgs.url = "nixpkgs/nixos-unstable";
-    nixpkgs-stable.url = "nixpkgs/nixos-24.11";
+    nixpkgs-stable.url = "nixpkgs/nixos-25.11";
     chaotic = {
       url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
       inputs = {
@@ -180,7 +180,7 @@
     home-manager-unstable.url = "github:nix-community/home-manager/master";
     home-manager-unstable.inputs.nixpkgs.follows = "nixpkgs";
 
-    home-manager-stable.url = "github:nix-community/home-manager/release-24.11";
+    home-manager-stable.url = "github:nix-community/home-manager/release-25.11";
     home-manager-stable.inputs.nixpkgs.follows = "nixpkgs-stable";
 
     yandex-browser = {

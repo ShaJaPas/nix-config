@@ -3,6 +3,6 @@
 {
   home.packages = with pkgs; [
     # Python setup
-    python3Full
+    python3Minimal
   ];
 }
