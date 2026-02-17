@@ -22,7 +22,7 @@
 
       wireshark
       bloomrpc
-      audio-recorder
+      gnome-sound-recorder
       onlyoffice-desktopeditors
       evince
       telegram-desktop

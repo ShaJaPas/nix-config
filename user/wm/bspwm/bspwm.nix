@@ -108,9 +108,6 @@ in
       # Backend
       backend = "glx";
 
-      # GLX backend settings for integrated graphics
-      glx-no-stencil = true;
-      glx-no-rebind-pixmap = true;
       use-damage = true;
 
       # Performance settings

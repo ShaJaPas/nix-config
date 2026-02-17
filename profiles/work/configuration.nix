@@ -49,6 +49,7 @@
       "i2c-dev"
     ];
     #boot.kernelPackages = inputs.chaotic.legacyPackages.x86_64-linux.linuxPackages_cachyos;
+    kernelPackages = pkgs.linuxPackages_latest;
     kernel.sysctl = {
       "net.core.default_qdisc" = "fq";
       "net.ipv4.tcp_congestion_control" = "bbr";

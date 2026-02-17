@@ -28,7 +28,7 @@ stdenv.mkDerivation rec {
   buildPhase = ''
     runHook preBuild
 
-    $CC $CFLAGS extract-window-icon.c -o extract-x11-icon \
+    $CC $CFLAGS extract-window-icon.c -o extract-x11-icon -std=c99 \
       $(pkg-config --cflags --libs glib-2.0 xcb xcb-atom xcb-icccm xcb-ewmh xcb-util cairo cairo-png cairo-xcb)
 
     runHook postBuild
