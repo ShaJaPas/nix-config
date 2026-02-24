@@ -4,7 +4,9 @@
   pkg-config,
   glib,
   cairo,
-  xorg,
+  libxcb-wm,
+  libxcb-util,
+  libxcb,
 }:
 
 stdenv.mkDerivation rec {
@@ -20,9 +22,9 @@ stdenv.mkDerivation rec {
   buildInputs = [
     glib
     cairo
-    xorg.xcbutilwm
-    xorg.xcbutil
-    xorg.libxcb
+    libxcb-wm
+    libxcb-util
+    libxcb
   ];
 
   buildPhase = ''

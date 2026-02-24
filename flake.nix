@@ -2,7 +2,7 @@
   description = "Flake";
 
   outputs =
-    inputs@{ nixpkgs, ... }:
+    inputs:
     let
       # ---- SYSTEM SETTINGS ---- #
       systemSettings = {
@@ -109,7 +109,7 @@
 
     in
     {
-      formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt-rfc-style;
+      formatter.x86_64-linux = pkgs.nixfmt;
 
       homeConfigurations = {
         work = home-manager.lib.homeManagerConfiguration {
@@ -146,11 +146,21 @@
           inherit (systemSettings) system;
           modules = [
             (./. + "/profiles" + ("/" + systemSettings.profile) + "/configuration.nix")
+            (
+              { lib, ... }:
+              {
+                # Disable options that are ignored when using specialArgs.pkgs
+                nixpkgs = lib.mkForce {
+                  inherit pkgs;
+                  config = { };
+                  overlays = [ ];
+                };
+              }
+            )
           ];
           specialArgs = {
             # pass config variables from above
             inherit pkgs-stable;
-            inherit pkgs;
             inherit systemSettings;
             inherit workSettings;
             inherit personalSettings;

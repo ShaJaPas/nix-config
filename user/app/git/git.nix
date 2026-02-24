@@ -11,9 +11,10 @@
   ];
   programs.git = {
     enable = true;
-    userName = userSettings.name;
-    userEmail = userSettings.email;
-    extraConfig = {
+    settings = {
+      user = {
+        inherit (userSettings) name email;
+      };
       init.defaultBranch = "master";
       core.editor = "nano";
     };

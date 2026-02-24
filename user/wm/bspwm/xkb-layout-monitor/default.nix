@@ -2,7 +2,7 @@
   lib,
   stdenv,
   pkg-config,
-  xorg,
+  libx11,
 }:
 
 stdenv.mkDerivation rec {
@@ -16,7 +16,7 @@ stdenv.mkDerivation rec {
   ];
 
   buildInputs = [
-    xorg.libX11
+    libx11
   ];
 
   buildPhase = ''

@@ -39,6 +39,7 @@
     cargo-deny
     cargo-edit
     rust-bindgen
+    qwen-code
   ];
 
   programs.micro = {

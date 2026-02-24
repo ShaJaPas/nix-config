@@ -15,8 +15,8 @@
       desktop = null;
       publicShare = null;
       extraConfig = {
-        XDG_ARCHIVE_DIR = "${config.home.homeDirectory}/Archive";
-        XDG_VM_DIR = "${config.home.homeDirectory}/Machines";
+        ARCHIVE = "${config.home.homeDirectory}/Archive";
+        VM = "${config.home.homeDirectory}/Machines";
       };
     };
 
