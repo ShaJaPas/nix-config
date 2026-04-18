@@ -61,12 +61,13 @@
       systemd-boot.enable = false;
       efi = {
         efiSysMountPoint = "/boot";
+        canTouchEfiVariables = false;
       };
       grub = {
         enable = true;
 
         efiSupport = true;
-        # efiInstallAsRemovable = true; # Otherwise /boot/EFI/BOOT/BOOTX64.EFI isn't generated
+        efiInstallAsRemovable = true; # Otherwise /boot/EFI/BOOT/BOOTX64.EFI isn't generated
         device = systemSettings.grubDevice;
         extraEntriesBeforeNixOS = false;
         copyKernels = false;

@@ -13,7 +13,7 @@
         locale = "en_US.UTF-8"; # select locale
         grubDevice = "nodev"; # device identifier for grub; only used for legacy (bios) boot mode
         gpuType = "amd"; # amd, intel or nvidia; only makes some slight mods for amd at the moment
-        wm = "bspwm"; # Selected window manager or desktop environment; must select one in both ./user/wm/ and ./system/wm/
+        wm = "niri"; # Selected window manager or desktop environment; must select one in both ./user/wm/ and ./system/wm/
       };
 
       # ----- USER SETTINGS ----- #
@@ -23,7 +23,7 @@
         email = "kulikov@kribrum.ru"; # email (used for certain configurations)
         # window manager type (hyprland or x11) translator
         browser = "yandex-browser"; # Default browser; must select one from ./user/app/browser/
-        term = "wezterm"; # Default terminal command;
+        term = "ghostty"; # Default terminal command;
         editor = "code"; # Default editor;
         # editor spawning translator
         # generates a command that can be used to spawn editor inside a gui
@@ -45,7 +45,7 @@
         name = "ShaJaPas"; # name/identifier
         email = "shajapas@gmail.com"; # email (used for certain configurations)
         browser = "yandex-browser"; # Default browser; must select one from ./user/app/browser/
-        term = "wezterm"; # Default terminal command;
+        term = "ghostty"; # Default terminal command;
         editor = "code"; # Default editor;
         # editor spawning translator
         # generates a command that can be used to spawn editor inside a gui
@@ -117,6 +117,7 @@
           modules = [
             ./profiles/work/home.nix
             inputs.sops-nix.homeManagerModules.sops
+            inputs.dms.homeModules.default
           ];
           extraSpecialArgs = {
             # pass config variables from above
@@ -131,6 +132,7 @@
           modules = [
             ./profiles/personal/home.nix
             inputs.sops-nix.homeManagerModules.sops
+            inputs.dms.homeModules.default
           ];
           extraSpecialArgs = {
             # pass config variables from above
@@ -157,6 +159,7 @@
                 };
               }
             )
+            inputs.dms.nixosModules.default
           ];
           specialArgs = {
             # pass config variables from above
@@ -184,6 +187,9 @@
         jovian.follows = "";
       };
     };
+    dms.url = "github:AvengeMedia/DankMaterialShell";
+    dms-plugin-registry.url = "github:AvengeMedia/dms-plugin-registry";
+
     #yandex-browser.url = "github:Teu5us/nix-yandex-browser";
     #yandex-browser.inputs.nixpkgs.follows = "nixpkgs";
 

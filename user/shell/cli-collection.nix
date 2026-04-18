@@ -40,7 +40,7 @@
     cargo-edit
     rust-bindgen
     appimage-run
-    qwen-code
+    opencode
   ];
 
   programs.micro = {

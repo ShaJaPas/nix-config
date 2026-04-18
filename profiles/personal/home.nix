@@ -16,7 +16,7 @@
     packages = with pkgs; [
       # Core
       fish
-      wezterm
+      ghostty
       starship
       git
 
