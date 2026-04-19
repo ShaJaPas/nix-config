@@ -91,10 +91,17 @@ in
     networkmanagerapplet
     gtk3
     pavucontrol
+    xwayland-satellite
   ];
 
   xdg.configFile = {
     "niri/config.kdl".text = ''
+      
+      include "dms/outputs.kdl"
+
+      hotkey-overlay {
+        skip-at-startup
+      }
         input {
             keyboard {
                 xkb {
@@ -122,17 +129,13 @@ in
                 active-color "#498a49"
                 inactive-color "#8a8d9e"
             }
-
-            // Соотношение окон аналогично split_ratio 0.52
-            default-column-width { proportion 0.52; }
             
             focus-ring {
-                width 0 // Мы используем border, как в bspwm
+                width 0
             }
         }
 
         animations {
-            // Замена picom animations
             workspace-switch { spring damping-ratio=1.0 stiffness=1000 epsilon=0.0001; }
             window-open { spring damping-ratio=0.8 stiffness=1000 epsilon=0.0001; }
             window-close { spring damping-ratio=0.8 stiffness=1000 epsilon=0.0001; }
@@ -140,8 +143,7 @@ in
 
         spawn-at-startup "dms"
         
-        // Установка обоев
-          spawn-at-startup "bash" "-c" "sleep 3 && dms ipc call wallpaper set ${wallpaper}"
+        spawn-at-startup "bash" "-c" "dms ipc call wallpaper set ${wallpaper}"
         
       window-rule {
             match app-id="steam"
@@ -152,28 +154,25 @@ in
         	clip-to-geometry true
         }
 
-        // --- ГОРЯЧИЕ КЛАВИШИ (замена sxhkd) ---
         binds {
-            // Приложения
             Mod+Q { spawn "${userSettings.term}"; }
             Mod+B { spawn "gtk-launch" "${userSettings.browser}"; }
             Mod+D { spawn "nautilus"; }
             Mod+E { spawn "${userSettings.editor}"; }
             
-            // Вызов меню приложений DMS (встроенный Spotlight/Rofi)
             Mod+R { spawn "dms" "ipc" "call" "launcher" "toggle"; }
             
-            // Блокировка экрана средствами DMS
             Mod+L { spawn "dms" "ipc" "call" "lock" "lock"; }
 
-            // Скриншоты
-            //Print { spawn "sh" "-c" "mkdir -p $HOME/Media/Pictures/Screenshots && grim $HOME/Media/Pictures/Screenshots/Screenshot-$(date +%Y-%m-%d_%H-%M-%S).png"; }
-            //Shift+Print { spawn "sh" "-c" "mkdir -p $HOME/Media/Pictures/Screenshots && grim -g \"$(slurp)\" $HOME/Media/Pictures/Screenshots/Screenshot-$(date +%Y-%m-%d_%H-%M-%S).png"; }
+            Print { spawn "dms" "screenshot" "full"; }
+            Shift+Print { spawn "dms" "screenshot" "region"; }
 
-            // Управление окнами
             Mod+C { close-window; }
             Mod+S { toggle-window-floating; }
             Mod+F { fullscreen-window; }
+
+            Mod+WheelScrollDown { focus-column-right; }
+            Mod+WheelScrollUp   { focus-column-left; }
 
             Mod+Shift+Left  { move-column-left; }
             Mod+Shift+Right { move-column-right; }
@@ -183,7 +182,6 @@ in
             Mod+Up    { set-window-height "-5%"; }
             Mod+Down  { set-window-height "+5%"; }
 
-            // Воркспейсы
             Mod+1 { focus-workspace 1; }
             Mod+2 { focus-workspace 2; }
             Mod+3 { focus-workspace 3; }
@@ -204,7 +202,7 @@ in
             Mod+Shift+8 { move-column-to-workspace 8; }
             Mod+Shift+9 { move-column-to-workspace 9; }
 
-            Mod+Shift+Q { quit; }
+            Mod+Shift+Q { quit skip-confirmation=true; }
         }
     '';
   };

@@ -13,4 +13,5 @@
       videoDrivers = [ "amdgpu" ];
     };
   };
+  programs.xwayland.enable = true;
 }
