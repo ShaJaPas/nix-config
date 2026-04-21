@@ -1,0 +1,12 @@
+{
+    "id": "networkDownloadMonitor",
+    "name": "Network Download Monitor",
+    "description": "Network monitor showing only download speed",
+    "version": "1.0.0",
+    "author": "Custom",
+    "type": "widget",
+    "capabilities": ["dankbar-widget"],
+    "component": "./NetworkWidget.qml",
+    "icon": "network_check",
+    "requires_dms": ">=1.0.0"
+}

@@ -29,8 +29,10 @@ in
     enableAudioWavelength = true; # Audio visualizer (cava)
     enableCalendarEvents = true; # Calendar integration (khal)
     enableClipboardPaste = true; # Pasting from the clipboard history (wtype)
+    settings = builtins.fromJSON (builtins.readFile ./dms-settings.json);
     plugins = {
       dankBatteryAlerts.enable = true;
+      dockerManager.enable = true;
     };
   };
 
@@ -42,8 +44,8 @@ in
       size = 11;
     };
     theme = {
-      name = "Tokyonight-Dark";
-      package = pkgs.tokyonight-gtk-theme;
+      name = "adw-gtk3";
+      package = pkgs.adw-gtk3;
     };
     iconTheme = {
       name = "Tela-ubuntu-dark";
@@ -95,8 +97,9 @@ in
   ];
 
   xdg.configFile = {
+    "DankMaterialShell/plugins/networkDownloadMonitor".source = ./plugins/networkDownloadMonitor;
     "niri/config.kdl".text = ''
-      
+
       include "dms/outputs.kdl"
 
       hotkey-overlay {

@@ -30,6 +30,7 @@
         "terminal.integrated.fontFamily" = "monospace";
         "window.zoomLevel" = 1;
         "terminal.integrated.defaultProfile.linux" = "fish";
+        "workbench.colorTheme" = "Dark Modern";
       };
       extensions = with pkgs.vscode-extensions; [
         twxs.cmake

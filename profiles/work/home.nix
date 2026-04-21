@@ -2,7 +2,6 @@
   pkgs,
   userSettings,
   systemSettings,
-  pkgs-stable,
   ...
 }:
 
@@ -27,7 +26,7 @@
       evince
       telegram-desktop
       htop
-      pkgs-stable.code-cursor
+      pkgs.code-cursor
       openssl
       ffmpeg
       pinta

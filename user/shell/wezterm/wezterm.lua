@@ -1,6 +1,8 @@
 local wezterm = require 'wezterm'
 
 local config = wezterm.config_builder()
+config.mux_enable_ssh_agent = false
+config.enable_wayland = true 
 local custom = {}
 custom.ansi = {
     '#1d1f21',
