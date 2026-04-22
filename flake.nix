@@ -102,9 +102,23 @@
                 });
               in
               qs.overrideAttrs (old: {
+                nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ super.makeWrapper ];
+                buildInputs = (old.buildInputs or [ ]) ++ [ super.qt6.qtsvg ];
                 installPhase = ''
-                  mkdir -p $out
-                  cp -r ${myUnwrapped}/* $out
+                  mkdir -p $out/bin
+                  for bin in quickshell qs; do
+                    if [ -f ${myUnwrapped}/bin/$bin ]; then
+                      makeWrapper ${myUnwrapped}/bin/$bin $out/bin/$bin \
+                        --prefix QML_IMPORT_PATH : "${super.qt6.qtdeclarative}/lib/qt-6/qml" \
+                        --prefix QML_IMPORT_PATH : "${super.qt6.qt5compat}/lib/qt-6/qml" \
+                        --prefix QT_PLUGIN_PATH : "${super.qt6.qtsvg}/lib/qt-6/plugins"
+                    fi
+                  done
+                  for d in lib share; do
+                    if [ -d ${myUnwrapped}/$d ]; then
+                      cp -r ${myUnwrapped}/$d $out/
+                    fi
+                  done
                 '';
                 passthru = old.passthru // {
                   unwrapped = myUnwrapped;

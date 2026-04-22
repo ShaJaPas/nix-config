@@ -33,6 +33,8 @@ in
     plugins = {
       dankBatteryAlerts.enable = true;
       dockerManager.enable = true;
+      amdGpuMonitorRevive.enable = true;
+      powerUsagePlugin.enable = true;
       networkDownloadMonitor = {
         enable = true;
         src = ./plugins/networkDownloadMonitor;
@@ -103,6 +105,7 @@ in
     gtk3
     pavucontrol
     xwayland-satellite
+    amdgpu_top
   ];
 
   xdg.configFile = {
