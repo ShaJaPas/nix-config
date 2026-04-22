@@ -33,6 +33,14 @@ in
     plugins = {
       dankBatteryAlerts.enable = true;
       dockerManager.enable = true;
+      networkDownloadMonitor = {
+        enable = true;
+        src = ./plugins/networkDownloadMonitor;
+      };
+      singBoxManager = {
+        enable = true;
+        src = ./plugins/singBoxManager;
+      };
     };
     quickshell.package = pkgs.quickshell;
   };
@@ -98,7 +106,6 @@ in
   ];
 
   xdg.configFile = {
-    "DankMaterialShell/plugins/networkDownloadMonitor".source = ./plugins/networkDownloadMonitor;
     "niri/config.kdl".text = ''
 
       include "dms/outputs.kdl"

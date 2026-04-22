@@ -1,0 +1,13 @@
+{
+    "id": "singBoxManager",
+    "name": "Sing-box",
+    "description": "Manage sing-box proxy: import connection URLs, start/stop profiles, route apps through proxy",
+    "version": "1.0.0",
+    "author": "Custom",
+    "type": "widget",
+    "capabilities": ["control-center-widget"],
+    "component": "./SingBoxWidget.qml",
+    "icon": "vpn_key",
+    "requires": ["sing-box", "jq", "python3"],
+    "permissions": ["settings_read", "settings_write"]
+}

@@ -126,7 +126,7 @@
       "width": 50
     },
     {
-      "id": "darkMode",
+      "id": "plugin_singBoxManager",
       "enabled": true,
       "width": 50
     }
