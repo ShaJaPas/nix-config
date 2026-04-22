@@ -91,6 +91,25 @@
 
               vendorHash = "sha256-rsT9CPLNQa+gTYySoGrVyV3f74huYKfjD+N6VOXzg8Q=";
             };
+
+            quickshell =
+              let
+                qs = super.callPackage "${inputs.quickshell}/default.nix" {
+                  gitRev = inputs.quickshell.shortRev or "unknown";
+                };
+                myUnwrapped = qs.passthru.unwrapped.overrideAttrs (old: {
+                  patches = (old.patches or [ ]) ++ [ ./patches/quickshell-icon-path.patch ];
+                });
+              in
+              qs.overrideAttrs (old: {
+                installPhase = ''
+                  mkdir -p $out
+                  cp -r ${myUnwrapped}/* $out
+                '';
+                passthru = old.passthru // {
+                  unwrapped = myUnwrapped;
+                };
+              });
           })
         ];
       };
@@ -187,7 +206,10 @@
         jovian.follows = "";
       };
     };
+    quickshell.url = "git+https://git.outfoxxed.me/quickshell/quickshell";
+
     dms.url = "github:AvengeMedia/DankMaterialShell";
+    dms.inputs.quickshell.follows = "quickshell";
     dms-plugin-registry.url = "github:AvengeMedia/dms-plugin-registry";
 
     #yandex-browser.url = "github:Teu5us/nix-yandex-browser";

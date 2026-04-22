@@ -34,6 +34,7 @@ in
       dankBatteryAlerts.enable = true;
       dockerManager.enable = true;
     };
+    quickshell.package = pkgs.quickshell;
   };
 
   gtk = {

@@ -1,0 +1,42 @@
+--- a/src/core/iconimageprovider.cpp
++++ b/src/core/iconimageprovider.cpp
+@@ -8,6 +8,8 @@
+ #include <qpixmap.h>
+ #include <qsize.h>
+ #include <qstring.h>
++#include <QFile>
++#include <QDirIterator>
+ 
+ QPixmap
+ IconImageProvider::requestPixmap(const QString& id, QSize* size, const QSize& requestedSize) {
+@@ -19,7 +21,14 @@
+ 	if (splitIdx != -1) {
+ 		iconName = id.sliced(0, splitIdx);
+ 		path = id.sliced(splitIdx + 6);
+-		path = QString("/%1/%2").arg(path, iconName.sliced(iconName.lastIndexOf('/') + 1));
++		QString basePath = path;
++		path = QString("/%1/%2").arg(basePath, iconName.sliced(iconName.lastIndexOf('/') + 1));
++		if (!QFile::exists(path)) {
++			QDirIterator it(basePath, QStringList() << (iconName + ".*"), QDir::Files, QDirIterator::Subdirectories);
++			if (it.hasNext()) {
++				path = it.next();
++			}
++		}
+ 	} else {
+ 		splitIdx = id.indexOf("?fallback=");
+ 		if (splitIdx != -1) {
+@@ -32,6 +41,14 @@
+ 
+ 	auto icon = QIcon::fromTheme(iconName);
+ 	if (icon.isNull() && !fallbackName.isEmpty()) icon = QIcon::fromTheme(fallbackName);
++    if (icon.isNull() && iconName.endsWith("-symbolic")) {
++        icon = QIcon::fromTheme(iconName.chopped(9));
++    }
++    if (icon.isNull() && iconName.contains("telegram")) {
++        icon = QIcon::fromTheme("telegram-panel");
++        if (icon.isNull()) icon = QIcon::fromTheme("telegram");
++        if (icon.isNull()) icon = QIcon::fromTheme("org.telegram.desktop");
++    }
+ 	if (icon.isNull() && !path.isEmpty()) icon = QPixmap(path);
+ 
+ 	auto targetSize = requestedSize.isValid() ? requestedSize : QSize(100, 100);
