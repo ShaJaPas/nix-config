@@ -19,6 +19,35 @@ in
     size = 24;
   };
 
+  services.kanshi = {
+    enable = true;
+
+    profiles = {
+      undocked = {
+        outputs = [
+          {
+            criteria = "eDP-1";
+            scale = 1.0;
+            status = "enable";
+          }
+        ];
+      };
+
+      home_office = {
+        outputs = [
+          {
+            criteria = "HDMI-A-1";
+            position = "0,0";
+          }
+          {
+            criteria = "eDP-1";
+            status = "disable";
+          }
+        ];
+      };
+    };
+  };
+
   programs.dank-material-shell = {
     enable = true;
     systemd.enable = true;
