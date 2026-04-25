@@ -71,6 +71,24 @@
           allowUnfreePredicate = _: true;
         };
         overlays = [
+          (final: prev: {
+            lutris = prev.lutris.override {
+              lutris-unwrapped = prev.lutris-unwrapped.overrideAttrs (old: {
+                makeWrapperArgs = (old.makeWrapperArgs or [ ]) ++ [
+                  "--prefix"
+                  "PATH"
+                  ":"
+                  "${prev.writeShellScriptBin "xdg-open" ''
+                    unset LD_LIBRARY_PATH
+                    unset LD_PRELOAD
+                    unset WINEDLLOVERRIDES
+                    exec ${prev.systemd}/bin/systemd-run --user --quiet ${prev.xdg-utils}/bin/xdg-open "$@"
+                  ''}/bin"
+                ];
+              });
+            };
+          })
+
           (_: super: {
             dunst = super.dunst.overrideAttrs (oldAttrs: {
               patches = (oldAttrs.patches or [ ]) ++ [
