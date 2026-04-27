@@ -295,7 +295,7 @@ case "$cmd" in
         fi
 
         case "$proto" in
-            vless)
+             vless)
                 uuid="${rest%%@*}"
                 hostport="${rest#*@}"
                 host="${hostport%%:*}"
@@ -310,6 +310,7 @@ case "$cmd" in
                 svc=$(get_param "$params"      "serviceName")
                 wspath=$(get_param "$params"   "path")
                 wshost=$(get_param "$params"   "host")
+                flow=$(get_param "$params"     "flow")
                 [[ -z "$name" ]] && name="vless-$(date +%s)"
 
                 jq -n \
@@ -318,6 +319,7 @@ case "$cmd" in
                     --arg security "$security" --arg ttype "$ttype" \
                     --arg sni "$sni" --arg pbk "$pbk" --arg sid "$sid" --arg fp "$fp" \
                     --arg svc "$svc" --arg wspath "$wspath" --arg wshost "$wshost" \
+                    --arg flow "$flow" \
                     '
                     (if $security == "reality" then {
                         "tls": {
@@ -335,18 +337,19 @@ case "$cmd" in
                      else {} end) as $transport |
                     {
                         "log": {"level": "info", "timestamp": true},
-                        "inbounds": [{"type":"tun","tag":"tun-in","address":"172.19.0.1/30",
+                        "inbounds":[{"type":"tun","tag":"tun-in","address":"172.19.0.1/30",
                             "stack":"mixed","auto_route":true}],
-                        "outbounds": [
+                        "outbounds":[
                             ({"type":"vless","tag":"proxy","server":$server,
                               "server_port":$port,"uuid":$uuid,"packet_encoding":"xudp"}
+                             + (if $flow != "" then {"flow": $flow} else {} end) # <-- Добавление flow в JSON конфиг
                              + $tls + $transport),
                             {"type":"direct","tag":"direct"},
                             {"type":"block","tag":"block"}
                         ],
                         "route": {
                             "auto_detect_interface": true,
-                            "rules": [
+                            "rules":[
                                 {"ip_is_private": true, "outbound": "direct"},
                                 {"inbound": "tun-in", "outbound": "proxy"}
                             ]
@@ -364,31 +367,38 @@ case "$cmd" in
                 obfs_type=$(get_param "$params" "obfs")
                 obfs_pass=$(get_param "$params" "obfs-password")
                 sni=$(get_param "$params" "sni")
+                
+                ech=$(get_param "$params" "ech")
+                alpn=$(get_param "$params" "alpn")
+                
                 [[ -z "$name" ]] && name="hysteria2-$(date +%s)"
 
                 jq -n \
                     --arg password "$password" --arg server "$host" \
                     --argjson port "$(echo "$port" | grep -oE '[0-9]+' | head -1 || echo 443)" \
-                    --argjson insecure "$([ "$insecure" = "1" ] && echo true || echo false)" \
+                    --argjson insecure "$([ "$insecure" = "0" ] && echo false || echo true)" \
                     --arg obfs_type "$obfs_type" --arg obfs_pass "$obfs_pass" --arg sni "$sni" \
+                    --arg ech "$ech" --arg alpn "$alpn" \
                     '
                     (if $obfs_type != "" then {"obfs": {"type": $obfs_type, "password": $obfs_pass}} else {} end) as $obfs |
+                    (if $ech != "" then {"ech": {"enabled": true, "config":["-----BEGIN ECH CONFIGS-----\n" + $ech + "\n-----END ECH CONFIGS-----"]}} else {} end) as $ech_obj |
+                    (if $alpn != "" then {"alpn": ($alpn | split(","))} else {} end) as $alpn_obj |
                     {
                         "log": {"level": "info", "timestamp": true},
-                        "inbounds": [{"type":"tun","tag":"tun-in","address":"172.19.0.1/30",
+                        "inbounds":[{"type":"tun","tag":"tun-in","address":"172.19.0.1/30",
                             "stack":"mixed","auto_route":true}],
-                        "outbounds": [
+                        "outbounds":[
                             ({"type":"hysteria2","tag":"proxy","server":$server,
                               "server_port":$port,"password":$password,
-                              "tls":{"enabled":true,"insecure":$insecure,
-                                     "server_name":(if $sni != "" then $sni else null end)}}
+                              "tls": ({"enabled":true,"insecure":$insecure,
+                                     "server_name":(if $sni != "" then $sni else null end)} + $ech_obj + $alpn_obj)}
                              + $obfs),
                             {"type":"direct","tag":"direct"},
                             {"type":"block","tag":"block"}
                         ],
                         "route": {
                             "auto_detect_interface": true,
-                            "rules": [
+                            "rules":[
                                 {"ip_is_private": true, "outbound": "direct"},
                                 {"inbound": "tun-in", "outbound": "proxy"}
                             ]
@@ -541,6 +551,8 @@ case "$cmd" in
         app_dirs+=("$xdg_home/applications")
         # NixOS user profile (most user apps live here)
         app_dirs+=("$HOME/.nix-profile/share/applications")
+        app_dirs+=("$HOME/.local/state/nix/profiles/home-manager/home-path/share/applications")
+        app_dirs+=("$HOME/.local/state/nix/profiles/profile/share/applications")
         # System-wide paths
         app_dirs+=("/run/current-system/sw/share/applications")
         app_dirs+=("/etc/profiles/per-user/$USER/share/applications")
