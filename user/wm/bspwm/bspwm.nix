@@ -1,4 +1,5 @@
 {
+  config,
   userSettings,
   pkgs,
   lib,
@@ -16,6 +17,7 @@ in
   ];
 
   home.pointerCursor = {
+    enable = true;
     name = "Adwaita";
     package = pkgs.adwaita-icon-theme;
     size = 24;
@@ -41,6 +43,7 @@ in
       package = pkgs.adwaita-icon-theme;
       size = 24;
     };
+    gtk4.theme = config.gtk.theme;
 
     gtk3.extraConfig = {
       Settings = ''

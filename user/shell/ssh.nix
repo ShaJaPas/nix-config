@@ -2,9 +2,9 @@ _: {
   programs.ssh = {
     enable = true;
     enableDefaultConfig = false;
-    matchBlocks."*" = {
-      sendEnv = [ "TERM" ];
-      setEnv = {
+    settings."*" = {
+      SendEnv = [ "TERM" ];
+      SetEnv = {
         TERM = "xterm-256color";
       };
     };

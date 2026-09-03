@@ -4,6 +4,7 @@
   systemSettings,
   workSettings,
   personalSettings,
+  config,
   ...
 }:
 {
@@ -47,6 +48,7 @@
     kernelModules = [
       "cpufreq_powersave"
       "i2c-dev"
+      "v4l2loopback"
     ];
     #boot.kernelPackages = inputs.chaotic.legacyPackages.x86_64-linux.linuxPackages_cachyos;
     kernelPackages = pkgs.linuxPackages_latest;

@@ -1,4 +1,5 @@
 {
+  config,
   userSettings,
   pkgs,
   lib,
@@ -12,8 +13,9 @@ let
   };
 in
 {
-  imports = [ inputs.dms-plugin-registry.modules.default ];
+  imports = [ inputs.dms-plugin-registry.homeModules.default ];
   home.pointerCursor = {
+    enable = true;
     name = "Adwaita";
     package = pkgs.adwaita-icon-theme;
     size = 24;
@@ -22,19 +24,20 @@ in
   services.kanshi = {
     enable = true;
 
-    profiles = {
-      undocked = {
-        outputs = [
+    settings = [
+      {
+        profile.name = "undocked";
+        profile.outputs = [
           {
             criteria = "eDP-1";
             scale = 1.0;
             status = "enable";
           }
         ];
-      };
-
-      home_office = {
-        outputs = [
+      }
+      {
+        profile.name = "home_office";
+        profile.outputs = [
           {
             criteria = "HDMI-A-1";
             position = "0,0";
@@ -44,8 +47,8 @@ in
             status = "disable";
           }
         ];
-      };
-    };
+      }
+    ];
   };
 
   programs.dank-material-shell = {
@@ -96,6 +99,7 @@ in
       package = pkgs.adwaita-icon-theme;
       size = 24;
     };
+    gtk4.theme = config.gtk.theme;
 
     gtk3.extraConfig = {
       Settings = ''
@@ -183,12 +187,10 @@ in
             window-open { spring damping-ratio=0.8 stiffness=1000 epsilon=0.0001; }
             window-close { spring damping-ratio=0.8 stiffness=1000 epsilon=0.0001; }
         }
-
-        spawn-at-startup "dms"
         
         spawn-at-startup "bash" "-c" "dms ipc call wallpaper set ${wallpaper}"
         
-      window-rule {
+        window-rule {
             match app-id="steam"
             open-floating true
         }

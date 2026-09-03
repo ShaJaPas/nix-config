@@ -25,6 +25,7 @@
     })
     socat
     busybox
+    gh
 
     # rust
     cargo
@@ -33,6 +34,8 @@
     cargo-expand
     cargo-flamegraph
     cargo-llvm-cov
+    cargo-c
+    cargo-udeps
     cargo-msrv
     cargo-sort
     cargo-watch
