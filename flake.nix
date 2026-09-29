@@ -1,6 +1,14 @@
 {
   description = "Flake";
 
+  nixConfig = {
+    extra-substituters = [
+      "https://nyx-cache.chaotic.cx"
+    ];
+    extra-trusted-public-keys = [
+      "nyx-cache.chaotic.cx:dJxTrgMC3V3cFfyIiBQDQorG6k1LsqurH/srpMSq7qk="
+    ];
+  };
   outputs =
     inputs:
     let
@@ -71,7 +79,7 @@
           allowUnfreePredicate = _: true;
         };
         overlays = [
-          (final: prev: {
+          (_: prev: {
             lutris = prev.lutris.override {
               lutris-unwrapped = prev.lutris-unwrapped.overrideAttrs (old: {
                 makeWrapperArgs = (old.makeWrapperArgs or [ ]) ++ [
@@ -211,6 +219,7 @@
               }
             )
             inputs.dms.nixosModules.default
+            inputs.chaotic.nixosModules.default
           ];
           specialArgs = {
             # pass config variables from above
@@ -235,13 +244,11 @@
       inputs = {
         home-manager.follows = "";
         flake-schemas.follows = "";
-        jovian.follows = "";
       };
     };
     quickshell.url = "git+https://git.outfoxxed.me/quickshell/quickshell";
 
     dms.url = "github:AvengeMedia/DankMaterialShell";
-    dms.inputs.quickshell.follows = "quickshell";
     dms-plugin-registry.url = "github:AvengeMedia/dms-plugin-registry";
 
     #yandex-browser.url = "github:Teu5us/nix-yandex-browser";

@@ -4,10 +4,27 @@
   systemSettings,
   workSettings,
   personalSettings,
-  config,
+  inputs,
   ...
 }:
 {
+  nix = {
+    nixPath = [ "nixpkgs=${inputs.nixpkgs}" ];
+
+    extraOptions = ''
+      experimental-features = nix-command flakes
+    '';
+
+    settings = {
+      trusted-users = [
+        "root"
+        "@wheel"
+      ];
+      accept-flake-config = true;
+      auto-optimise-store = true;
+    };
+  };
+
   imports = [
     ../../system/hardware-configuration.nix
     ../../system/hardware/systemd.nix # systemd config
@@ -26,21 +43,6 @@
     ../../system/security/automount.nix
   ];
 
-  # Fix nix path
-  nix = {
-    nixPath = [
-      "nixpkgs=/nix/var/nix/profiles/per-user/root/channels/nixos"
-      "nixos-config=$HOME/nix-config/system/configuration.nix"
-      "/nix/var/nix/profiles/per-user/root/channels"
-    ];
-    # Ensure nix flakes are enabled
-    extraOptions = ''
-      experimental-features = nix-command flakes
-    '';
-    # wheel group gets trusted access to nix daemon
-    settings.trusted-users = [ "@wheel" ];
-  };
-
   nixpkgs.config.allowUnfree = true;
 
   boot = {
@@ -50,11 +52,22 @@
       "i2c-dev"
       "v4l2loopback"
     ];
-    #boot.kernelPackages = inputs.chaotic.legacyPackages.x86_64-linux.linuxPackages_cachyos;
-    kernelPackages = pkgs.linuxPackages_latest;
+    kernelParams = [
+      "tsc=reliable"
+      "clocksource=tsc"
+      "tsc=nowatchdog"
+      "amd_pstate=active"
+      "amdgpu.modeset=1"
+    ];
+    kernelPackages = inputs.chaotic.legacyPackages.x86_64-linux.linuxPackages_cachyos;
+    #kernelPackages = pkgs.linuxPackages_latest;
     kernel.sysctl = {
       "net.core.default_qdisc" = "fq";
       "net.ipv4.tcp_congestion_control" = "bbr";
+      "vm.swappiness" = 180;
+      "vm.vfs_cache_pressure" = 50;
+      "vm.dirty_background_ratio" = 5;
+      "vm.dirty_ratio" = 10;
     };
     # Bootloader
     loader = {
@@ -166,9 +179,17 @@
     shells = with pkgs; [ fish ];
   };
 
-  hardware.enableRedistributableFirmware = true;
-  hardware.i2c.enable = true;
+  hardware = {
+    enableRedistributableFirmware = true;
+    cpu.amd.updateMicrocode = true;
+    i2c.enable = true;
+  };
 
+  zramSwap = {
+    enable = true;
+    algorithm = "zstd";
+    memoryPercent = 50;
+  };
   fonts.fontDir.enable = true;
 
   xdg.portal = {

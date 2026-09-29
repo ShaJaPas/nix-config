@@ -2,7 +2,6 @@
   config,
   userSettings,
   pkgs,
-  lib,
   inputs,
   ...
 }:
@@ -113,23 +112,6 @@ in
       '';
     };
   };
-
-  /*
-    sops.age.keyFile = "/home/${userSettings.username}/.config/sops/age/keys.txt";
-    sops.secrets =
-      let
-        secretsDir = ./sing-box-profiles;
-      in
-      lib.mapAttrs' (
-        fileName: _:
-        lib.nameValuePair "sing-box-${lib.removeSuffix ".json" fileName}" {
-          sopsFile = "${secretsDir}/${fileName}";
-          path = "/home/${userSettings.username}/.config/sing-box/${fileName}";
-          key = "";
-          format = "json";
-        }
-      ) (builtins.readDir secretsDir);
-  */
 
   home.packages = with pkgs; [
     nautilus
