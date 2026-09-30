@@ -38,7 +38,10 @@
     after = [ "user-runtime-dir@sddm.service" ];
     before = [ "display-manager.service" ];
     wantedBy = [ "multi-user.target" ];
-    serviceConfig.Type = "oneshot";
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
     script = ''
       ${pkgs.systemd}/bin/systemctl --user --machine sddm@ stop pipewire.service pipewire.socket wireplumber.service > /dev/null 2>&1 || true
       ${pkgs.systemd}/bin/systemctl --user --machine sddm@ disable pipewire.service pipewire.socket wireplumber.service > /dev/null 2>&1

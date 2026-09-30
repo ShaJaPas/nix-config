@@ -89,6 +89,7 @@
         useOSProber = false;
       };
     };
+    initrd.systemd.enable = true;
   };
 
   # Networking
@@ -101,6 +102,7 @@
         networkmanager-vpnc
         networkmanager-openconnect
       ];
+      wifi.powersave = false;
     };
     firewall.enable = false;
   };
@@ -160,7 +162,17 @@
   };
 
   programs = {
-    nix-ld.enable = true;
+    nix-ld = {
+      enable = true;
+      libraries = with pkgs; [
+        stdenv.cc.cc.lib
+        zlib
+        openssl
+        glib
+        util-linux
+        curl
+      ];
+    };
     fish.enable = true;
     gamemode.enable = true;
   };

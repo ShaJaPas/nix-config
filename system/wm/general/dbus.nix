@@ -3,7 +3,7 @@
 {
   services.dbus = {
     enable = true;
-    implementation = "dbus";
+    implementation = "broker";
     packages = [ pkgs.dconf ];
   };
 

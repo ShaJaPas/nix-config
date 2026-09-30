@@ -1,8 +1,17 @@
 _:
 
 {
-  systemd.settings.Manager = {
-    DefaultTimeoutStopSec = "10s";
+  systemd = {
+    coredump = {
+      enable = true;
+      settings.Coredump = {
+        Storage = "none";
+        ProcessSizeMax = "2G";
+      };
+    };
+    settings.Manager = {
+      DefaultTimeoutStopSec = "10s";
+    };
   };
   services.journald = {
     extraConfig = ''
