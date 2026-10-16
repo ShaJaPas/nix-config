@@ -37,8 +37,8 @@
   xdg.enable = true;
   xdg.userDirs = {
     extraConfig = {
-      XDG_GAME_DIR = "${config.home.homeDirectory}/Media/Games";
-      XDG_GAME_SAVE_DIR = "${config.home.homeDirectory}/Media/Game Saves";
+      GAME = "${config.home.homeDirectory}/Media/Games";
+      GAME_SAVE = "${config.home.homeDirectory}/Media/Game Saves";
     };
   };
 
