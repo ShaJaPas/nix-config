@@ -83,7 +83,7 @@
   };
 
   security.wrappers.sing-box = {
-    capabilities = "cap_net_admin+ep";
+    capabilities = "cap_net_admin,cap_net_raw+eip";
     source = "${pkgs.sing-box}/bin/sing-box";
     owner = "root";
     group = "root";

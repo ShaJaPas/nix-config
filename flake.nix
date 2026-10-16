@@ -177,6 +177,7 @@
             ./profiles/work/home.nix
             inputs.sops-nix.homeManagerModules.sops
             inputs.dms.homeModules.default
+            inputs.nix-craftapps.homeManagerModules.default
           ];
           extraSpecialArgs = {
             # pass config variables from above
@@ -192,6 +193,7 @@
             ./profiles/personal/home.nix
             inputs.sops-nix.homeManagerModules.sops
             inputs.dms.homeModules.default
+            inputs.nix-craftapps.homeManagerModules.default
           ];
           extraSpecialArgs = {
             # pass config variables from above
@@ -245,6 +247,10 @@
         home-manager.follows = "";
         flake-schemas.follows = "";
       };
+    };
+    nix-craftapps = {
+      url = "github:olafkfreund/nix-craftapps";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     quickshell.url = "git+https://git.outfoxxed.me/quickshell/quickshell";
 

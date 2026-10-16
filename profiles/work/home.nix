@@ -22,20 +22,18 @@
       wireshark
       bloomrpc
       gnome-sound-recorder
-      onlyoffice-desktopeditors
-      evince
       telegram-desktop
       htop
       pkgs.code-cursor
       openssl
       ffmpeg
-      pinta
       obsidian
       eog
       file-roller
       thunderbird
       ansible
     ];
+
     sessionVariables = {
       BSPWM_SOCKET = "/tmp/bspwm-${userSettings.username}.sock";
       EDITOR = userSettings.editor;
@@ -51,6 +49,14 @@
 
   programs.home-manager.enable = true;
 
+  programs.craftapps = {
+    enable = true;
+    apps.photocraft.enable = true;
+    apps.wordcraft.enable = true;
+    apps.pdfcraft.enable = true;
+    apps.gridcraft.enable = true;
+    apps.deckcraft.enable = true;
+  };
   imports = [
     (./. + "../../../user/wm" + ("/" + systemSettings.wm + "/" + systemSettings.wm) + ".nix") # My window manager selected from flake
     ../../user/shell/sh.nix # My fish and bash config

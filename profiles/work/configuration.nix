@@ -187,6 +187,8 @@
       wpa_supplicant
       gparted
       perf
+      kdiskmark
+      qdiskinfo
     ];
     shells = with pkgs; [ fish ];
   };

@@ -1,6 +1,5 @@
 { config, userSettings, ... }:
 {
-
   xdg = {
     enable = true;
     userDirs = {
@@ -23,25 +22,37 @@
 
     mimeApps = {
       enable = true;
+
       associations.added = {
         "inode/directory" = [ "org.gnome.Nautilus.desktop" ];
-        "application/pdf" = [ "org.gnome.Evince.desktop" ];
-        "application/postscript" = [ "org.gnome.Evince.desktop" ];
-        "image/vnd.djvu" = [ "org.gnome.Evince.desktop" ];
+
+        "application/pdf" = [ "ai.storyteller.pdfcraft.desktop" ];
+        "application/postscript" = [ "ai.storyteller.pdfcraft.desktop" ];
 
         "text/plain" = [ "${userSettings.editor}.desktop" ];
         "application/json" = [ "${userSettings.editor}.desktop" ];
         "application/javascript" = [ "${userSettings.editor}.desktop" ];
         "application/x-sh" = [ "${userSettings.editor}.desktop" ];
-
         "text/markdown" = [ "${userSettings.editor}.desktop" ];
 
-        "image/jpeg" = [ "org.gnome.eog.desktop" ];
-        "image/png" = [ "org.gnome.eog.desktop" ];
+        "image/jpeg" = [
+          "org.gnome.eog.desktop"
+          "ai.storyteller.photocraft.desktop"
+        ];
+        "image/png" = [
+          "org.gnome.eog.desktop"
+          "ai.storyteller.photocraft.desktop"
+        ];
         "image/gif" = [ "org.gnome.eog.desktop" ];
-        "image/bmp" = [ "org.gnome.eog.desktop" ];
+        "image/bmp" = [
+          "org.gnome.eog.desktop"
+          "ai.storyteller.photocraft.desktop"
+        ];
         "image/svg+xml" = [ "org.gnome.eog.desktop" ];
-        "image/webp" = [ "org.gnome.eog.desktop" ];
+        "image/webp" = [
+          "org.gnome.eog.desktop"
+          "ai.storyteller.photocraft.desktop"
+        ];
 
         "text/html" = [ "${userSettings.browser}.desktop" ];
         "text/xml" = [ "${userSettings.browser}.desktop" ];
@@ -58,23 +69,28 @@
         "video/x-matroska" = [ "${userSettings.browser}.desktop" ];
 
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document" = [
-          "onlyoffice-desktopeditors.desktop"
+          "ai.storyteller.wordcraft.desktop"
         ];
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" = [
-          "onlyoffice-desktopeditors.desktop"
-        ];
-        "application/vnd.openxmlformats-officedocument.presentationml.presentation" = [
-          "onlyoffice-desktopeditors.desktop"
-        ];
-        "application/vnd.oasis.opendocument.text" = [ "onlyoffice-desktopeditors.desktop" ];
-        "application/vnd.oasis.opendocument.spreadsheet" = [ "onlyoffice-desktopeditors.desktop" ];
-        "application/vnd.oasis.opendocument.presentation" = [ "onlyoffice-desktopeditors.desktop" ];
-        "application/msword" = [ "onlyoffice-desktopeditors.desktop" ];
-        "application/vnd.ms-excel" = [ "onlyoffice-desktopeditors.desktop" ];
-        "application/vnd.ms-powerpoint" = [ "onlyoffice-desktopeditors.desktop" ];
-        "text/csv" = [ "onlyoffice-desktopeditors.desktop" ];
+        "application/msword" = [ "ai.storyteller.wordcraft.desktop" ];
+        "application/vnd.oasis.opendocument.text" = [ "ai.storyteller.wordcraft.desktop" ];
 
-        # Archive formats for File Roller
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" = [
+          "ai.storyteller.gridcraft.desktop"
+        ];
+        "application/vnd.ms-excel" = [ "ai.storyteller.gridcraft.desktop" ];
+        "application/vnd.oasis.opendocument.spreadsheet" = [ "ai.storyteller.gridcraft.desktop" ];
+        "text/csv" = [ "ai.storyteller.gridcraft.desktop" ];
+
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation" = [
+          "ai.storyteller.deckcraft.desktop"
+        ];
+        "application/vnd.ms-powerpoint" = [
+          "ai.storyteller.deckcraft.desktop"
+        ];
+        "application/vnd.oasis.opendocument.presentation" = [
+          "ai.storyteller.deckcraft.desktop"
+        ];
+
         "application/zip" = [ "org.gnome.FileRoller.desktop" ];
         "application/x-zip-compressed" = [ "org.gnome.FileRoller.desktop" ];
         "application/x-rar-compressed" = [ "org.gnome.FileRoller.desktop" ];
@@ -87,17 +103,17 @@
         "application/x-bzip-compressed-tar" = [ "org.gnome.FileRoller.desktop" ];
         "application/x-xz-compressed-tar" = [ "org.gnome.FileRoller.desktop" ];
       };
+
       defaultApplications = {
         "inode/directory" = [ "org.gnome.Nautilus.desktop" ];
-        "application/pdf" = [ "org.gnome.Evince.desktop" ];
-        "application/postscript" = [ "org.gnome.Evince.desktop" ];
-        "image/vnd.djvu" = [ "org.gnome.Evince.desktop" ];
+
+        "application/pdf" = [ "ai.storyteller.pdfcraft.desktop" ];
+        "application/postscript" = [ "ai.storyteller.pdfcraft.desktop" ];
 
         "text/plain" = [ "${userSettings.editor}.desktop" ];
         "application/json" = [ "${userSettings.editor}.desktop" ];
         "application/javascript" = [ "${userSettings.editor}.desktop" ];
         "application/x-sh" = [ "${userSettings.editor}.desktop" ];
-
         "text/markdown" = [ "${userSettings.editor}.desktop" ];
 
         "image/jpeg" = [ "org.gnome.eog.desktop" ];
@@ -122,23 +138,27 @@
         "video/x-matroska" = [ "${userSettings.browser}.desktop" ];
 
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document" = [
-          "onlyoffice-desktopeditors.desktop"
+          "ai.storyteller.wordcraft.desktop"
         ];
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" = [
-          "onlyoffice-desktopeditors.desktop"
-        ];
-        "application/vnd.openxmlformats-officedocument.presentationml.presentation" = [
-          "onlyoffice-desktopeditors.desktop"
-        ];
-        "application/vnd.oasis.opendocument.text" = [ "onlyoffice-desktopeditors.desktop" ];
-        "application/vnd.oasis.opendocument.spreadsheet" = [ "onlyoffice-desktopeditors.desktop" ];
-        "application/vnd.oasis.opendocument.presentation" = [ "onlyoffice-desktopeditors.desktop" ];
-        "application/msword" = [ "onlyoffice-desktopeditors.desktop" ];
-        "application/vnd.ms-excel" = [ "onlyoffice-desktopeditors.desktop" ];
-        "application/vnd.ms-powerpoint" = [ "onlyoffice-desktopeditors.desktop" ];
-        "text/csv" = [ "onlyoffice-desktopeditors.desktop" ];
+        "application/msword" = [ "ai.storyteller.wordcraft.desktop" ];
+        "application/vnd.oasis.opendocument.text" = [ "ai.storyteller.wordcraft.desktop" ];
 
-        # Archive formats for File Roller
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" = [
+          "ai.storyteller.gridcraft.desktop"
+        ];
+        "application/vnd.ms-excel" = [ "ai.storyteller.gridcraft.desktop" ];
+        "application/vnd.oasis.opendocument.spreadsheet" = [ "ai.storyteller.gridcraft.desktop" ];
+        "text/csv" = [ "ai.storyteller.gridcraft.desktop" ];
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation" = [
+          "ai.storyteller.deckcraft.desktop"
+        ];
+        "application/vnd.ms-powerpoint" = [
+          "ai.storyteller.deckcraft.desktop"
+        ];
+        "application/vnd.oasis.opendocument.presentation" = [
+          "ai.storyteller.deckcraft.desktop"
+        ];
+
         "application/zip" = [ "org.gnome.FileRoller.desktop" ];
         "application/x-zip-compressed" = [ "org.gnome.FileRoller.desktop" ];
         "application/x-rar-compressed" = [ "org.gnome.FileRoller.desktop" ];
