@@ -139,6 +139,10 @@ in
                 dwt
                 natural-scroll
             }
+            mouse {
+                accel-profile "flat"
+                accel-speed 0.2
+            }
         }
 
         gestures {
