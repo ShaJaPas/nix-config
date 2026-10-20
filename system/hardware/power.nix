@@ -3,6 +3,12 @@ _:
 {
   services.power-profiles-daemon.enable = true;
 
+  # ALC255 codec fails to wake from runtime suspend (azx_get_response timeout),
+  # after which the driver falls back to single_cmd mode and jack detection stops working.
+  boot.extraModprobeConfig = ''
+    options snd_hda_intel power_save=0 power_save_controller=N
+  '';
+
   services.tlp = {
     enable = false;
     settings = {
