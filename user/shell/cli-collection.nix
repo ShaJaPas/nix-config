@@ -1,10 +1,10 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 {
   # Collection of useful CLI apps
   home.packages = with pkgs; [
     # Command Line
     fastfetch
-    killall
+    psmisc # killall, fuser, pstree
     tokei
     eza
     bat
@@ -24,7 +24,12 @@
       c-aresSupport = true;
     })
     socat
-    busybox
+    nettools # ifconfig, netstat, arp, route
+    (lib.lowPrio inetutils) # telnet, traceroute, whois
+    pciutils
+    unzip
+    xxd
+    dpkg
     gh
 
     # rust

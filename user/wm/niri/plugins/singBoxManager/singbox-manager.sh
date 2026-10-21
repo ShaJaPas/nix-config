@@ -12,6 +12,7 @@ TMP_CONFIG="$RUNTIME_DIR/active_config.json"
 # Persistent data dir for app selections
 DATA_DIR="$HOME/.local/share/singBoxManager"
 APPS_DIR="$DATA_DIR/apps"
+LAST_FILE="$DATA_DIR/last"
 
 mkdir -p "$RUNTIME_DIR" "$APPS_DIR" "$SING_BOX_DIR"
 
@@ -260,7 +261,21 @@ case "$cmd" in
 
         local_pid=$!
         printf '%s\n%s\n' "$local_pid" "$config_path" > "$PID_FILE"
+        printf '%s\n' "$config_path" > "$LAST_FILE"
         echo "started:${local_pid}"
+        ;;
+
+    # ── start-last ────────────────────────────────────────────────────────────
+    start-last)
+        last=$(cat "$LAST_FILE" 2>/dev/null || true)
+        if [[ -z "$last" || ! -r "$last" ]]; then
+            last=""
+            for f in "$SING_BOX_DIR"/*.json; do
+                [[ -r "$f" ]] && { last="$f"; break; }
+            done
+        fi
+        [[ -z "$last" ]] && { echo "error:No sing-box profiles" >&2; exit 1; }
+        exec bash "$0" start "$last"
         ;;
 
     # ── stop ──────────────────────────────────────────────────────────────────

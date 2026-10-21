@@ -148,14 +148,33 @@ PluginComponent {
     ccWidgetSecondaryText: isRunning ? (activeName || "Running") : "Disconnected"
     ccWidgetIsActive:      isRunning
 
-    onCcWidgetToggled: {
-        if (isRunning) {
-            stopAll()
-        } else {
-            const active = profiles.find(p => p.isActive)
-            const target = active || (profiles.length > 0 ? profiles[0] : null)
-            if (target) startConfig(target.path)
+    // The script picks the last started profile itself: `profiles` may be stale here
+    Process {
+        id: _startLastProc
+        command: ["bash", root._script, "start-last"]
+        stdout: SplitParser {
+            onRead: function(line) {
+                if (line.startsWith("started:")) {
+                    root.isRunning = true
+                    ToastService.showInfo("Sing-box", "Connected")
+                    _statusProc.running = true
+                }
+            }
         }
+        stderr: SplitParser {
+            onRead: function(line) {
+                if (line.startsWith("error:"))
+                    ToastService.showError("Sing-box", line.substring(6))
+            }
+        }
+        onExited: function(_) { _startLastProc.running = false; root.refreshProfiles() }
+    }
+
+    onCcWidgetToggled: {
+        if (isRunning)
+            stopAll()
+        else
+            _startLastProc.running = true
     }
 
     // ══════════════════════════════════════════════════════════════════════
