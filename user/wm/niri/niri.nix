@@ -10,6 +10,15 @@ let
   wallpaper = "${config.home.homeDirectory}/Pictures/Wallpapers/wallpaper.jpg";
   dms = lib.getExe config.programs.dank-material-shell.package;
   jq = lib.getExe pkgs.jq;
+  # Scale built-in panels so the logical width is 1920px, i.e. the UI looks like on a Full HD laptop
+  scaleInternalToFullHD = pkgs.writeShellScript "scale-internal-to-fullhd" ''
+    niri msg --json outputs \
+      | ${jq} -r 'to_entries[] | select(.key | startswith("eDP")) | select(.value.current_mode != null)
+          | "\(.key) \(.value.modes[.value.current_mode].width)"' \
+      | while read -r name width; do
+          niri msg output "$name" scale "$(${lib.getExe pkgs.gawk} -v w="$width" 'BEGIN { s = w / 1920; printf "%.6f", (s < 1 ? 1 : s) }')"
+        done
+  '';
 in
 {
   imports = [ inputs.dms-plugin-registry.homeModules.default ];
@@ -29,10 +38,10 @@ in
         profile.outputs = [
           {
             criteria = "eDP-1";
-            scale = 1.0;
             status = "enable";
           }
         ];
+        profile.exec = [ "${scaleInternalToFullHD}" ];
       }
       {
         profile.name = "home_office";

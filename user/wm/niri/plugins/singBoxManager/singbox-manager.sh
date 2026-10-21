@@ -13,7 +13,7 @@ TMP_CONFIG="$RUNTIME_DIR/active_config.json"
 DATA_DIR="$HOME/.local/share/singBoxManager"
 APPS_DIR="$DATA_DIR/apps"
 
-mkdir -p "$RUNTIME_DIR" "$APPS_DIR"
+mkdir -p "$RUNTIME_DIR" "$APPS_DIR" "$SING_BOX_DIR"
 
 cmd="${1:-status}"
 shift 2>/dev/null || true
@@ -537,7 +537,11 @@ case "$cmd" in
             [[ -z "$safe_name" ]] && safe_name="${proto}-$(date +%s)"
             out_path="$SING_BOX_DIR/${safe_name}.json"
             # Read stdin into the file
-            jq '.' > "$out_path"
+            if ! jq '.' > "$out_path"; then
+                rm -f "$out_path"
+                echo "error:Failed to write $out_path" >&2
+                exit 1
+            fi
             printf 'imported:%s\t%s\n' "$name" "$out_path"
         )
         ;;
