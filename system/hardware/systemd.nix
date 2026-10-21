@@ -1,7 +1,10 @@
 _:
 
 {
-  services.logind.settings.Login.KillUserProcesses = true;
+  services.logind.settings.Login = {
+    KillUserProcesses = true;
+    UserStopDelaySec = 0;
+  };
   systemd = {
     coredump = {
       enable = true;
