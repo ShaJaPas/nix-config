@@ -1,12 +1,15 @@
 {
   config,
+  lib,
   userSettings,
   pkgs,
   inputs,
   ...
 }:
 let
-  wallpaper = ../wallpaper.jpg;
+  wallpaper = "${config.home.homeDirectory}/Pictures/Wallpapers/wallpaper.jpg";
+  dms = lib.getExe config.programs.dank-material-shell.package;
+  jq = lib.getExe pkgs.jq;
 in
 {
   imports = [ inputs.dms-plugin-registry.homeModules.default ];
@@ -58,11 +61,27 @@ in
     enableCalendarEvents = true; # Calendar integration (khal)
     enableClipboardPaste = true; # Pasting from the clipboard history (wtype)
     settings = builtins.fromJSON (builtins.readFile ./dms-settings.json);
+    managePluginSettings = true;
     plugins = {
       dankBatteryAlerts.enable = true;
-      dockerManager.enable = true;
-      amdGpuMonitorRevive.enable = true;
-      powerUsagePlugin.enable = true;
+      dockerManager = {
+        enable = true;
+        settings = {
+          groupByCompose = false;
+          terminalApp = userSettings.term;
+        };
+      };
+      amdGpuMonitorRevive = {
+        enable = true;
+        settings = {
+          popoutStyle = "dms";
+          minimumWidth = false;
+        };
+      };
+      powerUsagePlugin = {
+        enable = true;
+        settings.selectedPopout = "battery";
+      };
       networkDownloadMonitor = {
         enable = true;
         src = ./plugins/networkDownloadMonitor;
@@ -116,6 +135,21 @@ in
     amdgpu_top
   ];
 
+  home.file."Pictures/Wallpapers/wallpaper.jpg".source = ../wallpaper.jpg;
+
+  home.activation.dmsWallpaper = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+    session="${config.xdg.stateHome}/DankMaterialShell/session.json"
+    current=$(${jq} -r '.wallpaperPath // empty' "$session" 2>/dev/null || true)
+    if [[ ! -v DRY_RUN && ( -z "$current" || ! -e "$current" || "$current" == /nix/store/* ) ]]; then
+      if [[ $(${dms} ipc call wallpaper set "${wallpaper}" 2>&1) != SUCCESS* ]]; then
+        mkdir -p "$(dirname "$session")"
+        [[ -s "$session" ]] || echo '{}' > "$session"
+        ${jq} --arg p "${wallpaper}" '.wallpaperPath = $p' "$session" > "$session.tmp"
+        mv "$session.tmp" "$session"
+      fi
+    fi
+  '';
+
   xdg.configFile = {
     "niri/config.kdl".text = ''
 
@@ -166,8 +200,6 @@ in
             window-open { spring damping-ratio=0.8 stiffness=1000 epsilon=0.0001; }
             window-close { spring damping-ratio=0.8 stiffness=1000 epsilon=0.0001; }
         }
-        
-        spawn-at-startup "bash" "-c" "dms ipc call wallpaper set ${wallpaper}"
         
         window-rule {
             match app-id="steam"
