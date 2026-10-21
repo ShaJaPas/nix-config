@@ -47,16 +47,23 @@
     };
   };
 
-  programs.home-manager.enable = true;
+  programs = {
+    home-manager.enable = true;
 
-  programs.craftapps = {
-    enable = true;
-    apps.photocraft.enable = true;
-    apps.wordcraft.enable = true;
-    apps.pdfcraft.enable = true;
-    apps.gridcraft.enable = true;
-    apps.deckcraft.enable = true;
+    craftapps = {
+      enable = true;
+      apps = {
+        photocraft.enable = true;
+        wordcraft.enable = true;
+        pdfcraft.enable = true;
+        gridcraft.enable = true;
+        deckcraft.enable = true;
+      };
+    };
+
+    java.enable = true;
   };
+
   imports = [
     (./. + "../../../user/wm" + ("/" + systemSettings.wm + "/" + systemSettings.wm) + ".nix") # My window manager selected from flake
     ../../user/shell/sh.nix # My fish and bash config
@@ -73,6 +80,4 @@
     ../../user/dev/python.nix # Python stuff
     ../../user/xdg/xdg.nix # XDG
   ];
-
-  programs.java.enable = true;
 }

@@ -22,11 +22,38 @@ let
 in
 {
   imports = [ inputs.dms-plugin-registry.homeModules.default ];
-  home.pointerCursor = {
-    enable = true;
-    name = "Adwaita";
-    package = pkgs.adwaita-icon-theme;
-    size = 24;
+  home = {
+    pointerCursor = {
+      enable = true;
+      name = "Adwaita";
+      package = pkgs.adwaita-icon-theme;
+      size = 24;
+    };
+
+    packages = with pkgs; [
+      nautilus
+      mission-center
+      networkmanagerapplet
+      gtk3
+      pavucontrol
+      xwayland-satellite
+      amdgpu_top
+    ];
+
+    file."Pictures/Wallpapers/wallpaper.jpg".source = ../wallpaper.jpg;
+
+    activation.dmsWallpaper = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+      session="${config.xdg.stateHome}/DankMaterialShell/session.json"
+      current=$(${jq} -r '.wallpaperPath // empty' "$session" 2>/dev/null || true)
+      if [[ ! -v DRY_RUN && ( -z "$current" || ! -e "$current" || "$current" == /nix/store/* ) ]]; then
+        if [[ $(${dms} ipc call wallpaper set "${wallpaper}" 2>&1) != SUCCESS* ]]; then
+          mkdir -p "$(dirname "$session")"
+          [[ -s "$session" ]] || echo '{}' > "$session"
+          ${jq} --arg p "${wallpaper}" '.wallpaperPath = $p' "$session" > "$session.tmp"
+          mv "$session.tmp" "$session"
+        fi
+      fi
+    '';
   };
 
   services.kanshi = {
@@ -34,27 +61,31 @@ in
 
     settings = [
       {
-        profile.name = "undocked";
-        profile.outputs = [
-          {
-            criteria = "eDP-1";
-            status = "enable";
-          }
-        ];
-        profile.exec = [ "${scaleInternalToFullHD}" ];
+        profile = {
+          name = "undocked";
+          outputs = [
+            {
+              criteria = "eDP-1";
+              status = "enable";
+            }
+          ];
+          exec = [ "${scaleInternalToFullHD}" ];
+        };
       }
       {
-        profile.name = "home_office";
-        profile.outputs = [
-          {
-            criteria = "HDMI-A-1";
-            position = "0,0";
-          }
-          {
-            criteria = "eDP-1";
-            status = "disable";
-          }
-        ];
+        profile = {
+          name = "home_office";
+          outputs = [
+            {
+              criteria = "HDMI-A-1";
+              position = "0,0";
+            }
+            {
+              criteria = "eDP-1";
+              status = "disable";
+            }
+          ];
+        };
       }
     ];
   };
@@ -133,31 +164,6 @@ in
       gtk-application-prefer-dark-theme = 1;
     };
   };
-
-  home.packages = with pkgs; [
-    nautilus
-    mission-center
-    networkmanagerapplet
-    gtk3
-    pavucontrol
-    xwayland-satellite
-    amdgpu_top
-  ];
-
-  home.file."Pictures/Wallpapers/wallpaper.jpg".source = ../wallpaper.jpg;
-
-  home.activation.dmsWallpaper = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
-    session="${config.xdg.stateHome}/DankMaterialShell/session.json"
-    current=$(${jq} -r '.wallpaperPath // empty' "$session" 2>/dev/null || true)
-    if [[ ! -v DRY_RUN && ( -z "$current" || ! -e "$current" || "$current" == /nix/store/* ) ]]; then
-      if [[ $(${dms} ipc call wallpaper set "${wallpaper}" 2>&1) != SUCCESS* ]]; then
-        mkdir -p "$(dirname "$session")"
-        [[ -s "$session" ]] || echo '{}' > "$session"
-        ${jq} --arg p "${wallpaper}" '.wallpaperPath = $p' "$session" > "$session.tmp"
-        mv "$session.tmp" "$session"
-      fi
-    fi
-  '';
 
   xdg.configFile = {
     "niri/config.kdl".text = ''
