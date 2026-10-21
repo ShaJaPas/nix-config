@@ -205,12 +205,7 @@ in
     bspc monitor -d 1 2 3 4 5 6 7 8 9
 
     # Set wallpaper
-    ${pkgs.feh}/bin/feh --bg-scale '${
-      pkgs.fetchurl {
-        url = "https://i.ytimg.com/vi/R1nvDRgQTYQ/maxresdefault.jpg";
-        hash = "sha256-qxhrwpN0azC/BBxiQ9qQHgctEBzVb5LUy5JmQoZRN3U=";
-      }
-    }' &
+    ${pkgs.feh}/bin/feh --bg-scale '${../wallpaper.jpg}' &
 
     # Launch eww bar
     eww daemon

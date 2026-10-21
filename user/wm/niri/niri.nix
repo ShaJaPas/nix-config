@@ -6,10 +6,7 @@
   ...
 }:
 let
-  wallpaper = pkgs.fetchurl {
-    url = "https://i.ytimg.com/vi/R1nvDRgQTYQ/maxresdefault.jpg";
-    hash = "sha256-qxhrwpN0azC/BBxiQ9qQHgctEBzVb5LUy5JmQoZRN3U=";
-  };
+  wallpaper = ../wallpaper.jpg;
 in
 {
   imports = [ inputs.dms-plugin-registry.homeModules.default ];
