@@ -17,6 +17,7 @@
       };
       init.defaultBranch = "master";
       core.editor = "nano";
+      credential.helper = "store";
     };
   };
 }

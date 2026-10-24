@@ -136,6 +136,12 @@ in
 
   gtk = {
     enable = true;
+    gtk3.bookmarks = [
+      "file://${config.home.homeDirectory}/Documents Documents"
+      "file://${config.home.homeDirectory}/Downloads Downloads"
+      "file://${config.home.homeDirectory}/Media/Pictures Pictures"
+      "file://${config.home.homeDirectory}/Projects Projects"
+    ];
     font = {
       name = "Cantarell";
       package = pkgs.cantarell-fonts;

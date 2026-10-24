@@ -213,11 +213,7 @@
               { lib, ... }:
               {
                 # Disable options that are ignored when using specialArgs.pkgs
-                nixpkgs = lib.mkForce {
-                  inherit pkgs;
-                  config = { };
-                  overlays = [ ];
-                };
+                nixpkgs.pkgs = pkgs;
               }
             )
             inputs.dms.nixosModules.default

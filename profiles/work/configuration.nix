@@ -43,8 +43,6 @@
     ../../system/security/automount.nix
   ];
 
-  nixpkgs.config.allowUnfree = true;
-
   boot = {
     # Kernel modules
     kernelModules = [
@@ -221,5 +219,4 @@
 
   # It is ok to leave this unchanged for compatibility purposes
   system.stateVersion = "22.11";
-
 }
