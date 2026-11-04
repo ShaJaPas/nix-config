@@ -104,7 +104,7 @@
               ];
             });
 
-            go-wrk = pkgs.buildGoModule rec {
+            go-wrk = super.buildGoModule rec {
               pname = "go-wrk";
               version = "0.10";
 
@@ -174,9 +174,11 @@
         work = home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
           modules = [
+            { nixpkgs.config.allowUnfree = true; }
             ./profiles/work/home.nix
             inputs.sops-nix.homeManagerModules.sops
             inputs.dms.homeModules.default
+            inputs.dms-plugin-registry.homeModules.default
             inputs.nix-craftapps.homeManagerModules.default
           ];
           extraSpecialArgs = {
@@ -190,9 +192,11 @@
         personal = home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
           modules = [
+            { nixpkgs.config.allowUnfree = true; }
             ./profiles/personal/home.nix
             inputs.sops-nix.homeManagerModules.sops
             inputs.dms.homeModules.default
+            inputs.dms-plugin-registry.homeModules.default
             inputs.nix-craftapps.homeManagerModules.default
           ];
           extraSpecialArgs = {
@@ -251,7 +255,10 @@
     quickshell.url = "git+https://git.outfoxxed.me/quickshell/quickshell";
 
     dms.url = "github:AvengeMedia/DankMaterialShell";
-    dms-plugin-registry.url = "github:AvengeMedia/dms-plugin-registry";
+    dms-plugin-registry = {
+      url = "github:AvengeMedia/dms-plugin-registry";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     #yandex-browser.url = "github:Teu5us/nix-yandex-browser";
     #yandex-browser.inputs.nixpkgs.follows = "nixpkgs";

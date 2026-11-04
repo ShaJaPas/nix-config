@@ -103,7 +103,6 @@ in
     settings = builtins.fromJSON (builtins.readFile ./dms-settings.json);
     managePluginSettings = true;
     plugins = {
-      dankBatteryAlerts.enable = true;
       dockerManager = {
         enable = true;
         settings = {
@@ -132,6 +131,11 @@ in
       };
     };
     quickshell.package = pkgs.quickshell;
+  };
+
+  # Temporary fix, until lutris will be updated
+  nixpkgs.config.problems.handlers = {
+    "gtk+".broken = "warn";
   };
 
   gtk = {

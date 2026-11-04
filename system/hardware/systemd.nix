@@ -18,10 +18,11 @@ _:
     };
   };
   services.journald = {
-    extraConfig = ''
-      SystemMaxUse=50M
-      SystemMaxFiles=5'';
-    rateLimitBurst = 500;
-    rateLimitInterval = "30s";
+    settings.Journal = {
+      SystemMaxUse = "50M";
+      SystemMaxFiles = 5;
+      rateLimitBurst = 500;
+      RateLimitIntervalSec = 30;
+    };
   };
 }

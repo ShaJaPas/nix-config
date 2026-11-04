@@ -1,4 +1,9 @@
-{ pkgs, lib, ... }:
+{
+  pkgs,
+  lib,
+  pkgs-stable,
+  ...
+}:
 {
   # Collection of useful CLI apps
   home.packages = with pkgs; [
@@ -38,7 +43,7 @@
     dioxus-cli
     cargo-expand
     cargo-flamegraph
-    cargo-llvm-cov
+    pkgs-stable.cargo-llvm-cov
     cargo-c
     cargo-udeps
     cargo-msrv

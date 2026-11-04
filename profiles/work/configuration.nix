@@ -87,7 +87,6 @@
         useOSProber = false;
       };
     };
-    initrd.systemd.enable = true;
   };
 
   # Networking
@@ -97,7 +96,7 @@
       # Use networkmanager
       enable = true;
       plugins = with pkgs; [
-        networkmanager-vpnc
+        networkmanager-libreswan
         networkmanager-openconnect
       ];
       wifi.powersave = false;
@@ -202,7 +201,6 @@
     algorithm = "zstd";
     memoryPercent = 50;
   };
-  fonts.fontDir.enable = true;
 
   xdg.portal = {
     enable = true;
