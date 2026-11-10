@@ -221,6 +221,7 @@
               }
             )
             inputs.dms.nixosModules.default
+            inputs.dank-greeter.nixosModules.default
             inputs.chaotic.nixosModules.default
           ];
           specialArgs = {
@@ -257,6 +258,10 @@
     dms.url = "github:AvengeMedia/DankMaterialShell";
     dms-plugin-registry = {
       url = "github:AvengeMedia/dms-plugin-registry";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    dank-greeter = {
+      url = "github:duxlabs-dev/dux-greeter";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
