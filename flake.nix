@@ -117,39 +117,6 @@
 
               vendorHash = "sha256-rsT9CPLNQa+gTYySoGrVyV3f74huYKfjD+N6VOXzg8Q=";
             };
-
-            quickshell =
-              let
-                qs = super.callPackage "${inputs.quickshell}/default.nix" {
-                  gitRev = inputs.quickshell.shortRev or "unknown";
-                };
-                myUnwrapped = qs.passthru.unwrapped.overrideAttrs (old: {
-                  patches = (old.patches or [ ]) ++ [ ./patches/quickshell-icon-path.patch ];
-                });
-              in
-              qs.overrideAttrs (old: {
-                nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ super.makeWrapper ];
-                buildInputs = (old.buildInputs or [ ]) ++ [ super.qt6.qtsvg ];
-                installPhase = ''
-                  mkdir -p $out/bin
-                  for bin in quickshell qs; do
-                    if [ -f ${myUnwrapped}/bin/$bin ]; then
-                      makeWrapper ${myUnwrapped}/bin/$bin $out/bin/$bin \
-                        --prefix QML_IMPORT_PATH : "${super.qt6.qtdeclarative}/lib/qt-6/qml" \
-                        --prefix QML_IMPORT_PATH : "${super.qt6.qt5compat}/lib/qt-6/qml" \
-                        --prefix QT_PLUGIN_PATH : "${super.qt6.qtsvg}/lib/qt-6/plugins"
-                    fi
-                  done
-                  for d in lib share; do
-                    if [ -d ${myUnwrapped}/$d ]; then
-                      cp -r ${myUnwrapped}/$d $out/
-                    fi
-                  done
-                '';
-                passthru = old.passthru // {
-                  unwrapped = myUnwrapped;
-                };
-              });
           })
         ];
       };
@@ -253,8 +220,6 @@
       url = "github:olafkfreund/nix-craftapps";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    quickshell.url = "git+https://git.outfoxxed.me/quickshell/quickshell";
-
     dms.url = "github:AvengeMedia/DankMaterialShell";
     dms-plugin-registry = {
       url = "github:AvengeMedia/dms-plugin-registry";

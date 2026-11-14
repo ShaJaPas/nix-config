@@ -130,7 +130,6 @@ in
         src = ./plugins/singBoxManager;
       };
     };
-    quickshell.package = pkgs.quickshell;
   };
 
   # Temporary fix, until lutris will be updated
