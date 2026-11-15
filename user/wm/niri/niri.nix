@@ -132,9 +132,20 @@ in
     };
   };
 
-  # Temporary fix, until lutris will be updated
-  nixpkgs.config.problems.handlers = {
-    "gtk+".broken = "warn";
+  dconf.settings = {
+    "org/gnome/desktop/interface" = {
+      color-scheme = "prefer-dark";
+      gtk-theme = "adw-gtk3";
+      icon-theme = "Tela-ubuntu-dark";
+      cursor-theme = "Adwaita";
+      cursor-size = 24;
+      font-name = "Cantarell 11";
+    };
+
+    "org/gnome/desktop/wm/preferences" = {
+      button-layout = "appmenu:";
+      theme = "adw-gtk3";
+    };
   };
 
   gtk = {
@@ -167,10 +178,12 @@ in
 
     gtk3.extraConfig = {
       gtk-application-prefer-dark-theme = 1;
+      gtk-decoration-layout = "appmenu:";
     };
 
     gtk4.extraConfig = {
       gtk-application-prefer-dark-theme = 1;
+      gtk-decoration-layout = "appmenu:";
     };
   };
 
@@ -178,6 +191,7 @@ in
     "niri/config.kdl".text = ''
 
       include "dms/outputs.kdl"
+      prefer-no-csd
 
       hotkey-overlay {
         skip-at-startup
